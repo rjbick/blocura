@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npx create-vite@latest . --template react-ts --skip-prompts)",
+      "Bash(echo:*)",
+      "Bash(npx create-vite@latest . --template react-ts)",
+      "Bash(printf:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite build:*)",
+      "Bash(node -e:*)",
+      "Bash(xargs basename:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

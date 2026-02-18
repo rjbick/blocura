@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+:root {
+  /* Core WP admin theme */
+  --wp-admin-theme-color:            #2271b1;
+  --wp-admin-theme-color-darker-10:  #135e96;
+  --wp-admin-theme-color-darker-20:  #0a4b78;
+
+  /* Components accent */
+  --wp-components-color-accent:             #3858e9;
+  --wp-components-color-accent-darker-10:   #2145e6;
+  --wp-components-color-accent-inverted:    #fff;
+  --wp-components-color-accent-rgb:         56, 88, 233;
+
+  /* Editor chrome */
+  --wp-editor-bg:          #f0f0f0;
+  --wp-canvas-bg:          #fff;
+  --wp-canvas-shadow:      0 0 0 1px rgba(0,0,0,.1);
+  --wp-toolbar-bg:         #fff;
+  --wp-toolbar-height:     56px;
+  --wp-toolbar-border:     1px solid #ddd;
+  --wp-sidebar-width:      280px;
+  --wp-sidebar-bg:         #fff;
+  --wp-sidebar-border:     #e0e0e0;
+
+  /* Block selection */
+  --wp-block-selected-outline: 2px solid var(--wp-components-color-accent);
+  --wp-block-hover-outline:    1px solid var(--wp-admin-theme-color);
+  --wp-block-label-bg:         var(--wp-components-color-accent);
+  --wp-block-label-color:      #fff;
+  --wp-block-label-font-size:  10px;
+  --wp-block-label-height:     20px;
+  --wp-block-label-border-radius: 2px;
+
+  /* Inline inserter */
+  --wp-inserter-inline-size:    24px;
+  --wp-inserter-appender-size:  36px;
+  --wp-inserter-line-color:     var(--wp-components-color-accent);
+  --wp-inserter-line-height:    2px;
+
+  /* Typography */
+  --wp-font-size-small:  11px;
+  --wp-font-size-body:   13px;
+  --wp-font-size-label:  11px;
+  --wp-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+  /* Popovers */
+  --wp-popover-shadow:        0 2px 6px rgba(0,0,0,.05),
+                               0 1px 2px rgba(0,0,0,.07),
+                               0 0 0 1px rgba(0,0,0,.1);
+  --wp-popover-bg:            #fff;
+  --wp-popover-border-radius: 4px;
+
+  /* Focus rings */
+  --wp-focus-ring:        2px solid var(--wp-components-color-accent);
+  --wp-focus-ring-offset: 2px;
+
+  /* Transitions */
+  --wp-transition-fast:   0.05s ease;
+  --wp-transition-panel:  0.3s ease;
+
+  /* Snackbar */
+  --wp-snackbar-bg:            #1e1e1e;
+  --wp-snackbar-color:         #fff;
+  --wp-snackbar-border-radius: 2px;
+
+  /* Breadcrumb */
+  --wp-breadcrumb-bg:         rgba(255,255,255,0.9);
+  --wp-breadcrumb-height:     28px;
+  --wp-breadcrumb-font-size:  11px;
+
+  /* Spacing scale */
+  --wp-space-1: 4px;  --wp-space-2: 8px;  --wp-space-3: 12px;
+  --wp-space-4: 16px; --wp-space-6: 24px; --wp-space-8: 32px;
+
+  /* Elevation */
+  --wp-elevation-z4: 0 4px 8px rgba(0,0,0,.1), 0 0 0 1px rgba(0,0,0,.1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--wp-font-family);
+  font-size: var(--wp-font-size-body);
+  color: #1e1e1e;
+  background: var(--wp-editor-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+  outline: var(--wp-focus-ring);
+  outline-offset: var(--wp-focus-ring-offset);
+}
+
+/* Remove default button styles */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+}
+
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ProseMirror editor base styles */
+.ProseMirror {
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  caret-color: currentColor;
+  min-height: inherit;
+}
+
+.ProseMirror p {
+  margin: 0;
+}
+
+/* Placeholder via data-placeholder attribute on the ProseMirror div */
+.ProseMirror.is-empty::before,
+.ProseMirror p.is-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #949494;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* When the PM editor is empty, show placeholder */
+.ProseMirror > p:first-child:last-child:empty::before {
+  content: attr(data-placeholder);
+  color: #949494;
+  pointer-events: none;
+}
+
+/* The richtext-editor class applied to ProseMirror div */
+.richtext-editor {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.35);
+}
