@@ -370,7 +370,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -381,7 +381,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -391,7 +391,7 @@ const urlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorLabelStyle: React.CSSProperties = {
@@ -406,7 +406,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -459,7 +459,7 @@ export const mediaTextBlock: BlockDefinition = {
       anchor,
     } = attributes as MediaTextAttributes
     if (!mediaUrl) return ''
-    const classes = ['wp-block-media-text']
+    const classes = ['editor-block-media-text']
     if (mediaPosition === 'right') classes.push('has-media-on-the-right')
     if (imageFill) classes.push('is-image-fill')
     if (verticalAlignment !== 'center') classes.push(`is-vertically-aligned-${verticalAlignment}`)
@@ -469,6 +469,6 @@ export const mediaTextBlock: BlockDefinition = {
       mediaType === 'video'
         ? `<video src="${mediaUrl}" controls></video>`
         : `<img src="${mediaUrl}" alt="${mediaAlt}" style="object-position:${Math.round(focalPoint.x * 100)}% ${Math.round(focalPoint.y * 100)}%" />`
-    return `<div class="${classes.join(' ')}"${anchorAttr} style="grid-template-columns:${mediaWidth}% auto"><figure class="wp-block-media-text__media">${mediaMarkup}</figure><div class="wp-block-media-text__content"><!--inner--></div></div>`
+    return `<div class="${classes.join(' ')}"${anchorAttr} style="grid-template-columns:${mediaWidth}% auto"><figure class="editor-block-media-text__media">${mediaMarkup}</figure><div class="editor-block-media-text__content"><!--inner--></div></div>`
   },
 }

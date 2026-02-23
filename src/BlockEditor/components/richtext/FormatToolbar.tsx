@@ -19,6 +19,39 @@ interface ToolbarState {
   superscript: boolean
   link: boolean
   linkHref: string
+  canBold: boolean
+  canItalic: boolean
+  canUnderline: boolean
+  canStrikethrough: boolean
+  canCode: boolean
+  canSubscript: boolean
+  canSuperscript: boolean
+  canLink: boolean
+}
+
+function sameToolbarState(a: ToolbarState, b: ToolbarState): boolean {
+  return (
+    a.visible === b.visible &&
+    a.x === b.x &&
+    a.y === b.y &&
+    a.bold === b.bold &&
+    a.italic === b.italic &&
+    a.underline === b.underline &&
+    a.strikethrough === b.strikethrough &&
+    a.code === b.code &&
+    a.subscript === b.subscript &&
+    a.superscript === b.superscript &&
+    a.link === b.link &&
+    a.linkHref === b.linkHref &&
+    a.canBold === b.canBold &&
+    a.canItalic === b.canItalic &&
+    a.canUnderline === b.canUnderline &&
+    a.canStrikethrough === b.canStrikethrough &&
+    a.canCode === b.canCode &&
+    a.canSubscript === b.canSubscript &&
+    a.canSuperscript === b.canSuperscript &&
+    a.canLink === b.canLink
+  )
 }
 
 const HIDDEN: ToolbarState = {
@@ -27,6 +60,32 @@ const HIDDEN: ToolbarState = {
   strikethrough: false, code: false,
   subscript: false, superscript: false,
   link: false, linkHref: '',
+  canBold: true,
+  canItalic: true,
+  canUnderline: true,
+  canStrikethrough: true,
+  canCode: true,
+  canSubscript: true,
+  canSuperscript: true,
+  canLink: true,
+}
+
+function parseAllowedFormats(container: Element | null): Set<string> | null {
+  if (!container) return null
+  const richRoot = container.closest('[data-richtext]')
+  if (!richRoot) return null
+  const attr = richRoot.getAttribute('data-allowed-formats')
+  if (!attr || !attr.trim()) return null
+  const values = attr
+    .split(',')
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean)
+  if (values.length === 0) return null
+  return new Set(values)
+}
+
+function canUseFormat(allowed: Set<string> | null, key: string): boolean {
+  return !allowed || allowed.has(key.toLowerCase())
 }
 
 function hasMark(view: EditorView, markName: string): boolean {
@@ -64,12 +123,17 @@ export function FormatToolbar() {
   const [linkInputValue, setLinkInputValue] = useState('')
   const linkInputRef = useRef<HTMLInputElement>(null)
   const activeViewRef = useRef<EditorView | null>(null)
+  const rafRef = useRef<number | null>(null)
+
+  const hideToolbar = useCallback(() => {
+    setToolbar((previous) => (previous.visible ? HIDDEN : previous))
+    setShowLinkInput((previous) => (previous ? false : previous))
+  }, [])
 
   const update = useCallback(() => {
     const sel = window.getSelection()
     if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
-      setToolbar(HIDDEN)
-      setShowLinkInput(false)
+      hideToolbar()
       return
     }
 
@@ -79,8 +143,7 @@ export function FormatToolbar() {
     const view = getViewForElement(el)
 
     if (!view || !view.hasFocus()) {
-      setToolbar(HIDDEN)
-      setShowLinkInput(false)
+      hideToolbar()
       return
     }
 
@@ -88,18 +151,27 @@ export function FormatToolbar() {
 
     const pmSel = view.state.selection
     if (pmSel.empty) {
-      setToolbar(HIDDEN)
-      setShowLinkInput(false)
+      hideToolbar()
       return
     }
 
     const rect = range.getBoundingClientRect()
     if (!rect.width && !rect.height) {
-      setToolbar(HIDDEN)
+      hideToolbar()
       return
     }
 
-    setToolbar({
+    const allowed = parseAllowedFormats(el)
+    const canBold = canUseFormat(allowed, 'bold')
+    const canItalic = canUseFormat(allowed, 'italic')
+    const canUnderline = canUseFormat(allowed, 'underline')
+    const canStrikethrough = canUseFormat(allowed, 'strikethrough')
+    const canCode = canUseFormat(allowed, 'code')
+    const canSubscript = canUseFormat(allowed, 'subscript')
+    const canSuperscript = canUseFormat(allowed, 'superscript')
+    const canLink = canUseFormat(allowed, 'link')
+
+    const nextToolbar: ToolbarState = {
       visible: true,
       x: rect.left + rect.width / 2,
       y: rect.top - 8,
@@ -112,18 +184,40 @@ export function FormatToolbar() {
       superscript: hasMark(view, 'superscript'),
       link: hasMark(view, 'link'),
       linkHref: getLinkHref(view),
+      canBold,
+      canItalic,
+      canUnderline,
+      canStrikethrough,
+      canCode,
+      canSubscript,
+      canSuperscript,
+      canLink,
+    }
+
+    setToolbar((previous) => (sameToolbarState(previous, nextToolbar) ? previous : nextToolbar))
+  }, [hideToolbar])
+
+  const scheduleUpdate = useCallback(() => {
+    if (rafRef.current !== null) return
+    rafRef.current = window.requestAnimationFrame(() => {
+      rafRef.current = null
+      update()
     })
-  }, [])
+  }, [update])
 
   useEffect(() => {
-    document.addEventListener('selectionchange', update)
+    document.addEventListener('selectionchange', scheduleUpdate)
     // Also update on mouseup to catch the final position
-    document.addEventListener('mouseup', update)
+    document.addEventListener('mouseup', scheduleUpdate)
     return () => {
-      document.removeEventListener('selectionchange', update)
-      document.removeEventListener('mouseup', update)
+      document.removeEventListener('selectionchange', scheduleUpdate)
+      document.removeEventListener('mouseup', scheduleUpdate)
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
     }
-  }, [update])
+  }, [scheduleUpdate])
 
   // Focus link input when it appears
   useEffect(() => {
@@ -140,7 +234,7 @@ export function FormatToolbar() {
     toggleMark(markType)(view.state, view.dispatch)
     view.focus()
     // Re-run update after a tick so toolbar state refreshes
-    setTimeout(update, 0)
+    setTimeout(scheduleUpdate, 0)
   }
 
   function handleLinkApply() {
@@ -162,7 +256,7 @@ export function FormatToolbar() {
     }
     setShowLinkInput(false)
     view.focus()
-    setTimeout(update, 0)
+    setTimeout(scheduleUpdate, 0)
   }
 
   function handleLinkRemove() {
@@ -172,7 +266,7 @@ export function FormatToolbar() {
     view.dispatch(view.state.tr.removeMark(from, to, schema.marks.link))
     setShowLinkInput(false)
     view.focus()
-    setTimeout(update, 0)
+    setTimeout(scheduleUpdate, 0)
   }
 
   function handleLinkButtonClick() {
@@ -185,6 +279,19 @@ export function FormatToolbar() {
   }
 
   if (!toolbar.visible) return null
+
+  if (
+    !toolbar.canBold &&
+    !toolbar.canItalic &&
+    !toolbar.canUnderline &&
+    !toolbar.canStrikethrough &&
+    !toolbar.canCode &&
+    !toolbar.canSubscript &&
+    !toolbar.canSuperscript &&
+    !toolbar.canLink
+  ) {
+    return null
+  }
 
   const TOOLBAR_HEIGHT = 40
   const LINK_PANEL_HEIGHT = showLinkInput ? 44 : 0
@@ -219,60 +326,80 @@ export function FormatToolbar() {
           gap: 2,
         }}
       >
-        <FormatButton
-          icon={<Bold size={15} />}
-          label="Bold"
-          active={toolbar.bold}
-          onClick={() => dispatchToggleMark('bold')}
-        />
-        <FormatButton
-          icon={<Italic size={15} />}
-          label="Italic"
-          active={toolbar.italic}
-          onClick={() => dispatchToggleMark('italic')}
-        />
-        <FormatButton
-          icon={<Underline size={15} />}
-          label="Underline"
-          active={toolbar.underline}
-          onClick={() => dispatchToggleMark('underline')}
-        />
-        <FormatButton
-          icon={<Strikethrough size={15} />}
-          label="Strikethrough"
-          active={toolbar.strikethrough}
-          onClick={() => dispatchToggleMark('strikethrough')}
-        />
-        <FormatButton
-          icon={<Code size={15} />}
-          label="Inline code"
-          active={toolbar.code}
-          onClick={() => dispatchToggleMark('code')}
-        />
-        <div style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 2px' }} />
-        <FormatButton
-          icon={<Subscript size={15} />}
-          label="Subscript"
-          active={toolbar.subscript}
-          onClick={() => dispatchToggleMark('subscript')}
-        />
-        <FormatButton
-          icon={<Superscript size={15} />}
-          label="Superscript"
-          active={toolbar.superscript}
-          onClick={() => dispatchToggleMark('superscript')}
-        />
-        <div style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 2px' }} />
-        <FormatButton
-          icon={toolbar.link ? <Unlink size={15} /> : <Link size={15} />}
-          label={toolbar.link ? 'Remove link' : 'Add link'}
-          active={toolbar.link}
-          onClick={handleLinkButtonClick}
-        />
+        {toolbar.canBold && (
+          <FormatButton
+            icon={<Bold size={15} />}
+            label="Bold"
+            active={toolbar.bold}
+            onClick={() => dispatchToggleMark('bold')}
+          />
+        )}
+        {toolbar.canItalic && (
+          <FormatButton
+            icon={<Italic size={15} />}
+            label="Italic"
+            active={toolbar.italic}
+            onClick={() => dispatchToggleMark('italic')}
+          />
+        )}
+        {toolbar.canUnderline && (
+          <FormatButton
+            icon={<Underline size={15} />}
+            label="Underline"
+            active={toolbar.underline}
+            onClick={() => dispatchToggleMark('underline')}
+          />
+        )}
+        {toolbar.canStrikethrough && (
+          <FormatButton
+            icon={<Strikethrough size={15} />}
+            label="Strikethrough"
+            active={toolbar.strikethrough}
+            onClick={() => dispatchToggleMark('strikethrough')}
+          />
+        )}
+        {toolbar.canCode && (
+          <FormatButton
+            icon={<Code size={15} />}
+            label="Inline code"
+            active={toolbar.code}
+            onClick={() => dispatchToggleMark('code')}
+          />
+        )}
+        {(toolbar.canSubscript || toolbar.canSuperscript) && (
+          <div style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 2px' }} />
+        )}
+        {toolbar.canSubscript && (
+          <FormatButton
+            icon={<Subscript size={15} />}
+            label="Subscript"
+            active={toolbar.subscript}
+            onClick={() => dispatchToggleMark('subscript')}
+          />
+        )}
+        {toolbar.canSuperscript && (
+          <FormatButton
+            icon={<Superscript size={15} />}
+            label="Superscript"
+            active={toolbar.superscript}
+            onClick={() => dispatchToggleMark('superscript')}
+          />
+        )}
+        {toolbar.canLink && (
+          <>
+            <div style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.2)', margin: '0 2px' }} />
+            <FormatButton
+              icon={toolbar.link ? <Unlink size={15} /> : <Link size={15} />}
+              label={toolbar.link ? 'Remove link' : 'Add link'}
+              active={toolbar.link}
+              onClick={handleLinkButtonClick}
+            />
+          </>
+        )}
       </div>
 
       {/* Link URL input panel */}
-      {showLinkInput && (
+      {showLinkInput && toolbar.canLink && (
         <div
           style={{
             display: 'flex',
@@ -303,7 +430,7 @@ export function FormatToolbar() {
               borderRadius: 2,
               color: '#fff',
               fontSize: 12,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               padding: '4px 8px',
               outline: 'none',
             }}
@@ -317,7 +444,7 @@ export function FormatToolbar() {
               borderRadius: 2,
               color: '#fff',
               fontSize: 11,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               padding: '4px 8px',
               cursor: 'pointer',
               flexShrink: 0,

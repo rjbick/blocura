@@ -1,5 +1,8 @@
 import { MessageSquareText } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
+import type { LatestCommentItem } from '../../../types'
+import { useEditorRuntime } from '../../../context'
 
 interface LatestCommentsAttributes {
   commentsToShow: number
@@ -76,11 +79,23 @@ function getVisibleComments(attributes: LatestCommentsAttributes): DemoComment[]
   return DEMO_COMMENTS.slice(0, limit)
 }
 
+function toDemoComment(comment: LatestCommentItem): DemoComment {
+  return {
+    author: comment.author || 'Anonymous',
+    avatarUrl: comment.avatarUrl || 'https://www.gravatar.com/avatar/?d=mp',
+    date: comment.date || '1970-01-01',
+    excerpt: comment.excerpt || '',
+    postTitle: comment.postTitle || 'Untitled post',
+    postUrl: comment.postUrl || '#',
+  }
+}
+
 function LatestCommentsEdit({
   attributes,
   setAttributes,
   isSelected,
 }: BlockEditProps<LatestCommentsAttributes>) {
+  const { onFetchLatestComments } = useEditorRuntime()
   const settings: LatestCommentsAttributes = {
     commentsToShow: Math.min(Math.max(attributes.commentsToShow || 5, 1), 20),
     displayAvatar: attributes.displayAvatar ?? true,
@@ -89,7 +104,53 @@ function LatestCommentsEdit({
     className: attributes.className,
     anchor: attributes.anchor,
   }
-  const comments = getVisibleComments(settings)
+  const [runtimeComments, setRuntimeComments] = useState<DemoComment[] | null>(null)
+  const [isRuntimeLoading, setIsRuntimeLoading] = useState(false)
+  const [hasRuntimeError, setHasRuntimeError] = useState(false)
+
+  useEffect(() => {
+    if (!onFetchLatestComments) {
+      setRuntimeComments(null)
+      setHasRuntimeError(false)
+      setIsRuntimeLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setIsRuntimeLoading(true)
+    setHasRuntimeError(false)
+
+    void onFetchLatestComments({
+      commentsToShow: settings.commentsToShow,
+      displayAvatar: settings.displayAvatar,
+      displayDate: settings.displayDate,
+      displayExcerpt: settings.displayExcerpt,
+    }).then((items) => {
+      if (cancelled) return
+      setRuntimeComments((items ?? []).map(toDemoComment))
+    }).catch(() => {
+      if (cancelled) return
+      setRuntimeComments(null)
+      setHasRuntimeError(true)
+    }).finally(() => {
+      if (cancelled) return
+      setIsRuntimeLoading(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    onFetchLatestComments,
+    settings.commentsToShow,
+    settings.displayAvatar,
+    settings.displayDate,
+    settings.displayExcerpt,
+  ])
+
+  const comments = runtimeComments && runtimeComments.length > 0
+    ? runtimeComments.slice(0, settings.commentsToShow)
+    : getVisibleComments(settings)
 
   return (
     <div
@@ -107,7 +168,7 @@ function LatestCommentsEdit({
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
             gap: 8,
             marginBottom: 10,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             fontSize: 12,
           }}
         >
@@ -160,7 +221,7 @@ function LatestCommentsEdit({
           display: 'flex',
           flexDirection: 'column',
           gap: 10,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         {comments.map((comment, index) => (
@@ -180,7 +241,7 @@ function LatestCommentsEdit({
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 13 }}>
                 <strong>{comment.author}</strong> on{' '}
-                <a href={comment.postUrl} style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}>
+                <a href={comment.postUrl} style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}>
                   {comment.postTitle}
                 </a>
               </div>
@@ -194,6 +255,13 @@ function LatestCommentsEdit({
           </li>
         ))}
       </ol>
+      {(isRuntimeLoading || hasRuntimeError) && (
+        <div style={{ marginTop: 10, fontSize: 11, color: '#757575' }}>
+          {isRuntimeLoading
+            ? 'Loading latest comments...'
+            : 'Using fallback comments because live data could not be loaded.'}
+        </div>
+      )}
     </div>
   )
 }
@@ -204,7 +272,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
 }
 
@@ -239,7 +307,7 @@ export const latestCommentsBlock: BlockDefinition = {
       anchor: (attributes as LatestCommentsAttributes).anchor,
     }
     const comments = getVisibleComments(settings)
-    const classes = ['wp-block-latest-comments']
+    const classes = ['editor-block-latest-comments']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
     const items = comments
@@ -248,12 +316,12 @@ export const latestCommentsBlock: BlockDefinition = {
           ? `<img class="avatar" src="${comment.avatarUrl}" alt="" width="40" height="40" />`
           : ''
         const dateHtml = settings.displayDate
-          ? `<time class="wp-block-latest-comments__comment-date" datetime="${comment.date}">${formatDate(comment.date)}</time>`
+          ? `<time class="editor-block-latest-comments__comment-date" datetime="${comment.date}">${formatDate(comment.date)}</time>`
           : ''
         const excerptHtml = settings.displayExcerpt
-          ? `<p class="wp-block-latest-comments__comment-excerpt">${comment.excerpt}</p>`
+          ? `<p class="editor-block-latest-comments__comment-excerpt">${comment.excerpt}</p>`
           : ''
-        return `<li class="wp-block-latest-comments__comment">${avatarHtml}<article><footer><strong>${comment.author}</strong> on <a href="${comment.postUrl}">${comment.postTitle}</a>${dateHtml}</footer>${excerptHtml}</article></li>`
+        return `<li class="editor-block-latest-comments__comment">${avatarHtml}<article><footer><strong>${comment.author}</strong> on <a href="${comment.postUrl}">${comment.postTitle}</a>${dateHtml}</footer>${excerptHtml}</article></li>`
       })
       .join('')
     return `<ol class="${classes.join(' ')}"${anchorAttr}>${items}</ol>`

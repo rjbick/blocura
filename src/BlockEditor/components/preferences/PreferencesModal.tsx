@@ -102,13 +102,13 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
         style={{
           backgroundColor: '#fff',
           borderRadius: 4,
-          boxShadow: 'var(--wp-popover-shadow)',
+          boxShadow: 'var(--editor-popover-shadow)',
           width: 480,
           maxWidth: '90vw',
           maxHeight: '80vh',
           display: 'flex',
           flexDirection: 'column',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
         onClick={(e) => e.stopPropagation()}
       >

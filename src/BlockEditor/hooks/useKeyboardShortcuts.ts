@@ -2,8 +2,9 @@ import { useEffect, useContext } from 'react'
 import type { Block } from '../types'
 import { EditorStoreContext } from '../store'
 import { flattenBlocks, findBlockParent } from '../helpers/flattenBlocks'
-import { blocksToBlockMarkup } from '../helpers/blocksToBlockMarkup'
-import { parseBlockMarkup } from '../helpers/parseBlockMarkup'
+import { blocksToRawHtml } from '../helpers/blocksToRawHtml'
+import { parseHtmlToBlocks } from '../helpers/parseHtmlToBlocks'
+import { migrateLegacyHtmlClasses } from '../helpers/migrateLegacyClasses'
 import { generateClientId } from '../helpers/generateClientId'
 import {
   areBlocksAllowedAtRoot,
@@ -207,8 +208,8 @@ export function useKeyboardShortcuts({ onSave }: UseKeyboardShortcutsOptions = {
           const selectedBlocks = flattenBlocks(s.blocks).filter((block) => selectedIds.has(block.clientId))
           if (selectedBlocks.length === 0) return
           event.preventDefault()
-          const markup = blocksToBlockMarkup(selectedBlocks)
-          navigator.clipboard?.writeText(markup).catch(() => {})
+          const rawHtml = blocksToRawHtml(selectedBlocks)
+          navigator.clipboard?.writeText(rawHtml).catch(() => {})
           if (event.key === 'x') {
             s.removeBlocks(selectedBlocks.map((block) => block.clientId))
           }
@@ -298,7 +299,8 @@ export function useKeyboardShortcuts({ onSave }: UseKeyboardShortcutsOptions = {
               current.blocks,
               current.selectedClientIds[0] ?? null
             )
-            const parsedBlocks = parseBlockMarkup(text)
+            const migrated = migrateLegacyHtmlClasses(text)
+            const parsedBlocks = parseHtmlToBlocks(migrated.value)
             if (parsedBlocks.length === 0) return
             if (!areBlocksAllowedAtRoot(parsedBlocks, current.blocks, insertTarget.rootClientId)) {
               current.createWarningNotice('Those blocks can’t be pasted here.')

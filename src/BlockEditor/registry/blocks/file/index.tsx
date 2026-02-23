@@ -123,7 +123,7 @@ function FileEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdit
           padding: '28px 20px',
           textAlign: 'center',
           backgroundColor: '#f9f9f9',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 14, fontWeight: 500 }}>
@@ -220,7 +220,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -231,7 +231,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -241,7 +241,7 @@ const urlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorLabelStyle: React.CSSProperties = {
@@ -256,7 +256,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -296,12 +296,12 @@ export const fileBlock: BlockDefinition = {
       anchor,
     } = attributes as FileAttributes
     if (!href) return ''
-    const classes = ['wp-block-file']
+    const classes = ['editor-block-file']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const linkText = filename || href.split('/').pop() || 'Download file'
     const downloadButton = showDownloadButton
-      ? `\n<a class="wp-block-file__button" href="${href}">${downloadButtonText}</a>`
+      ? `\n<a class="editor-block-file__button" href="${href}">${downloadButtonText}</a>`
       : ''
     return `<div class="${classes.join(' ')}"${anchorAttr}><a href="${href}">${linkText}</a>${downloadButton}\n</div>`
   },

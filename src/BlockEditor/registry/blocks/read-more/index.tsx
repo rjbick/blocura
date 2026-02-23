@@ -105,7 +105,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -144,7 +144,7 @@ export const readMoreBlock: BlockDefinition = {
       className,
       anchor,
     } = attributes as ReadMoreAttributes
-    const classes = ['wp-block-read-more']
+    const classes = ['editor-block-read-more']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const targetAttr = linkTarget ? ` target="${linkTarget}"` : ''

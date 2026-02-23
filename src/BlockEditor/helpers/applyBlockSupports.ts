@@ -45,7 +45,7 @@ export function applyBlockSupports(
 ): { className: string; style: React.CSSProperties } {
   const attrs = block.attributes as Record<string, unknown>
   const classes: string[] = [
-    `wp-block-${block.name.replace('core/', '').replace('/', '-')}`,
+    `editor-block-${block.name.replace('core/', '').replace('/', '-')}`,
   ]
   const style: StyleObject = {}
 

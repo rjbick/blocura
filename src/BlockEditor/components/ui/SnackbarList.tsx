@@ -85,7 +85,7 @@ function Snackbar({ notice, onDismiss }: SnackbarProps) {
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
         fontSize: 13,
         pointerEvents: 'auto',
       }}

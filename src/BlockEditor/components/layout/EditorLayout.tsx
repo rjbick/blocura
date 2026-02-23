@@ -35,7 +35,7 @@ export function EditorLayout({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: 'var(--wp-editor-bg)',
+        backgroundColor: 'var(--editor-editor-bg)',
         position: isFullscreen ? 'fixed' : 'relative',
         inset: isFullscreen ? 0 : 'auto',
         zIndex: isFullscreen ? 9998 : 'auto',
@@ -66,7 +66,7 @@ export function EditorLayout({
               color: '#1e1e1e',
               fontSize: 11,
               fontWeight: 500,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
               cursor: 'pointer',
@@ -95,8 +95,8 @@ export function EditorLayout({
                 left: 0,
                 top: 0,
                 zIndex: 50,
-                backgroundColor: 'var(--wp-sidebar-bg)',
-                borderRight: '1px solid var(--wp-sidebar-border)',
+                backgroundColor: 'var(--editor-sidebar-bg)',
+                borderRight: '1px solid var(--editor-sidebar-border)',
                 boxShadow: '2px 0 8px rgba(0,0,0,0.08)',
                 overflow: 'auto',
               }}
@@ -122,8 +122,8 @@ export function EditorLayout({
                 left: effectiveInserterOpen ? 280 : 0,
                 top: 0,
                 zIndex: 49,
-                backgroundColor: 'var(--wp-sidebar-bg)',
-                borderRight: '1px solid var(--wp-sidebar-border)',
+                backgroundColor: 'var(--editor-sidebar-bg)',
+                borderRight: '1px solid var(--editor-sidebar-border)',
                 overflow: 'auto',
               }}
             >
@@ -163,8 +163,8 @@ export function EditorLayout({
                 right: 0,
                 top: 0,
                 zIndex: 50,
-                backgroundColor: 'var(--wp-sidebar-bg)',
-                borderLeft: '1px solid var(--wp-sidebar-border)',
+                backgroundColor: 'var(--editor-sidebar-bg)',
+                borderLeft: '1px solid var(--editor-sidebar-border)',
                 overflow: 'auto',
               }}
             >

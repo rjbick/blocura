@@ -1,9 +1,11 @@
 import {
   useRef,
   useEffect,
+  useCallback,
   forwardRef,
   useImperativeHandle,
 } from 'react'
+import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import { EditorState, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { history, undo, redo } from 'prosemirror-history'
@@ -16,6 +18,9 @@ import { schema } from './schema'
 import { buildKeymapPlugin } from './keymaps'
 import { buildInputRulesPlugin } from './inputRules'
 import { registerView, unregisterView } from './viewRegistry'
+import { createPastePlugin } from './plugins/pastePlugin'
+import { createLinkPlugin } from './plugins/linkPlugin'
+import { useLinkDialog } from '../link/LinkDialogContext'
 
 // ProseMirror CSS
 import 'prosemirror-view/style/prosemirror.css'
@@ -50,9 +55,10 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
       onSplit,
       onMerge,
       onRemove,
+      onReplace,
       onNavigateOut,
       placeholder,
-      allowedFormats: _allowedFormats,
+      allowedFormats,
       disableLineBreaks = false,
       isSelected = false,
       readOnly = false,
@@ -62,26 +68,81 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
     },
     ref
   ) => {
+    const EMIT_DEBOUNCE_MS = 90
     const containerRef = useRef<HTMLDivElement>(null)
     const viewRef = useRef<EditorView | null>(null)
     const onChangeRef = useRef(onChange)
     const onSplitRef = useRef(onSplit)
     const onMergeRef = useRef(onMerge)
     const onRemoveRef = useRef(onRemove)
+    const onReplaceRef = useRef(onReplace)
     const onNavigateOutRef = useRef(onNavigateOut)
     const isComposingRef = useRef(false)
     const lastValueRef = useRef(value)
+    const pendingDocRef = useRef<ProseMirrorNode | null>(null)
+    const emitTimerRef = useRef<number | null>(null)
+    const openLinkDialog = useLinkDialog()
+
+    const flushPendingChange = useCallback(() => {
+      if (typeof window === 'undefined') {
+        pendingDocRef.current = null
+        emitTimerRef.current = null
+        return
+      }
+
+      if (emitTimerRef.current !== null) {
+        window.clearTimeout(emitTimerRef.current)
+        emitTimerRef.current = null
+      }
+
+      const pendingDoc = pendingDocRef.current
+      if (!pendingDoc) return
+      pendingDocRef.current = null
+
+      const html = docToHtml(pendingDoc as ReturnType<typeof schema.node>)
+      if (html !== lastValueRef.current) {
+        lastValueRef.current = html
+        onChangeRef.current(html)
+      }
+    }, [])
+
+    const queueDocChange = useCallback((doc: ProseMirrorNode, immediate = false) => {
+      pendingDocRef.current = doc
+
+      if (immediate) {
+        flushPendingChange()
+        return
+      }
+
+      if (typeof window === 'undefined') return
+
+      if (emitTimerRef.current !== null) {
+        window.clearTimeout(emitTimerRef.current)
+      }
+      emitTimerRef.current = window.setTimeout(() => {
+        flushPendingChange()
+      }, EMIT_DEBOUNCE_MS)
+    }, [flushPendingChange])
+
+    const promptHref = useCallback((currentHref: string) => {
+      return openLinkDialog({
+        initialHref: currentHref,
+        title: 'Add link',
+      })
+    }, [openLinkDialog])
 
     // Keep callbacks fresh without recreating the view
     useEffect(() => { onChangeRef.current = onChange }, [onChange])
     useEffect(() => { onSplitRef.current = onSplit }, [onSplit])
     useEffect(() => { onMergeRef.current = onMerge }, [onMerge])
     useEffect(() => { onRemoveRef.current = onRemove }, [onRemove])
+    useEffect(() => { onReplaceRef.current = onReplace }, [onReplace])
     useEffect(() => { onNavigateOutRef.current = onNavigateOut }, [onNavigateOut])
 
     // Initialize ProseMirror
     useEffect(() => {
       if (!containerRef.current) return
+      const hostElement = containerRef.current
 
       const doc = htmlToDoc(value)
 
@@ -91,6 +152,7 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
         onRemove: (forward) => onRemoveRef.current?.(forward),
         onNavigateOut: (dir) => onNavigateOutRef.current?.(dir),
         disableLineBreaks,
+        allowedFormats,
       })
 
       const state = EditorState.create({
@@ -98,40 +160,52 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
         plugins: [
           buildInputRulesPlugin(),
           keymapPlugin,
+          createLinkPlugin({ promptHref }),
+          createPastePlugin({
+            onBlocks: (blocks) => {
+              onReplaceRef.current?.(blocks)
+            },
+          }),
           keymap({
             'Mod-z': undo,
             'Mod-y': redo,
             'Mod-Shift-z': redo,
           }),
           history(),
-          dropCursor({ color: 'var(--wp-components-color-accent)', width: 2 }),
+          dropCursor({ color: 'var(--editor-components-color-accent)', width: 2 }),
           gapCursor(),
         ],
       })
 
-      const view = new EditorView(containerRef.current, {
+      const view = new EditorView(hostElement, {
         state,
         editable: () => !readOnly,
         dispatchTransaction(tr) {
           const newState = view.state.apply(tr)
           view.updateState(newState)
           if (tr.docChanged && !isComposingRef.current) {
-            const html = docToHtml(newState.doc)
-            if (html !== lastValueRef.current) {
-              lastValueRef.current = html
-              onChangeRef.current(html)
-            }
+            queueDocChange(newState.doc)
           }
         },
         handleDOMEvents: {
+          keydown: (_view, event) => {
+            if (
+              event.key === 'Enter' ||
+              event.key === 'Backspace' ||
+              event.key === 'Delete'
+            ) {
+              flushPendingChange()
+            }
+            return false
+          },
           compositionstart: () => { isComposingRef.current = true; return false },
           compositionend: () => {
             isComposingRef.current = false
-            const html = docToHtml(view.state.doc)
-            if (html !== lastValueRef.current) {
-              lastValueRef.current = html
-              onChangeRef.current(html)
-            }
+            queueDocChange(view.state.doc, true)
+            return false
+          },
+          blur: () => {
+            flushPendingChange()
             return false
           },
         },
@@ -145,15 +219,16 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
             .map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}:${v}`)
             .join(';'),
           ...(placeholder && !value ? { 'data-placeholder': placeholder } : {}),
+          ...(allowedFormats && allowedFormats.length > 0
+            ? { 'data-allowed-formats': allowedFormats.map((item) => item.toLowerCase()).join(',') }
+            : {}),
         },
       })
 
       viewRef.current = view
 
       // Register view in registry so FormatToolbar can find it
-      if (containerRef.current) {
-        registerView(containerRef.current, view)
-      }
+      registerView(hostElement, view)
 
       // Set initial cursor position
       if (initialPosition !== null && initialPosition !== undefined) {
@@ -168,26 +243,28 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
       }
 
       return () => {
-        if (containerRef.current) {
-          unregisterView(containerRef.current)
-        }
+        flushPendingChange()
+        unregisterView(hostElement)
         view.destroy()
         viewRef.current = null
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []) // Only run once on mount
+    }, [flushPendingChange, promptHref, queueDocChange]) // Mount once with stable callbacks
 
     // Update content when value changes externally
     useEffect(() => {
       const view = viewRef.current
       if (!view) return
+      if (value === lastValueRef.current) return
       const currentHtml = docToHtml(view.state.doc)
-      if (value !== currentHtml && value !== lastValueRef.current) {
+      if (value === currentHtml) {
         lastValueRef.current = value
-        const newDoc = htmlToDoc(value)
-        const { tr } = view.state
-        view.dispatch(tr.replaceWith(0, view.state.doc.content.size, newDoc.content))
+        return
       }
+      lastValueRef.current = value
+      const newDoc = htmlToDoc(value)
+      const { tr } = view.state
+      view.dispatch(tr.replaceWith(0, view.state.doc.content.size, newDoc.content))
     }, [value])
 
     // Update editable state
@@ -203,10 +280,13 @@ export const RichText = forwardRef<RichTextHandle, RichTextProps>(
           return {
             class: ['richtext-editor', 'outline-none', className].filter(Boolean).join(' '),
             ...(placeholder && isEmpty ? { 'data-placeholder': placeholder } : {}),
+            ...(allowedFormats && allowedFormats.length > 0
+              ? { 'data-allowed-formats': allowedFormats.map((item) => item.toLowerCase()).join(',') }
+              : {}),
           }
         },
       })
-    }, [placeholder, className])
+    }, [placeholder, className, allowedFormats])
 
     // Focus management
     useEffect(() => {

@@ -88,7 +88,7 @@ function SocialLinkEdit({ clientId, attributes, setAttributes, isSelected: _isSe
           gap: 8,
           fontSize: 13,
           color: '#1e1e1e',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <span
@@ -125,7 +125,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -166,7 +166,7 @@ export const socialLinkBlock: BlockDefinition = {
       className,
       anchor,
     } = attributes as SocialLinkAttributes
-    const classes = ['wp-social-link', `wp-social-link-${service}`]
+    const classes = ['editor-social-link', `editor-social-link-${service}`]
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const targetAttr = opensInNewTab ? ' target="_blank"' : ''

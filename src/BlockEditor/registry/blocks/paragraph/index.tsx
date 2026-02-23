@@ -179,7 +179,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const paragraphBlock: BlockDefinition = {
@@ -232,7 +232,7 @@ export const paragraphBlock: BlockDefinition = {
   save: ({ attributes }) => {
     const { content, align, dropCap, textColor, backgroundColor, fontSize, className, anchor } =
       attributes as ParagraphAttrs
-    const classes = ['wp-block-paragraph']
+    const classes = ['editor-block-paragraph']
     if (dropCap) classes.push('has-drop-cap')
     if (align) classes.push(`has-text-align-${align}`)
     if (textColor) classes.push(`has-${textColor}-color`, 'has-text-color')

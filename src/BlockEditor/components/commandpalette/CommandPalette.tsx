@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom'
 import { Search, X } from 'lucide-react'
 import { useEditorStore, useEditorActions } from '../../store'
 import { BlockRegistry } from '../../registry/BlockRegistry'
+import { CommandRegistry } from '../../registry/CommandRegistry'
 import { findBlock, findBlockParent } from '../../helpers/flattenBlocks'
-import { blocksToBlockMarkup } from '../../helpers/blocksToBlockMarkup'
+import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
 import {
   createBlockFromDefinition,
   createDefaultBlockForRoot,
@@ -71,7 +72,7 @@ function useCommands(query: string, closeAndRun: (fn: () => void) => void): Comm
       action: () => closeAndRun(() => {
         const block = findBlock(blocks, selectedClientId)
         if (!block) return
-        navigator.clipboard?.writeText(blocksToBlockMarkup([block])).catch(() => {})
+        navigator.clipboard?.writeText(blocksToRawHtml([block])).catch(() => {})
       }),
     },
     {
@@ -153,11 +154,23 @@ function useCommands(query: string, closeAndRun: (fn: () => void) => void): Comm
   ]
 
   const allCommands = [...selectionCommands, ...viewCommands, ...editorCommands, ...blockCommands]
+  const externalCommands: Command[] = CommandRegistry.search(query, { selectedClientIds: selectedClientId ? [selectedClientId] : [] })
+    .map((command) => ({
+      id: command.id,
+      label: command.label,
+      category: command.category ?? 'Custom',
+      icon: command.icon,
+      action: () => closeAndRun(() => {
+        void command.run({ selectedClientIds: selectedClientId ? [selectedClientId] : [], query })
+      }),
+    }))
 
-  if (!query.trim()) return allCommands
+  const commandPool = [...allCommands, ...externalCommands]
+
+  if (!query.trim()) return commandPool
 
   const q = query.toLowerCase()
-  return allCommands.filter(
+  return commandPool.filter(
     (cmd) =>
       cmd.label.toLowerCase().includes(q) ||
       cmd.category.toLowerCase().includes(q)
@@ -294,7 +307,7 @@ export function CommandPalette() {
               outline: 'none',
               padding: '14px 0',
               fontSize: 14,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               color: '#1e1e1e',
               background: 'transparent',
             }}
@@ -334,7 +347,7 @@ export function CommandPalette() {
                 textAlign: 'center',
                 color: '#757575',
                 fontSize: 13,
-                fontFamily: 'var(--wp-font-family)',
+                fontFamily: 'var(--editor-font-family)',
               }}
             >
               No results for &ldquo;{query}&rdquo;
@@ -350,7 +363,7 @@ export function CommandPalette() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
                     color: '#757575',
-                    fontFamily: 'var(--wp-font-family)',
+                    fontFamily: 'var(--editor-font-family)',
                   }}
                 >
                   {group.category}
@@ -377,7 +390,7 @@ export function CommandPalette() {
                         background: isActive ? 'rgba(56,88,233,0.08)' : 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
-                        fontFamily: 'var(--wp-font-family)',
+                        fontFamily: 'var(--editor-font-family)',
                         fontSize: 13,
                         color: isActive ? '#3858e9' : '#1e1e1e',
                         transition: 'background-color 0.05s ease',

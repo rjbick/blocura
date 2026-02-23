@@ -117,7 +117,7 @@ function NavigationLinkEdit({
         initialPosition={initialPosition}
         style={{
           fontSize: 14,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
           lineHeight: 1.4,
         }}
       />
@@ -140,7 +140,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -181,7 +181,7 @@ export const navigationLinkBlock: BlockDefinition = {
       className,
       anchor,
     } = attributes as NavigationLinkAttributes
-    const classes = ['wp-block-navigation-item']
+    const classes = ['editor-block-navigation-item']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const targetAttr = opensInNewTab ? ' target="_blank"' : ''
@@ -191,6 +191,6 @@ export const navigationLinkBlock: BlockDefinition = {
       ? ` rel="${rel}"`
       : ''
     const titleAttr = title ? ` title="${title}"` : ''
-    return `<li class="${classes.join(' ')}"${anchorAttr}><a class="wp-block-navigation-item__content" href="${url || ''}"${targetAttr}${relAttr}${titleAttr}>${label || url || 'Menu item'}</a></li>`
+    return `<li class="${classes.join(' ')}"${anchorAttr}><a class="editor-block-navigation-item__content" href="${url || ''}"${targetAttr}${relAttr}${titleAttr}>${label || url || 'Menu item'}</a></li>`
   },
 }

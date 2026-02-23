@@ -13,6 +13,8 @@ interface SlashInserterProps {
   onSelect: (def: BlockDefinition) => void
   onClose: () => void
   showAllByDefault?: boolean
+  searchable?: boolean
+  searchPlaceholder?: string
 }
 
 export function SlashInserter({
@@ -22,26 +24,44 @@ export function SlashInserter({
   onSelect,
   onClose,
   showAllByDefault = false,
+  searchable = false,
+  searchPlaceholder = 'Search blocks',
 }: SlashInserterProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [searchQuery, setSearchQuery] = useState(query)
   const blocks = useEditorStore(s => s.blocks)
+  const effectiveQuery = searchable ? searchQuery : query
 
   const allBlocks = filterBlockDefinitionsForRoot(BlockRegistry.getInsertable(), blocks, rootClientId)
-  const filtered = query
+  const filtered = effectiveQuery
     ? allBlocks.filter(
         def =>
-          def.title.toLowerCase().includes(query.toLowerCase()) ||
-          def.keywords?.some(k => k.toLowerCase().includes(query.toLowerCase()))
+          def.title.toLowerCase().includes(effectiveQuery.toLowerCase()) ||
+          def.keywords?.some(k => k.toLowerCase().includes(effectiveQuery.toLowerCase()))
       )
     : showAllByDefault
     ? allBlocks
     : allBlocks.slice(0, 8) // Show first 8 by default
 
+  useEffect(() => {
+    if (!searchable) return
+    setSearchQuery(query)
+  }, [query, searchable])
+
+  useEffect(() => {
+    if (!searchable) return
+    const timer = window.setTimeout(() => {
+      searchInputRef.current?.focus()
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [searchable])
+
   // Reset active index when results change
   useEffect(() => {
     setActiveIndex(0)
-  }, [query, rootClientId, allBlocks.length])
+  }, [effectiveQuery, rootClientId, allBlocks.length])
 
   // Scroll active into view
   useEffect(() => {
@@ -52,6 +72,11 @@ export function SlashInserter({
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+        return
+      }
       if (filtered.length === 0) return
       if (e.key === 'ArrowDown') {
         e.preventDefault()
@@ -62,9 +87,6 @@ export function SlashInserter({
       } else if (e.key === 'Enter') {
         e.preventDefault()
         if (filtered[activeIndex]) onSelect(filtered[activeIndex])
-      } else if (e.key === 'Escape') {
-        e.preventDefault()
-        onClose()
       }
     },
     [filtered, activeIndex, onSelect, onClose]
@@ -93,7 +115,7 @@ export function SlashInserter({
     }
   }, [anchorEl, onClose])
 
-  if (filtered.length === 0 || !anchorEl) return null
+  if (!anchorEl) return null
 
   // Position below the anchor element
   const rect = anchorEl.getBoundingClientRect()
@@ -111,60 +133,115 @@ export function SlashInserter({
         left,
         backgroundColor: '#fff',
         borderRadius: 4,
-        boxShadow: 'var(--wp-popover-shadow)',
+        boxShadow: 'var(--editor-popover-shadow)',
         width: 256,
-        maxHeight: 320,
-        overflowY: 'auto',
+        maxHeight: searchable ? 360 : 320,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
         zIndex: 9999,
-        padding: '4px 0',
       }}
-      onMouseDown={e => e.preventDefault()}
+      onMouseDown={(e) => {
+        const target = e.target as HTMLElement
+        if (target.closest('input, textarea')) return
+        e.preventDefault()
+      }}
     >
-      {filtered.map((def, idx) => (
-        <button
-          key={def.name}
-          type="button"
-          role="option"
-          aria-selected={idx === activeIndex}
-          data-active={idx === activeIndex}
-          onClick={() => onSelect(def)}
-          onMouseEnter={() => setActiveIndex(idx)}
+      {searchable && (
+        <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            width: '100%',
-            padding: '8px 12px',
-            border: 'none',
-            background: idx === activeIndex ? 'rgba(56,88,233,0.08)' : 'transparent',
-            cursor: 'pointer',
-            textAlign: 'left',
-            fontFamily: 'var(--wp-font-family)',
+            borderBottom: '1px solid #e0e0e0',
+            padding: '8px',
+            backgroundColor: '#fff',
           }}
         >
-          <span
+          <input
+            ref={searchInputRef}
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={searchPlaceholder}
             style={{
-              width: 24,
-              height: 24,
-              flexShrink: 0,
-              color: idx === activeIndex ? '#3858e9' : '#757575',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: '100%',
+              border: '1px solid #ddd',
+              borderRadius: 2,
+              padding: '6px 8px',
+              fontSize: 13,
+              fontFamily: 'var(--editor-font-family)',
+              outline: 'none',
+            }}
+          />
+        </div>
+      )}
+
+      <div
+        style={{
+          overflowY: 'auto',
+          maxHeight: searchable ? 304 : 320,
+          padding: '4px 0',
+        }}
+      >
+        {filtered.length === 0 ? (
+          <div
+            style={{
+              padding: '10px 12px',
+              fontSize: 12,
+              color: '#757575',
+              fontFamily: 'var(--editor-font-family)',
             }}
           >
-            {typeof def.icon !== 'string' ? def.icon : null}
-          </span>
-          <div>
-            <div style={{ fontSize: 13, color: '#1e1e1e', fontWeight: 500 }}>{def.title}</div>
-            {def.description && (
-              <div style={{ fontSize: 11, color: '#757575', marginTop: 1 }}>
-                {def.description.slice(0, 60)}
-              </div>
-            )}
+            No blocks found.
           </div>
-        </button>
-      ))}
+        ) : (
+          filtered.map((def, idx) => (
+            <button
+              key={def.name}
+              type="button"
+              role="option"
+              aria-selected={idx === activeIndex}
+              data-active={idx === activeIndex}
+              onClick={() => onSelect(def)}
+              onMouseEnter={() => setActiveIndex(idx)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                width: '100%',
+                padding: '8px 12px',
+                border: 'none',
+                background: idx === activeIndex ? 'rgba(56,88,233,0.08)' : 'transparent',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontFamily: 'var(--editor-font-family)',
+              }}
+            >
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  flexShrink: 0,
+                  color: idx === activeIndex ? '#3858e9' : '#757575',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {typeof def.icon !== 'string' ? def.icon : null}
+              </span>
+              <div>
+                <div style={{ fontSize: 13, color: '#1e1e1e', fontWeight: 500 }}>{def.title}</div>
+                {def.description && (
+                  <div style={{ fontSize: 11, color: '#757575', marginTop: 1 }}>
+                    {def.description.slice(0, 60)}
+                  </div>
+                )}
+              </div>
+            </button>
+          ))
+        )}
+      </div>
     </div>,
     document.body
   )

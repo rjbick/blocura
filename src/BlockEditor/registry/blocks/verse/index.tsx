@@ -52,7 +52,7 @@ function VerseEdit({
   return (
     <pre
       style={{
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
         fontSize: 16,
         lineHeight: 1.8,
         whiteSpace: 'pre-wrap',
@@ -119,7 +119,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const verseBlock: BlockDefinition = {
@@ -145,7 +145,7 @@ export const verseBlock: BlockDefinition = {
   edit: VerseEdit as BlockDefinition['edit'],
   save: ({ attributes }) => {
     const { content, textAlign, className, anchor } = attributes as VerseAttrs
-    const classes = ['wp-block-verse']
+    const classes = ['editor-block-verse']
     if (textAlign) classes.push(`has-text-align-${textAlign}`)
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''

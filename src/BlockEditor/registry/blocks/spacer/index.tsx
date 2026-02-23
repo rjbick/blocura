@@ -47,8 +47,8 @@ function SpacerEdit({ clientId, attributes, setAttributes, isSelected }: BlockEd
         width: width || undefined,
         marginLeft: width ? 'auto' : undefined,
         marginRight: width ? 'auto' : undefined,
-        backgroundColor: isSelected ? 'rgba(var(--wp-components-color-accent-rgb), 0.05)' : 'transparent',
-        border: isSelected ? '1px dashed var(--wp-components-color-accent)' : '1px dashed rgba(0,0,0,0.1)',
+        backgroundColor: isSelected ? 'rgba(var(--editor-components-color-accent-rgb), 0.05)' : 'transparent',
+        border: isSelected ? '1px dashed var(--editor-components-color-accent)' : '1px dashed rgba(0,0,0,0.1)',
         borderRadius: 2,
         display: 'flex',
         alignItems: 'center',
@@ -61,7 +61,7 @@ function SpacerEdit({ clientId, attributes, setAttributes, isSelected }: BlockEd
       {isSelected && (
         <div style={{ color: '#949494', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <GripHorizontal size={16} />
-          <span style={{ fontSize: 11, fontFamily: 'var(--wp-font-family)' }}>
+          <span style={{ fontSize: 11, fontFamily: 'var(--editor-font-family)' }}>
             {height}
           </span>
         </div>
@@ -90,7 +90,7 @@ export const spacerBlock: BlockDefinition = {
   edit: SpacerEdit as BlockDefinition['edit'],
   save: ({ attributes }) => {
     const { height = '50px', width, className } = attributes as SpacerAttrs & { className?: string }
-    const classes = ['wp-block-spacer', className].filter(Boolean).join(' ')
+    const classes = ['editor-block-spacer', className].filter(Boolean).join(' ')
     const widthStyle = width ? `;width:${width};margin-left:auto;margin-right:auto` : ''
     return `<div class="${classes}" style="height:${height}${widthStyle}" aria-hidden="true"></div>`
   },
@@ -108,5 +108,5 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }

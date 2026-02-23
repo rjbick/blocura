@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Globe } from 'lucide-react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
+import { resolveEmbedInput } from '../../../helpers/resolveEmbed'
 
 interface EmbedAttributes {
   url: string
@@ -13,79 +14,26 @@ interface EmbedAttributes {
   anchor?: string
 }
 
-interface ResolvedEmbed {
-  type: string
-  providerNameSlug: string
-  previewHtml: string
-}
-
-function extractYouTubeId(url: URL): string | null {
-  if (url.hostname.includes('youtu.be')) {
-    return url.pathname.slice(1) || null
-  }
-  if (url.hostname.includes('youtube.com')) {
-    return url.searchParams.get('v')
-  }
-  return null
-}
-
-function extractVimeoId(url: URL): string | null {
-  if (!url.hostname.includes('vimeo.com')) return null
-  const match = url.pathname.match(/\/(\d+)/)
-  return match ? match[1] : null
-}
-
-function resolveEmbed(urlString: string): ResolvedEmbed | null {
-  try {
-    const url = new URL(urlString)
-    const ytId = extractYouTubeId(url)
-    if (ytId) {
-      return {
-        type: 'video',
-        providerNameSlug: 'youtube',
-        previewHtml: `<iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube embed" loading="lazy" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0"></iframe>`,
-      }
-    }
-
-    const vimeoId = extractVimeoId(url)
-    if (vimeoId) {
-      return {
-        type: 'video',
-        providerNameSlug: 'vimeo',
-        previewHtml: `<iframe src="https://player.vimeo.com/video/${vimeoId}" title="Vimeo embed" loading="lazy" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0"></iframe>`,
-      }
-    }
-
-    if (url.hostname.includes('spotify.com')) {
-      return {
-        type: 'rich',
-        providerNameSlug: 'spotify',
-        previewHtml: `<iframe src="${url.toString()}" title="Spotify embed" loading="lazy" style="width:100%;height:352px;border:0"></iframe>`,
-      }
-    }
-
-    return {
-      type: 'rich',
-      providerNameSlug: 'url',
-      previewHtml: `<p><a href="${url.toString()}">${url.toString()}</a></p>`,
-    }
-  } catch {
-    return null
-  }
-}
-
 function EmbedEdit({ clientId, attributes, setAttributes, isSelected }: BlockEditProps<EmbedAttributes>) {
   const [urlInput, setUrlInput] = useState(attributes.url || '')
+  const [urlError, setUrlError] = useState<string | null>(null)
   const previewHtml = useMemo(() => {
-    return attributes.previewHtml || (attributes.url ? resolveEmbed(attributes.url)?.previewHtml : '')
+    return attributes.previewHtml || (attributes.url ? resolveEmbedInput(attributes.url)?.previewHtml : '')
   }, [attributes.previewHtml, attributes.url])
 
   function applyUrlValue(nextUrl: string) {
-    if (!nextUrl) return
-    const resolved = resolveEmbed(nextUrl)
-    if (!resolved) return
+    if (!nextUrl) {
+      setUrlError('Enter a URL to embed.')
+      return
+    }
+    const resolved = resolveEmbedInput(nextUrl)
+    if (!resolved) {
+      setUrlError('That URL could not be parsed. Use a full URL like https://youtube.com/watch?v=...')
+      return
+    }
+    setUrlError(null)
     setAttributes({
-      url: nextUrl,
+      url: resolved.url,
       type: resolved.type,
       providerNameSlug: resolved.providerNameSlug,
       previewHtml: resolved.previewHtml,
@@ -110,6 +58,9 @@ function EmbedEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
             placeholder="https://example.com"
             style={inspectorInputStyle}
           />
+          {urlError && (
+            <div style={errorTextStyle}>{urlError}</div>
+          )}
           <button
             type="button"
             onClick={() => applyUrlValue(urlInput.trim())}
@@ -160,6 +111,9 @@ function EmbedEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
           />
           <button type="submit" style={primaryButtonStyle}>Embed</button>
         </form>
+        {urlError && (
+          <div style={{ ...errorTextStyle, marginTop: 8 }}>{urlError}</div>
+        )}
       </div>
     )
   }
@@ -200,7 +154,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -211,7 +165,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -221,7 +175,7 @@ const urlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorLabelStyle: React.CSSProperties = {
@@ -236,7 +190,13 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
+}
+
+const errorTextStyle: React.CSSProperties = {
+  marginTop: 6,
+  fontSize: 12,
+  color: '#b32d2e',
 }
 
 export const embedBlock: BlockDefinition = {
@@ -271,14 +231,14 @@ export const embedBlock: BlockDefinition = {
       anchor,
     } = attributes as EmbedAttributes
     if (!url) return ''
-    const classes = ['wp-block-embed', `is-type-${type}`]
+    const classes = ['editor-block-embed', `is-type-${type}`]
     if (providerNameSlug) {
-      classes.push(`is-provider-${providerNameSlug}`, `wp-block-embed-${providerNameSlug}`)
+      classes.push(`is-provider-${providerNameSlug}`, `editor-block-embed-${providerNameSlug}`)
     }
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const preview = previewHtml || `<p><a href="${url}">${url}</a></p>`
-    const captionHtml = caption ? `\n<figcaption class="wp-element-caption">${caption}</figcaption>` : ''
-    return `<figure class="${classes.join(' ')}"${anchorAttr}><div class="wp-block-embed__wrapper">${preview}</div>${captionHtml}\n</figure>`
+    const captionHtml = caption ? `\n<figcaption class="editor-element-caption">${caption}</figcaption>` : ''
+    return `<figure class="${classes.join(' ')}"${anchorAttr}><div class="editor-block-embed__wrapper">${preview}</div>${captionHtml}\n</figure>`
   },
 }

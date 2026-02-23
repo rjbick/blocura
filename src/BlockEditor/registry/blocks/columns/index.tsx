@@ -1,5 +1,5 @@
 import { Columns as ColumnsIcon } from 'lucide-react'
-import type { BlockDefinition, BlockEditProps } from '../../../types'
+import type { Block, BlockDefinition, BlockEditProps } from '../../../types'
 import { BlockList } from '../../../components/block/BlockList'
 import { generateClientId } from '../../../helpers/generateClientId'
 import { useEditorActions } from '../../../store'
@@ -20,6 +20,31 @@ interface ColumnAttributes {
   anchor?: string
   style?: Record<string, unknown>
   verticalAlignment?: string
+}
+
+interface ColumnLayoutPreset {
+  id: string
+  label: string
+  widths: string[]
+}
+
+const COLUMN_LAYOUT_PRESETS: ColumnLayoutPreset[] = [
+  { id: '2-50-50', label: '50 / 50', widths: ['50%', '50%'] },
+  { id: '2-33-67', label: '33 / 67', widths: ['33.33%', '66.67%'] },
+  { id: '2-67-33', label: '67 / 33', widths: ['66.67%', '33.33%'] },
+  { id: '3-33-33-33', label: '33 / 33 / 33', widths: ['33.33%', '33.33%', '33.33%'] },
+  { id: '3-25-50-25', label: '25 / 50 / 25', widths: ['25%', '50%', '25%'] },
+  { id: '3-50-25-25', label: '50 / 25 / 25', widths: ['50%', '25%', '25%'] },
+  { id: '4-25-25-25-25', label: '25 / 25 / 25 / 25', widths: ['25%', '25%', '25%', '25%'] },
+]
+
+function createColumnBlocksFromWidths(widths: string[]): Block[] {
+  return widths.map((width) => ({
+    clientId: generateClientId(),
+    name: 'core/column',
+    attributes: { width },
+    innerBlocks: [],
+  }))
 }
 
 // ─── Column Block ─────────────────────────────────────────────────────────────
@@ -96,7 +121,7 @@ function ColumnEdit({
             justifyContent: 'center',
             color: '#949494',
             fontSize: 13,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             pointerEvents: 'none',
           }}
         >
@@ -134,7 +159,7 @@ export const columnBlock: BlockDefinition = {
   save: ({ attributes, innerBlocks = [] }) => {
     const { className, width } = attributes as ColumnAttributes
     const widthStyle = width ? ` style="flex-basis:${width}"` : ''
-    const classAttr = ['wp-block-column', className].filter(Boolean).join(' ')
+    const classAttr = ['editor-block-column', className].filter(Boolean).join(' ')
     const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
     return `<div class="${classAttr}"${widthStyle}>\n${innerHtml}\n</div>`
   },
@@ -149,7 +174,7 @@ function ColumnsEdit({
   isSelected,
   innerBlocks = [],
 }: BlockEditProps<ColumnsAttributes>) {
-  const { insertBlock, removeBlocks } = useEditorActions()
+  const { insertBlock, insertBlocks, removeBlocks } = useEditorActions()
   const numCols = innerBlocks.length
   const verticalAlignment = attributes.verticalAlignment || ''
   const stackOnMobile = attributes.isStackedOnMobile ?? true
@@ -179,24 +204,30 @@ function ColumnsEdit({
     const normalized = Math.max(1, Math.min(nextCount || 1, 6))
     if (normalized === numCols) return
     if (normalized > numCols) {
+      const toInsert: Block[] = []
       for (let i = numCols; i < normalized; i += 1) {
-        insertBlock(
-          {
-            clientId: generateClientId(),
-            name: 'core/column',
-            attributes: {},
-            innerBlocks: [],
-          },
-          clientId,
-          i
-        )
+        toInsert.push({
+          clientId: generateClientId(),
+          name: 'core/column',
+          attributes: {},
+          innerBlocks: [],
+        })
       }
+      insertBlocks(toInsert, clientId, numCols)
+      setAttributes({ columns: normalized })
       return
     }
     const toRemove = innerBlocks.slice(normalized).map((block) => block.clientId)
     if (toRemove.length > 0) {
       removeBlocks(toRemove)
     }
+    setAttributes({ columns: normalized })
+  }
+
+  function applyLayoutPreset(preset: ColumnLayoutPreset) {
+    const columns = createColumnBlocksFromWidths(preset.widths)
+    insertBlocks(columns, clientId, 0)
+    setAttributes({ columns: preset.widths.length })
   }
 
   useInspectorControls(
@@ -247,44 +278,102 @@ function ColumnsEdit({
   )
 
   if (numCols === 0) {
-    // Column count picker
+    // Initial layout picker (presized templates)
     return (
       <div
         style={{
           padding: '24px',
           border: '1px dashed #ddd',
           borderRadius: 2,
-          textAlign: 'center',
+          backgroundColor: '#fcfcfc',
         }}
       >
-        <p style={{ marginBottom: 16, fontSize: 13, color: '#555', fontFamily: 'var(--wp-font-family)' }}>
-          Select number of columns
+        <p style={{ margin: 0, marginBottom: 8, fontSize: 13, color: '#1e1e1e', fontFamily: 'var(--editor-font-family)' }}>
+          Choose a layout
         </p>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          {[2, 3, 4].map((n) => (
+        <p style={{ margin: 0, marginBottom: 14, fontSize: 12, color: '#757575', fontFamily: 'var(--editor-font-family)' }}>
+          Start with preset column widths, then customize in block settings.
+        </p>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(132px, 1fr))',
+            gap: 10,
+          }}
+        >
+          {COLUMN_LAYOUT_PRESETS.map((preset) => (
             <button
-              key={n}
+              key={preset.id}
               type="button"
-              onClick={() => {
-                for (let i = 0; i < n; i++) {
-                  insertBlock(
-                    { clientId: generateClientId(), name: 'core/column', attributes: {}, innerBlocks: [] },
-                    clientId,
-                    i
-                  )
-                }
-              }}
+              onClick={() => applyLayoutPreset(preset)}
+              aria-label={`Select ${preset.label} columns layout`}
               style={{
-                padding: '8px 16px',
+                display: 'grid',
+                gap: 8,
+                padding: '10px',
                 border: '1px solid #ddd',
                 borderRadius: 2,
                 background: '#fff',
                 cursor: 'pointer',
-                fontSize: 13,
-                fontFamily: 'var(--wp-font-family)',
+                textAlign: 'left',
+                transition: 'border-color 0.05s ease, box-shadow 0.05s ease',
               }}
             >
-              {n} columns
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 4,
+                  width: '100%',
+                  height: 30,
+                }}
+              >
+                {preset.widths.map((width, index) => (
+                  <span
+                    key={`${preset.id}-${index}`}
+                    style={{
+                      width,
+                      minWidth: 12,
+                      borderRadius: 2,
+                      border: '1px solid #ccd0d4',
+                      background: 'linear-gradient(180deg, #f7f8f8 0%, #f0f0f1 100%)',
+                      display: 'block',
+                    }}
+                  />
+                ))}
+              </div>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: '#1e1e1e',
+                  fontWeight: 500,
+                  fontFamily: 'var(--editor-font-family)',
+                }}
+              >
+                {preset.label}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-start' }}>
+          {[2, 3, 4].map((count) => (
+            <button
+              key={`count-${count}`}
+              type="button"
+              onClick={() => setColumnCount(count)}
+              style={{
+                padding: '6px 10px',
+                border: '1px solid #ddd',
+                borderRadius: 2,
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: 12,
+                color: '#50575e',
+                fontFamily: 'var(--editor-font-family)',
+              }}
+            >
+              {count} equal columns
             </button>
           ))}
         </div>
@@ -337,7 +426,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -353,7 +442,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -390,7 +479,7 @@ export const columnsBlock: BlockDefinition = {
   save: ({ attributes, innerBlocks = [] }) => {
     const { className, isStackedOnMobile = true } = attributes as ColumnsAttributes
     const stackClass = isStackedOnMobile ? ' is-layout-flex' : ''
-    const classAttr = ['wp-block-columns', className, stackClass].filter(Boolean).join(' ')
+    const classAttr = ['editor-block-columns', className, stackClass].filter(Boolean).join(' ')
     const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
     return `<div class="${classAttr}">\n${innerHtml}\n</div>`
   },

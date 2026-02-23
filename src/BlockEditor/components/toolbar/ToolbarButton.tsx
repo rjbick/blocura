@@ -55,10 +55,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           color: isDisabled
             ? 'rgba(30,30,30,0.3)'
             : isActive
-            ? 'var(--wp-components-color-accent)'
+            ? 'var(--editor-components-color-accent)'
             : '#1e1e1e',
           backgroundColor: isActive
-            ? `rgba(var(--wp-components-color-accent-rgb), 0.1)`
+            ? `rgba(var(--editor-components-color-accent-rgb), 0.1)`
             : 'transparent',
           cursor: isDisabled ? 'default' : 'pointer',
           transition: 'background-color 0.05s ease, color 0.05s ease',

@@ -5,6 +5,7 @@ import { cloneBlock } from '../../helpers/cloneBlock'
 import { findBlock, findBlockParent, flattenBlocks } from '../../helpers/flattenBlocks'
 import { BlockRegistry } from '../../registry/BlockRegistry'
 import { validateBlock } from '../../helpers/validateBlock'
+import type { SelectionSliceActions } from './selection.slice'
 
 export type BlocksSliceState = {
   blocks: Block[]
@@ -190,6 +191,25 @@ function updateAttrsIn(blocks: Block[], clientId: string, attrs: Record<string, 
 
 type BlockLock = { move?: boolean; remove?: boolean }
 
+const TYPING_HISTORY_COALESCE_MS = 750
+const TYPING_ATTRIBUTE_KEYS = new Set([
+  'content',
+  'value',
+  'values',
+  'text',
+  'caption',
+  'html',
+  'code',
+  'title',
+])
+
+function isTypingAttributePatch(attrs: Record<string, unknown>): boolean {
+  const keys = Object.keys(attrs)
+  if (keys.length !== 1) return false
+  const key = keys[0]
+  return TYPING_ATTRIBUTE_KEYS.has(key) && typeof attrs[key] === 'string'
+}
+
 function getBlockLock(block: Block | null): BlockLock | null {
   if (!block) return null
   const lock = (block.attributes as Record<string, unknown> | undefined)?.lock
@@ -266,10 +286,17 @@ function areBlocksValidForParent(nextBlocks: Block[], parent: Block | null): boo
 
 export function createBlocksSlice(
   set: (fn: (state: BlocksSlice) => void) => void,
-  get: () => BlocksSlice
+  get: () => BlocksSlice & Pick<SelectionSliceActions, 'selectBlock'>
 ): BlocksSlice {
   const initialBlocks: Block[] = []
   const initialEntry = makeEntry(initialBlocks)
+  let lastTypingClientId: string | null = null
+  let lastTypingTimestamp = 0
+
+  const resetTypingBurst = () => {
+    lastTypingClientId = null
+    lastTypingTimestamp = 0
+  }
 
   return {
     blocks: initialBlocks,
@@ -282,6 +309,8 @@ export function createBlocksSlice(
     canRedo: false,
 
     insertBlock(block, rootClientId, index) {
+      let didInsert = false
+      resetTypingBurst()
       set((state) => {
         const newBlocks = insertInto(state.blocks, [block], rootClientId, index)
         if (newBlocks === state.blocks) return
@@ -289,10 +318,16 @@ export function createBlocksSlice(
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
+        didInsert = true
       })
+      if (didInsert) {
+        get().selectBlock(block.clientId)
+      }
     },
 
     insertBlocks(blocks, rootClientId, index) {
+      let didInsert = false
+      resetTypingBurst()
       set((state) => {
         const newBlocks = insertInto(state.blocks, blocks, rootClientId, index)
         if (newBlocks === state.blocks) return
@@ -300,25 +335,62 @@ export function createBlocksSlice(
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
+        didInsert = true
       })
+      if (didInsert && blocks.length > 0) {
+        get().selectBlock(blocks[0].clientId)
+      }
     },
 
     updateBlockAttributes(clientId, attrs) {
       set((state) => {
         const newBlocks = updateAttrsIn(state.blocks, clientId, attrs)
-        state.history = pushHistory(state.history, makeEntry(newBlocks))
+        if (newBlocks === state.blocks) return
+
+        const now = Date.now()
+        const isTypingUpdate = isTypingAttributePatch(attrs)
+        const canCoalesceTypingHistory =
+          isTypingUpdate &&
+          state.history.future.length === 0 &&
+          lastTypingClientId === clientId &&
+          now - lastTypingTimestamp < TYPING_HISTORY_COALESCE_MS
+
+        if (canCoalesceTypingHistory) {
+          state.blocks = newBlocks
+          state.history.present = {
+            ...state.history.present,
+            blocks: newBlocks,
+            selection: { clientIds: [clientId] },
+            lastModifiedClientId: clientId,
+          }
+          state.canUndo = state.history.past.length > 0
+          state.canRedo = false
+          lastTypingTimestamp = now
+          return
+        }
+
+        state.history = pushHistory(state.history, makeEntry(newBlocks, [clientId]))
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
+
+        if (isTypingUpdate) {
+          lastTypingClientId = clientId
+          lastTypingTimestamp = now
+        } else {
+          resetTypingBurst()
+        }
       })
     },
 
     updateBlockAttributesBatch(updates) {
+      resetTypingBurst()
       set((state) => {
         let newBlocks = state.blocks
         for (const { clientId, attrs } of updates) {
           newBlocks = updateAttrsIn(newBlocks, clientId, attrs)
         }
+        if (newBlocks === state.blocks) return
         state.history = pushHistory(state.history, makeEntry(newBlocks))
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
@@ -327,6 +399,7 @@ export function createBlocksSlice(
     },
 
     removeBlock(clientId) {
+      resetTypingBurst()
       set((state) => {
         const block = findBlock(state.blocks, clientId)
         if (!block || isLockedForRemove(block)) return
@@ -340,6 +413,7 @@ export function createBlocksSlice(
     },
 
     removeBlocks(clientIds) {
+      resetTypingBurst()
       set((state) => {
         const removable = clientIds.filter((id) => {
           const block = findBlock(state.blocks, id)
@@ -360,6 +434,7 @@ export function createBlocksSlice(
     },
 
     moveBlockToPosition(clientId, _fromRoot, toRoot, index) {
+      resetTypingBurst()
       set((state) => {
         const block = findBlock(state.blocks, clientId)
         if (!block || isLockedForMove(block)) return
@@ -391,6 +466,7 @@ export function createBlocksSlice(
     },
 
     moveBlockUp(clientId) {
+      resetTypingBurst()
       set((state) => {
         const block = findBlock(state.blocks, clientId)
         if (!block || isLockedForMove(block)) return
@@ -413,6 +489,7 @@ export function createBlocksSlice(
     },
 
     moveBlockDown(clientId) {
+      resetTypingBurst()
       set((state) => {
         const block = findBlock(state.blocks, clientId)
         if (!block || isLockedForMove(block)) return
@@ -435,11 +512,13 @@ export function createBlocksSlice(
     },
 
     duplicateBlock(clientId) {
+      resetTypingBurst()
       const { blocks } = get()
       const block = findBlock(blocks, clientId)
       if (!block) return
 
       const cloned = cloneBlock(block)
+      let didDuplicate = false
 
       set((state) => {
         const parent = findBlockParent(state.blocks, clientId)
@@ -464,10 +543,16 @@ export function createBlocksSlice(
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
+        didDuplicate = true
       })
+
+      if (didDuplicate) {
+        get().selectBlock(cloned.clientId)
+      }
     },
 
     replaceBlock(clientId, replacement) {
+      resetTypingBurst()
       const replacements = Array.isArray(replacement) ? replacement : [replacement]
       set((state) => {
         const existing = findBlock(state.blocks, clientId)
@@ -498,6 +583,7 @@ export function createBlocksSlice(
     },
 
     replaceBlocks(clientIds, newBlockList) {
+      resetTypingBurst()
       set((state) => {
         if (clientIds.length === 0) return
         const existing = clientIds
@@ -537,6 +623,7 @@ export function createBlocksSlice(
     },
 
     mergeBlocks(firstClientId, secondClientId) {
+      resetTypingBurst()
       const { blocks } = get()
       const first = findBlock(blocks, firstClientId)
       const second = findBlock(blocks, secondClientId)
@@ -562,18 +649,21 @@ export function createBlocksSlice(
     },
 
     lockBlock(clientId, lock) {
+      resetTypingBurst()
       set((state) => {
         state.blocks = updateAttrsIn(state.blocks, clientId, { lock })
       })
     },
 
     unlockBlock(clientId) {
+      resetTypingBurst()
       set((state) => {
         state.blocks = updateAttrsIn(state.blocks, clientId, { lock: undefined })
       })
     },
 
     resetBlocks(newBlocks) {
+      resetTypingBurst()
       set((state) => {
         const validated = validateTree(newBlocks)
         const entry = makeEntry(validated)
@@ -589,6 +679,7 @@ export function createBlocksSlice(
     },
 
     undo() {
+      resetTypingBurst()
       set((state) => {
         if (state.history.past.length === 0) return
         const past = [...state.history.past]
@@ -605,6 +696,7 @@ export function createBlocksSlice(
     },
 
     redo() {
+      resetTypingBurst()
       set((state) => {
         if (state.history.future.length === 0) return
         const future = [...state.history.future]

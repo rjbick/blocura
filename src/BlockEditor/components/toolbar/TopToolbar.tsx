@@ -12,14 +12,26 @@ import { SaveButton } from './SaveButton'
 import { DocumentTitle } from './DocumentTitle'
 import { MoreMenu } from './MoreMenu'
 import { PreviewDropdown } from './PreviewDropdown'
+import type { EditorSettings, PreviewAssetUrlContext } from '../../types'
 
 interface TopToolbarProps {
   onSave?: () => void | Promise<void>
   isSaving?: boolean
   logoSrc?: string
+  previewSettings?: EditorSettings['preview']
+  previewAssetUrlResolver?: (
+    url: string,
+    context: PreviewAssetUrlContext
+  ) => string | null | undefined
 }
 
-export function TopToolbar({ onSave, isSaving, logoSrc }: TopToolbarProps) {
+export function TopToolbar({
+  onSave,
+  isSaving,
+  logoSrc,
+  previewSettings,
+  previewAssetUrlResolver,
+}: TopToolbarProps) {
   const canUndo = useEditorStore(s => s.canUndo)
   const canRedo = useEditorStore(s => s.canRedo)
   const inserterOpen = useEditorStore(s => s.inserterOpen)
@@ -42,9 +54,9 @@ export function TopToolbar({ onSave, isSaving, logoSrc }: TopToolbarProps) {
       role="region"
       aria-label="Editor top bar"
       style={{
-        height: 'var(--wp-toolbar-height)',
-        backgroundColor: 'var(--wp-toolbar-bg)',
-        borderBottom: 'var(--wp-toolbar-border)',
+        height: 'var(--editor-toolbar-height)',
+        backgroundColor: 'var(--editor-toolbar-bg)',
+        borderBottom: 'var(--editor-toolbar-border)',
         display: 'flex',
         alignItems: 'center',
         position: 'sticky',
@@ -171,7 +183,10 @@ export function TopToolbar({ onSave, isSaving, logoSrc }: TopToolbarProps) {
         }}
       >
         {/* Preview dropdown */}
-        <PreviewDropdown />
+        <PreviewDropdown
+          previewSettings={previewSettings}
+          previewAssetUrlResolver={previewAssetUrlResolver}
+        />
 
         {/* Save button */}
         <SaveButton onSave={onSave} isSaving={isSaving} />

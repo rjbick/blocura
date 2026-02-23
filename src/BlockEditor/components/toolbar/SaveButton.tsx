@@ -32,7 +32,7 @@ export function SaveButton({ onSave, isSaving = false }: SaveButtonProps) {
         borderRadius: 2,
         border: 'none',
         fontSize: 13,
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
         fontWeight: 500,
         cursor: isSaving ? 'default' : 'pointer',
         display: 'flex',

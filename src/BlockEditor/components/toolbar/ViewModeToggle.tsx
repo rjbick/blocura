@@ -52,7 +52,7 @@ export function ViewModeToggle({ isCodeMode, onChange }: ViewModeToggleProps) {
             style={{
               padding: '0 12px',
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               fontWeight: isActive ? 500 : 400,
               color: '#1e1e1e',
               backgroundColor: 'transparent',

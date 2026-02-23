@@ -64,15 +64,17 @@ export function useInspectorControls(
   deps: React.DependencyList = []
 ) {
   const registry = useContext(InspectorControlsContext)
+  const setControls = registry?.setControls
+  const clearControls = registry?.clearControls
 
   useEffect(() => {
-    if (!registry) return
-    registry.setControls(clientId, renderer)
+    if (!setControls || !clearControls) return
+    setControls(clientId, renderer)
     return () => {
-      registry.clearControls(clientId)
+      clearControls(clientId)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registry, clientId, ...deps])
+  }, [setControls, clearControls, clientId, ...deps])
 }
 
 export function useInspectorControlsSlot(clientId: string | null): React.ReactNode | null {

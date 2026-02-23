@@ -5,6 +5,10 @@ export interface EditorRuntime {
   onImageUpload?: BlockEditorProps['onImageUpload']
   onSearchTerms?: BlockEditorProps['onSearchTerms']
   onSearchCategories?: BlockEditorProps['onSearchCategories']
+  onSearchPages?: BlockEditorProps['onSearchPages']
+  onFetchLatestPosts?: BlockEditorProps['onFetchLatestPosts']
+  onFetchLatestComments?: BlockEditorProps['onFetchLatestComments']
+  onFetchRssFeed?: BlockEditorProps['onFetchRssFeed']
   patterns: Pattern[]
 }
 

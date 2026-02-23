@@ -1,5 +1,6 @@
+import { memo } from 'react'
 import type { Block, BlockDefinition, BlockEditProps } from '../../types'
-import { useEditorActions, useEditorStore } from '../../store'
+import { useEditorActions, useEditorStore, useEditorStoreApi } from '../../store'
 import { flattenBlocks, findBlockParent } from '../../helpers/flattenBlocks'
 import { BlockRegistry } from '../../registry/BlockRegistry'
 
@@ -10,7 +11,7 @@ interface BlockEditComponentProps {
   onNavigateOut?: (clientId: string, direction: 'up' | 'down') => void
 }
 
-export function BlockEdit({
+function BlockEditComponent({
   block,
   def,
   isSelected,
@@ -25,7 +26,7 @@ export function BlockEdit({
     selectBlock,
     clearSelection,
   } = useEditorActions()
-  const allBlocks = useEditorStore(s => s.blocks)
+  const store = useEditorStoreApi()
   const initialPosition = useEditorStore(s => (
     s.selectedClientIds.length === 1 && s.selectedClientIds[0] === block.clientId
       ? s.selectionInitialPosition
@@ -37,6 +38,7 @@ export function BlockEdit({
   }
 
   const insertBlocksAfter = (newBlocks: Block[]) => {
+    const allBlocks = store.getState().blocks
     const parent = findBlockParent(allBlocks, block.clientId)
     const siblings = parent ? parent.innerBlocks : allBlocks
     const idx = siblings.findIndex((b) => b.clientId === block.clientId)
@@ -52,6 +54,7 @@ export function BlockEdit({
   }
 
   const onRemove = (forward = false) => {
+    const allBlocks = store.getState().blocks
     const flat = flattenBlocks(allBlocks)
     const idx = flat.findIndex((b) => b.clientId === block.clientId)
     const prev = idx > 0 ? flat[idx - 1] : null
@@ -93,6 +96,7 @@ export function BlockEdit({
   }
 
   const onMergeBlocks = (forward: boolean) => {
+    const allBlocks = store.getState().blocks
     const flat = flattenBlocks(allBlocks)
     const idx = flat.findIndex((b) => b.clientId === block.clientId)
     if (idx === -1) return
@@ -147,3 +151,14 @@ export function BlockEdit({
     />
   )
 }
+
+function arePropsEqual(prev: BlockEditComponentProps, next: BlockEditComponentProps): boolean {
+  return (
+    prev.block === next.block &&
+    prev.def === next.def &&
+    prev.isSelected === next.isSelected &&
+    prev.onNavigateOut === next.onNavigateOut
+  )
+}
+
+export const BlockEdit = memo(BlockEditComponent, arePropsEqual)

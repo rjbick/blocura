@@ -161,7 +161,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const listBlock: BlockDefinition = {
@@ -190,7 +190,7 @@ export const listBlock: BlockDefinition = {
     const { values, ordered, className, anchor, start } = attributes as ListAttributes
     const tag = ordered ? 'ol' : 'ul'
     const startAttr = ordered && start && start !== 1 ? ` start="${start}"` : ''
-    const classes = ['wp-block-list']
+    const classes = ['editor-block-list']
     if (className) classes.push(className)
     const classAttr = ` class="${classes.join(' ')}"`
     const anchorAttr = anchor ? ` id="${anchor}"` : ''

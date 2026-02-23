@@ -4,8 +4,18 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useEditorActions, useEditorStore } from '../../store'
 import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
 import { buildPreviewDocument } from '../../helpers/buildPreviewDocument'
+import { resolvePreviewAssetUrls } from '../../helpers/resolvePreviewAssetUrls'
+import type { EditorSettings, PreviewAssetUrlContext } from '../../types'
 
 type PreviewDevice = 'desktop' | 'tablet' | 'mobile'
+
+interface PreviewDropdownProps {
+  previewSettings?: EditorSettings['preview']
+  previewAssetUrlResolver?: (
+    url: string,
+    context: PreviewAssetUrlContext
+  ) => string | null | undefined
+}
 
 const PREVIEW_OPTIONS: {
   device: PreviewDevice
@@ -17,7 +27,10 @@ const PREVIEW_OPTIONS: {
   { device: 'mobile', label: 'Mobile', icon: <Smartphone size={16} /> },
 ]
 
-export function PreviewDropdown() {
+export function PreviewDropdown({
+  previewSettings,
+  previewAssetUrlResolver,
+}: PreviewDropdownProps) {
   const blocks = useEditorStore((s) => s.blocks)
   const title = useEditorStore((s) => s.title)
   const includeTitleInContent = useEditorStore((s) => s.postSettings.includeTitleInContent)
@@ -30,8 +43,15 @@ export function PreviewDropdown() {
     const rawHtml = blocksToRawHtml(blocks, {
       title,
       includeTitle: includeTitleInContent,
+      preserveInternalClasses: true,
     })
-    const html = buildPreviewDocument({ rawHtml, title, device })
+    const resolvedRawHtml = resolvePreviewAssetUrls(rawHtml, previewAssetUrlResolver)
+    const html = buildPreviewDocument({
+      rawHtml: resolvedRawHtml,
+      title,
+      device,
+      preview: previewSettings,
+    })
     const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     const opened = window.open(url, '_blank', 'noopener,noreferrer')
@@ -63,7 +83,7 @@ export function PreviewDropdown() {
             borderRadius: 2,
             backgroundColor: '#fff',
             fontSize: 13,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             cursor: 'pointer',
             color: '#1e1e1e',
           }}
@@ -75,14 +95,14 @@ export function PreviewDropdown() {
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="wp-popover-content"
+          className="editor-popover-content"
           align="end"
           sideOffset={4}
           style={{
             minWidth: 200,
-            backgroundColor: 'var(--wp-popover-bg)',
-            borderRadius: 'var(--wp-popover-border-radius)',
-            boxShadow: 'var(--wp-popover-shadow)',
+            backgroundColor: 'var(--editor-popover-bg)',
+            borderRadius: 'var(--editor-popover-border-radius)',
+            boxShadow: 'var(--editor-popover-shadow)',
             padding: '4px 0',
             zIndex: 9999,
           }}
@@ -98,11 +118,11 @@ export function PreviewDropdown() {
                 gap: 12,
                 padding: '8px 12px',
                 fontSize: 13,
-                fontFamily: 'var(--wp-font-family)',
+                fontFamily: 'var(--editor-font-family)',
                 cursor: 'pointer',
                 outline: 'none',
               }}
-              className="wp-dropdown-item preview-dropdown-item"
+              className="editor-dropdown-item preview-dropdown-item"
             >
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                 {icon}

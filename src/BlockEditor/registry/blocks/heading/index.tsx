@@ -12,7 +12,12 @@ interface HeadingAttrs {
   placeholder?: string
   align?: string
   fontSize?: string
-  style?: Record<string, unknown>
+  style?: {
+    typography?: {
+      textDecoration?: string
+    }
+    [key: string]: unknown
+  }
   textColor?: string
   backgroundColor?: string
   className?: string
@@ -34,6 +39,7 @@ function HeadingEdit({
   const blocks = useEditorStore(s => s.blocks)
   const level = attributes.level ?? 2
   const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  const textDecoration = attributes.style?.typography?.textDecoration || undefined
 
   const fontSizes: Record<number, number> = {
     1: 36, 2: 28, 3: 24, 4: 20, 5: 18, 6: 16,
@@ -111,6 +117,7 @@ function HeadingEdit({
         fontWeight: 700,
         lineHeight: 1.4,
         textAlign: (attributes.align as React.CSSProperties['textAlign']) || 'left',
+        textDecoration,
       }}
     >
       <RichText
@@ -124,7 +131,11 @@ function HeadingEdit({
         placeholder={attributes.placeholder || `Heading ${level}`}
         isSelected={isSelected}
         initialPosition={initialPosition}
-        style={{ fontWeight: 700, fontSize: fontSizes[level] || 28 }}
+        style={{
+          fontWeight: 700,
+          fontSize: fontSizes[level] || 28,
+          textDecoration,
+        }}
         disableLineBreaks
       />
     </Tag>
@@ -143,7 +154,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const headingBlock: BlockDefinition = {
@@ -192,9 +203,9 @@ export const headingBlock: BlockDefinition = {
   ],
   edit: HeadingEdit as BlockDefinition['edit'],
   save: ({ attributes }) => {
-    const { content, level = 2, align, textColor, backgroundColor, fontSize, className, anchor } =
+    const { content, level = 2, align, textColor, backgroundColor, fontSize, className, anchor, style } =
       attributes as HeadingAttrs
-    const classes = [`wp-block-heading`]
+    const classes = [`editor-block-heading`]
     if (align) classes.push(`has-text-align-${align}`)
     if (textColor) classes.push(`has-${textColor}-color`, 'has-text-color')
     if (backgroundColor) classes.push(`has-${backgroundColor}-background-color`, 'has-background')
@@ -202,7 +213,12 @@ export const headingBlock: BlockDefinition = {
     if (className) classes.push(className)
     const classStr = classes.join(' ')
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
-    return `<h${level} class="${classStr}"${anchorAttr}>${content}</h${level}>`
+    const textDecoration = style?.typography?.textDecoration
+    const styleAttr =
+      textDecoration === 'underline' || textDecoration === 'line-through'
+        ? ` style="text-decoration:${textDecoration}"`
+        : ''
+    return `<h${level} class="${classStr}"${anchorAttr}${styleAttr}>${content}</h${level}>`
   },
   merge: (baseAttrs, mergeAttrs) => ({
     ...baseAttrs,

@@ -1,81 +1,81 @@
 @import "tailwindcss";
 
 :root {
-  /* Core WP admin theme */
-  --wp-admin-theme-color:            #2271b1;
-  --wp-admin-theme-color-darker-10:  #135e96;
-  --wp-admin-theme-color-darker-20:  #0a4b78;
+  /* Core admin theme */
+  --editor-admin-theme-color:            #2271b1;
+  --editor-admin-theme-color-darker-10:  #135e96;
+  --editor-admin-theme-color-darker-20:  #0a4b78;
 
   /* Components accent */
-  --wp-components-color-accent:             #3858e9;
-  --wp-components-color-accent-darker-10:   #2145e6;
-  --wp-components-color-accent-inverted:    #fff;
-  --wp-components-color-accent-rgb:         56, 88, 233;
+  --editor-components-color-accent:             #3858e9;
+  --editor-components-color-accent-darker-10:   #2145e6;
+  --editor-components-color-accent-inverted:    #fff;
+  --editor-components-color-accent-rgb:         56, 88, 233;
 
   /* Editor chrome */
-  --wp-editor-bg:          #f0f0f0;
-  --wp-canvas-bg:          #fff;
-  --wp-canvas-shadow:      0 0 0 1px rgba(0,0,0,.1);
-  --wp-toolbar-bg:         #fff;
-  --wp-toolbar-height:     56px;
-  --wp-toolbar-border:     1px solid #ddd;
-  --wp-sidebar-width:      280px;
-  --wp-sidebar-bg:         #fff;
-  --wp-sidebar-border:     #e0e0e0;
+  --editor-editor-bg:          #f0f0f0;
+  --editor-canvas-bg:          #fff;
+  --editor-canvas-shadow:      0 0 0 1px rgba(0,0,0,.1);
+  --editor-toolbar-bg:         #fff;
+  --editor-toolbar-height:     56px;
+  --editor-toolbar-border:     1px solid #ddd;
+  --editor-sidebar-width:      280px;
+  --editor-sidebar-bg:         #fff;
+  --editor-sidebar-border:     #e0e0e0;
 
   /* Block selection */
-  --wp-block-selected-outline: 2px solid var(--wp-components-color-accent);
-  --wp-block-hover-outline:    1px solid var(--wp-admin-theme-color);
-  --wp-block-label-bg:         var(--wp-components-color-accent);
-  --wp-block-label-color:      #fff;
-  --wp-block-label-font-size:  10px;
-  --wp-block-label-height:     20px;
-  --wp-block-label-border-radius: 2px;
+  --editor-block-selected-outline: 2px solid var(--editor-components-color-accent);
+  --editor-block-hover-outline:    1px solid var(--editor-admin-theme-color);
+  --editor-block-label-bg:         var(--editor-components-color-accent);
+  --editor-block-label-color:      #fff;
+  --editor-block-label-font-size:  10px;
+  --editor-block-label-height:     20px;
+  --editor-block-label-border-radius: 2px;
 
   /* Inline inserter */
-  --wp-inserter-inline-size:    24px;
-  --wp-inserter-appender-size:  36px;
-  --wp-inserter-line-color:     var(--wp-components-color-accent);
-  --wp-inserter-line-height:    2px;
+  --editor-inserter-inline-size:    24px;
+  --editor-inserter-appender-size:  36px;
+  --editor-inserter-line-color:     var(--editor-components-color-accent);
+  --editor-inserter-line-height:    2px;
 
   /* Typography */
-  --wp-font-size-small:  11px;
-  --wp-font-size-body:   13px;
-  --wp-font-size-label:  11px;
-  --wp-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  --editor-font-size-small:  11px;
+  --editor-font-size-body:   13px;
+  --editor-font-size-label:  11px;
+  --editor-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                     Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
   /* Popovers */
-  --wp-popover-shadow:        0 2px 6px rgba(0,0,0,.05),
+  --editor-popover-shadow:        0 2px 6px rgba(0,0,0,.05),
                                0 1px 2px rgba(0,0,0,.07),
                                0 0 0 1px rgba(0,0,0,.1);
-  --wp-popover-bg:            #fff;
-  --wp-popover-border-radius: 4px;
+  --editor-popover-bg:            #fff;
+  --editor-popover-border-radius: 4px;
 
   /* Focus rings */
-  --wp-focus-ring:        2px solid var(--wp-components-color-accent);
-  --wp-focus-ring-offset: 2px;
+  --editor-focus-ring:        2px solid var(--editor-components-color-accent);
+  --editor-focus-ring-offset: 2px;
 
   /* Transitions */
-  --wp-transition-fast:   0.05s ease;
-  --wp-transition-panel:  0.3s ease;
+  --editor-transition-fast:   0.05s ease;
+  --editor-transition-panel:  0.3s ease;
 
   /* Snackbar */
-  --wp-snackbar-bg:            #1e1e1e;
-  --wp-snackbar-color:         #fff;
-  --wp-snackbar-border-radius: 2px;
+  --editor-snackbar-bg:            #1e1e1e;
+  --editor-snackbar-color:         #fff;
+  --editor-snackbar-border-radius: 2px;
 
   /* Breadcrumb */
-  --wp-breadcrumb-bg:         rgba(255,255,255,0.9);
-  --wp-breadcrumb-height:     28px;
-  --wp-breadcrumb-font-size:  11px;
+  --editor-breadcrumb-bg:         rgba(255,255,255,0.9);
+  --editor-breadcrumb-height:     28px;
+  --editor-breadcrumb-font-size:  11px;
 
   /* Spacing scale */
-  --wp-space-1: 4px;  --wp-space-2: 8px;  --wp-space-3: 12px;
-  --wp-space-4: 16px; --wp-space-6: 24px; --wp-space-8: 32px;
+  --editor-space-1: 4px;  --editor-space-2: 8px;  --editor-space-3: 12px;
+  --editor-space-4: 16px; --editor-space-6: 24px; --editor-space-8: 32px;
 
   /* Elevation */
-  --wp-elevation-z4: 0 4px 8px rgba(0,0,0,.1), 0 0 0 1px rgba(0,0,0,.1);
+  --editor-elevation-z4: 0 4px 8px rgba(0,0,0,.1), 0 0 0 1px rgba(0,0,0,.1);
 }
 
 *, *::before, *::after {
@@ -85,17 +85,17 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: var(--wp-font-family);
-  font-size: var(--wp-font-size-body);
+  font-family: var(--editor-font-family);
+  font-size: var(--editor-font-size-body);
   color: #1e1e1e;
-  background: var(--wp-editor-bg);
+  background: var(--editor-editor-bg);
   -webkit-font-smoothing: antialiased;
 }
 
 /* Focus ring for accessibility */
 :focus-visible {
-  outline: var(--wp-focus-ring);
-  outline-offset: var(--wp-focus-ring-offset);
+  outline: var(--editor-focus-ring);
+  outline-offset: var(--editor-focus-ring-offset);
 }
 
 /* Remove default button styles */
@@ -146,17 +146,17 @@ button {
 }
 
 .inline-inserter-button:hover {
-  background-color: rgba(var(--wp-components-color-accent-rgb), 0.08) !important;
+  background-color: rgba(var(--editor-components-color-accent-rgb), 0.08) !important;
 }
 
 .inline-inserter-button:active {
-  background-color: rgba(var(--wp-components-color-accent-rgb), 0.14) !important;
+  background-color: rgba(var(--editor-components-color-accent-rgb), 0.14) !important;
 }
 
 .block-appender-button:hover {
-  border-color: var(--wp-components-color-accent) !important;
-  color: var(--wp-components-color-accent) !important;
-  background-color: rgba(var(--wp-components-color-accent-rgb), 0.08) !important;
+  border-color: var(--editor-components-color-accent) !important;
+  color: var(--editor-components-color-accent) !important;
+  background-color: rgba(var(--editor-components-color-accent-rgb), 0.08) !important;
 }
 
 .inserter-category-chip:hover {
@@ -168,16 +168,16 @@ button {
 }
 
 .inserter-block-icon[data-disabled='false']:hover {
-  background-color: rgba(var(--wp-components-color-accent-rgb), 0.08) !important;
+  background-color: rgba(var(--editor-components-color-accent-rgb), 0.08) !important;
 }
 
 .inserter-block-icon[data-disabled='false']:hover .inserter-block-icon-icon,
 .inserter-block-icon[data-disabled='false']:hover .inserter-block-icon-label {
-  color: var(--wp-components-color-accent) !important;
+  color: var(--editor-components-color-accent) !important;
 }
 
 .inserter-pattern-card[data-disabled='false']:hover {
-  border-color: var(--wp-components-color-accent) !important;
+  border-color: var(--editor-components-color-accent) !important;
   background-color: rgba(56, 88, 233, 0.03) !important;
 }
 
@@ -206,37 +206,37 @@ button {
 }
 
 .preview-open-tab-link {
-  color: var(--wp-admin-theme-color);
+  color: var(--editor-admin-theme-color);
 }
 
-.wp-dropdown-item:hover,
-.wp-dropdown-item[data-highlighted] {
+.editor-dropdown-item:hover,
+.editor-dropdown-item[data-highlighted] {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-.wp-dropdown-item[data-highlighted] {
+.editor-dropdown-item[data-highlighted] {
   outline: none;
 }
 
 .preview-open-tab-link:hover {
-  color: var(--wp-admin-theme-color-darker-10);
+  color: var(--editor-admin-theme-color-darker-10);
 }
 
-.wp-popover-content {
+.editor-popover-content {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
   will-change: transform, opacity;
 }
 
-.wp-popover-content[data-state='open'] {
-  animation: wp-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+.editor-popover-content[data-state='open'] {
+  animation: editor-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wp-popover-content:not([data-state]) {
-  animation: wp-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+.editor-popover-content:not([data-state]) {
+  animation: editor-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wp-popover-content[data-state='closed'] {
-  animation: wp-popover-out 0.1s ease-in;
+.editor-popover-content[data-state='closed'] {
+  animation: editor-popover-out 0.1s ease-in;
 }
 
 .tooltip-content {
@@ -246,7 +246,7 @@ button {
 
 .tooltip-content[data-state='delayed-open'],
 .tooltip-content[data-state='instant-open'] {
-  animation: wp-tooltip-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: editor-tooltip-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .document-title-input::placeholder {
@@ -260,7 +260,7 @@ button {
   to { transform: rotate(360deg); }
 }
 
-@keyframes wp-popover-in {
+@keyframes editor-popover-in {
   from {
     opacity: 0;
     transform: translateY(-2px) scale(0.98);
@@ -271,7 +271,7 @@ button {
   }
 }
 
-@keyframes wp-popover-out {
+@keyframes editor-popover-out {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -282,7 +282,7 @@ button {
   }
 }
 
-@keyframes wp-tooltip-in {
+@keyframes editor-tooltip-in {
   from {
     opacity: 0;
     transform: translateY(-1px) scale(0.98);

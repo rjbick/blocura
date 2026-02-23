@@ -1,11 +1,12 @@
-import { useRef, useCallback, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
 import { useEditorStore, useEditorActions } from '../../store'
 import type { Block, BlockDefinition } from '../../types'
 import { applyBlockSupports } from '../../helpers/applyBlockSupports'
 import { BlockFloatingToolbar } from './BlockFloatingToolbar'
+import { BlockDragHandle } from './BlockDragHandle'
+import { BlockContextMenu } from './BlockContextMenu'
 
 interface BlockWrapperProps {
   block: Block
@@ -16,7 +17,7 @@ interface BlockWrapperProps {
   rootClientId: string | null
 }
 
-export function BlockWrapper({
+function BlockWrapperComponent({
   block,
   def,
   children,
@@ -31,7 +32,6 @@ export function BlockWrapper({
   const isSpotlightMode = useEditorStore(s => s.isSpotlightMode)
   const focusMode = useEditorStore(s => s.preferences.focusMode)
   const fixedToolbar = useEditorStore(s => s.preferences.fixedToolbar)
-  const wrapperRef = useRef<HTMLDivElement>(null)
   const lock = (block.attributes as Record<string, unknown> | undefined)?.lock as Record<string, unknown> | undefined
   const isMoveLocked = lock?.move === true || lock?.remove === true
 
@@ -43,6 +43,16 @@ export function BlockWrapper({
     transition,
     isDragging: isSortableDragging,
   } = useSortable({ id: block.clientId, disabled: isMoveLocked })
+
+  // Keep a stable callback-ref identity for Radix `asChild` composition.
+  // If `setNodeRef` identity changes each render, composed refs can loop.
+  const sortableNodeRef = useRef(setNodeRef)
+  useEffect(() => {
+    sortableNodeRef.current = setNodeRef
+  }, [setNodeRef])
+  const stableSetNodeRef = useCallback((node: HTMLDivElement | null) => {
+    sortableNodeRef.current(node)
+  }, [])
 
   const { className: supportedClass, style: supportedStyle } = applyBlockSupports(block, def)
 
@@ -85,9 +95,9 @@ export function BlockWrapper({
   }, [setHoveredBlock])
 
   const outlineStyle = isSelected
-    ? 'var(--wp-block-selected-outline)'
+    ? 'var(--editor-block-selected-outline)'
     : isHovered && !isMultiSelection
-    ? 'var(--wp-block-hover-outline)'
+    ? 'var(--editor-block-hover-outline)'
     : 'none'
 
   const dragStyle: React.CSSProperties = {
@@ -99,12 +109,9 @@ export function BlockWrapper({
   const shouldDim = spotlightActive && !isSelected && !isSortableDragging
   const contentOpacity = shouldDim ? (isHovered ? 0.72 : 0.36) : 1
 
-  return (
+  const content = (
     <div
-      ref={(node) => {
-        setNodeRef(node)
-        if (wrapperRef) (wrapperRef as React.MutableRefObject<HTMLDivElement | null>).current = node
-      }}
+      ref={stableSetNodeRef}
       data-block={block.clientId}
       data-block-name={block.name}
       onClick={handleClick}
@@ -130,11 +137,11 @@ export function BlockWrapper({
             position: 'absolute',
             top: -11,
             left: 0,
-            backgroundColor: 'var(--wp-block-label-bg)',
-            color: 'var(--wp-block-label-color)',
-            fontSize: 'var(--wp-block-label-font-size)',
-            height: 'var(--wp-block-label-height)',
-            borderRadius: 'var(--wp-block-label-border-radius)',
+            backgroundColor: 'var(--editor-block-label-bg)',
+            color: 'var(--editor-block-label-color)',
+            fontSize: 'var(--editor-block-label-font-size)',
+            height: 'var(--editor-block-label-height)',
+            borderRadius: 'var(--editor-block-label-border-radius)',
             padding: '0 6px',
             display: 'flex',
             alignItems: 'center',
@@ -152,9 +159,6 @@ export function BlockWrapper({
       {/* Drag handle — shows on hover/select */}
       {(isSelected || isHovered) && !isDragging && !isMoveLocked && (
         <div
-          {...listeners}
-          aria-label="Drag to reorder"
-          title="Drag to reorder"
           style={{
             position: 'absolute',
             left: -28,
@@ -171,7 +175,7 @@ export function BlockWrapper({
             zIndex: 20,
           }}
         >
-          <GripVertical size={16} />
+          <BlockDragHandle listeners={listeners as Record<string, unknown>} />
         </div>
       )}
 
@@ -193,4 +197,22 @@ export function BlockWrapper({
       </div>
     </div>
   )
+
+  return (
+    <BlockContextMenu clientId={block.clientId}>
+      {content}
+    </BlockContextMenu>
+  )
 }
+
+function arePropsEqual(prev: BlockWrapperProps, next: BlockWrapperProps): boolean {
+  return (
+    prev.block === next.block &&
+    prev.def === next.def &&
+    prev.isSelected === next.isSelected &&
+    prev.isHovered === next.isHovered &&
+    prev.rootClientId === next.rootClientId
+  )
+}
+
+export const BlockWrapper = memo(BlockWrapperComponent, arePropsEqual)

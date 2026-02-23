@@ -1,5 +1,6 @@
 import type { Block, BlockSelectionPoint, InsertionPoint } from '../../types'
 import { flattenBlocks } from '../../helpers/flattenBlocks'
+import type { UISliceState } from './ui.slice'
 
 export type SelectionSliceState = {
   selectedClientIds: string[]
@@ -28,7 +29,7 @@ export type SelectionSliceActions = {
 export type SelectionSlice = SelectionSliceState & SelectionSliceActions
 
 export function createSelectionSlice(
-  set: (fn: (state: SelectionSlice & { blocks: Block[] }) => void) => void,
+  set: (fn: (state: SelectionSlice & Pick<UISliceState, 'sidebarTab'> & { blocks: Block[] }) => void) => void,
   _get: () => SelectionSlice & { blocks: Block[] }
 ): SelectionSlice {
   return {
@@ -45,6 +46,7 @@ export function createSelectionSlice(
         state.selectedClientIds = [clientId]
         state.focusedClientId = clientId
         state.selectionInitialPosition = initialPosition
+        state.sidebarTab = 'block'
       })
     },
 
@@ -57,6 +59,7 @@ export function createSelectionSlice(
         const [from, to] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx]
         state.selectedClientIds = flat.slice(from, to + 1).map(b => b.clientId)
         state.selectionInitialPosition = null
+        state.sidebarTab = 'block'
       })
     },
 
@@ -66,6 +69,7 @@ export function createSelectionSlice(
           state.selectedClientIds = [...state.selectedClientIds, clientId]
         }
         state.selectionInitialPosition = null
+        state.sidebarTab = 'block'
       })
     },
 
@@ -80,6 +84,7 @@ export function createSelectionSlice(
       set((state) => {
         state.selectedClientIds = flattenBlocks(state.blocks).map((b: Block) => b.clientId)
         state.selectionInitialPosition = null
+        state.sidebarTab = 'block'
       })
     },
 

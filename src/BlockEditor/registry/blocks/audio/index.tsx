@@ -129,7 +129,7 @@ function AudioEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
           padding: '28px 20px',
           textAlign: 'center',
           backgroundColor: '#f9f9f9',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <div
@@ -245,7 +245,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -256,7 +256,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -266,7 +266,7 @@ const urlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorLabelStyle: React.CSSProperties = {
@@ -281,7 +281,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -317,9 +317,9 @@ export const audioBlock: BlockDefinition = {
     const { src, caption, autoplay, loop, controls = true, preload = 'metadata', className, anchor } =
       attributes as AudioAttributes
     if (!src) return ''
-    const classes = ['wp-block-audio']
+    const classes = ['editor-block-audio']
     if (className) classes.push(className)
-    const captionHtml = caption ? `\n<figcaption class="wp-element-caption">${caption}</figcaption>` : ''
+    const captionHtml = caption ? `\n<figcaption class="editor-element-caption">${caption}</figcaption>` : ''
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const attrs = [
       `src="${src}"`,

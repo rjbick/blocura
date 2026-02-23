@@ -5,7 +5,7 @@ import { useEditorActions, useEditorStore } from '../../store'
 import type { Block, BlockDefinition } from '../../types'
 import type { Pattern } from '../../types'
 import { useEditorRuntime } from '../../context'
-import { parseBlockMarkup } from '../../helpers/parseBlockMarkup'
+import { parseHtmlToBlocks } from '../../helpers/parseHtmlToBlocks'
 import { cloneBlock } from '../../helpers/cloneBlock'
 import { findBlock } from '../../helpers/flattenBlocks'
 import {
@@ -28,7 +28,14 @@ export function Inserter() {
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'blocks' | 'patterns'>('blocks')
-  const { insertBlock, insertBlocks, closeInserter, createWarningNotice } = useEditorActions()
+  const {
+    insertBlock,
+    insertBlocks,
+    closeInserter,
+    createWarningNotice,
+    createSyncedPattern,
+    insertSyncedPattern,
+  } = useEditorActions()
   const selectedClientIds = useEditorStore(s => s.selectedClientIds)
   const blocks = useEditorStore(s => s.blocks)
   const { patterns } = useEditorRuntime()
@@ -67,9 +74,11 @@ export function Inserter() {
     let parseError = false
 
     try {
-      sourceBlocks = typeof pattern.content === 'string'
-        ? parseBlockMarkup(pattern.content)
-        : pattern.content
+      if (typeof pattern.content === 'string') {
+        sourceBlocks = parseHtmlToBlocks(pattern.content)
+      } else {
+        sourceBlocks = pattern.content
+      }
     } catch {
       parseError = true
     }
@@ -113,20 +122,44 @@ export function Inserter() {
     closeInserter()
   }
 
+  const handleInsertSyncedPattern = (entry: {
+    pattern: Pattern
+    sourceBlocks: Block[]
+    isAllowed: boolean
+    parseError: boolean
+  }) => {
+    if (entry.parseError) {
+      createWarningNotice('This pattern could not be parsed.')
+      return
+    }
+    if (!entry.isAllowed) {
+      createWarningNotice('This pattern can’t be inserted here.')
+      return
+    }
+
+    const sourceBlocks = entry.sourceBlocks.map(cloneBlock)
+    if (sourceBlocks.length === 0) return
+
+    const patternId = createSyncedPattern(entry.pattern.title, sourceBlocks)
+    const { rootClientId, index } = getInsertTarget()
+    insertSyncedPattern(patternId, rootClientId, index)
+    closeInserter()
+  }
+
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {/* Header */}
       <div
         style={{
           padding: '12px 16px 0',
-          borderBottom: '1px solid var(--wp-sidebar-border)',
+          borderBottom: '1px solid var(--editor-sidebar-border)',
         }}
       >
         {/* Tabs */}
@@ -142,11 +175,11 @@ export function Inserter() {
                 fontSize: 13,
                 fontFamily: 'inherit',
                 fontWeight: activeTab === tab ? 600 : 400,
-                color: activeTab === tab ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                color: activeTab === tab ? 'var(--editor-components-color-accent)' : '#1e1e1e',
                 backgroundColor: 'transparent',
                 border: 'none',
                 borderBottom: activeTab === tab
-                  ? '2px solid var(--wp-components-color-accent)'
+                  ? '2px solid var(--editor-components-color-accent)'
                   : '2px solid transparent',
                 cursor: 'pointer',
                 textTransform: 'capitalize',
@@ -215,8 +248,8 @@ export function Inserter() {
                 padding: '4px 8px',
                 borderRadius: 999,
                 border: '1px solid #ddd',
-                backgroundColor: activeCategory === null ? 'rgba(var(--wp-components-color-accent-rgb), 0.1)' : '#fff',
-                color: activeCategory === null ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                backgroundColor: activeCategory === null ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : '#fff',
+                color: activeCategory === null ? 'var(--editor-components-color-accent)' : '#1e1e1e',
                 fontSize: 11,
                 fontWeight: 500,
                 whiteSpace: 'nowrap',
@@ -238,8 +271,8 @@ export function Inserter() {
                     padding: '4px 8px',
                     borderRadius: 999,
                     border: '1px solid #ddd',
-                    backgroundColor: isActive ? 'rgba(var(--wp-components-color-accent-rgb), 0.1)' : '#fff',
-                    color: isActive ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                    backgroundColor: isActive ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : '#fff',
+                    color: isActive ? 'var(--editor-components-color-accent)' : '#1e1e1e',
                     fontSize: 11,
                     fontWeight: 500,
                     whiteSpace: 'nowrap',
@@ -441,6 +474,40 @@ export function Inserter() {
                       Not available in this container
                     </div>
                   )}
+                  {entry.isAllowed && (
+                    <div
+                      style={{
+                        marginTop: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                      }}
+                    >
+                      <span style={{ fontSize: 11, color: '#757575' }}>Insert pattern</span>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.preventDefault()
+                          event.stopPropagation()
+                          handleInsertSyncedPattern(entry)
+                        }}
+                        style={{
+                          border: '1px solid #dcdcde',
+                          borderRadius: 2,
+                          backgroundColor: '#fff',
+                          color: '#1e1e1e',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: '2px 8px',
+                          cursor: 'pointer',
+                        }}
+                        title="Insert as synced pattern"
+                      >
+                        Synced
+                      </button>
+                    </div>
+                  )}
                 </button>
               ))
             )}
@@ -485,7 +552,7 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.65 : 1,
         transition: 'background-color 0.05s ease',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       <span

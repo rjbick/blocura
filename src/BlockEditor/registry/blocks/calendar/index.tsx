@@ -38,7 +38,7 @@ function CalendarEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
         borderRadius: 2,
         padding: 12,
         backgroundColor: '#fff',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {isSelected && (
@@ -104,7 +104,7 @@ function CalendarEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
                   ) : entry.hasPost ? (
                     <a
                       href={`#day-${entry.day}`}
-                      style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}
+                      style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}
                     >
                       {entry.day}
                     </a>
@@ -126,7 +126,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
 }
 
@@ -156,7 +156,7 @@ export const calendarBlock: BlockDefinition = {
       className: (attributes as CalendarAttributes).className,
       anchor: (attributes as CalendarAttributes).anchor,
     }
-    const classes = ['wp-block-calendar']
+    const classes = ['editor-block-calendar']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
     const header = WEEKDAYS

@@ -143,7 +143,7 @@ export const preformattedBlock: BlockDefinition = {
   edit: PreformattedEdit as BlockDefinition['edit'],
   save: ({ attributes }) => {
     const { content, className, anchor } = attributes as PreformattedAttrs
-    const classes = ['wp-block-preformatted']
+    const classes = ['editor-block-preformatted']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     return `<pre class="${classes.join(' ')}"${anchorAttr}>${content}</pre>`

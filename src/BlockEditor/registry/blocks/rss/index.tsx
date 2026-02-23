@@ -1,5 +1,8 @@
 import { Rss } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
+import type { RssFeedItem, RssFeedResult } from '../../../types'
+import { useEditorRuntime } from '../../../context'
 
 interface RSSAttributes {
   feedURL: string
@@ -76,7 +79,25 @@ function getVisibleItems(itemsToShow: number): DemoFeedItem[] {
   return DEMO_FEED_ITEMS.slice(0, limit)
 }
 
+function toDemoFeedItem(item: RssFeedItem): DemoFeedItem {
+  return {
+    title: item.title || 'Untitled item',
+    url: item.url || '#',
+    author: item.author || 'Unknown author',
+    date: item.date || '1970-01-01',
+    excerpt: item.excerpt || '',
+  }
+}
+
+function normalizeFeedResult(result: RssFeedResult | RssFeedItem[]): RssFeedResult {
+  if (Array.isArray(result)) {
+    return { items: result }
+  }
+  return result
+}
+
 function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAttributes>) {
+  const { onFetchRssFeed } = useEditorRuntime()
   const settings: RSSAttributes = {
     feedURL: attributes.feedURL || '',
     itemsToShow: Math.min(Math.max(attributes.itemsToShow || 4, 1), 20),
@@ -86,7 +107,55 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
     className: attributes.className,
     anchor: attributes.anchor,
   }
-  const entries = getVisibleItems(settings.itemsToShow)
+  const [runtimeFeed, setRuntimeFeed] = useState<RssFeedResult | null>(null)
+  const [isRuntimeLoading, setIsRuntimeLoading] = useState(false)
+  const [hasRuntimeError, setHasRuntimeError] = useState(false)
+
+  useEffect(() => {
+    if (!onFetchRssFeed || !settings.feedURL) {
+      setRuntimeFeed(null)
+      setHasRuntimeError(false)
+      setIsRuntimeLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setIsRuntimeLoading(true)
+    setHasRuntimeError(false)
+
+    void onFetchRssFeed({
+      feedURL: settings.feedURL,
+      itemsToShow: settings.itemsToShow,
+      displayAuthor: settings.displayAuthor,
+      displayDate: settings.displayDate,
+      displayExcerpt: settings.displayExcerpt,
+    }).then((result) => {
+      if (cancelled) return
+      setRuntimeFeed(normalizeFeedResult(result))
+    }).catch(() => {
+      if (cancelled) return
+      setRuntimeFeed(null)
+      setHasRuntimeError(true)
+    }).finally(() => {
+      if (cancelled) return
+      setIsRuntimeLoading(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    onFetchRssFeed,
+    settings.displayAuthor,
+    settings.displayDate,
+    settings.displayExcerpt,
+    settings.feedURL,
+    settings.itemsToShow,
+  ])
+
+  const entries = runtimeFeed && runtimeFeed.items.length > 0
+    ? runtimeFeed.items.map(toDemoFeedItem).slice(0, settings.itemsToShow)
+    : getVisibleItems(settings.itemsToShow)
 
   if (!settings.feedURL) {
     return (
@@ -96,7 +165,7 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
           borderRadius: 2,
           padding: 18,
           backgroundColor: '#fafafa',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -125,7 +194,7 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
         borderRadius: 2,
         padding: 12,
         backgroundColor: '#fff',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {isSelected && (
@@ -189,12 +258,12 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
       )}
 
       <div style={{ fontSize: 12, color: '#757575', marginBottom: 8 }}>
-        Source: {getFeedLabel(settings.feedURL)}
+        Source: {runtimeFeed?.sourceLabel || getFeedLabel(settings.feedURL)}
       </div>
       <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {entries.map((item) => (
           <li key={item.url}>
-            <a href={item.url} style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}>
+            <a href={item.url} style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}>
               {item.title}
             </a>
             {(settings.displayAuthor || settings.displayDate) && (
@@ -210,6 +279,13 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
           </li>
         ))}
       </ul>
+      {(isRuntimeLoading || hasRuntimeError) && (
+        <div style={{ marginTop: 10, fontSize: 11, color: '#757575' }}>
+          {isRuntimeLoading
+            ? 'Loading RSS feed...'
+            : 'Using fallback feed preview because live data could not be loaded.'}
+        </div>
+      )}
     </div>
   )
 }
@@ -220,7 +296,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
 }
 
@@ -256,7 +332,7 @@ export const rssBlock: BlockDefinition = {
       className: (attributes as RSSAttributes).className,
       anchor: (attributes as RSSAttributes).anchor,
     }
-    const classes = ['wp-block-rss']
+    const classes = ['editor-block-rss']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
     const sourceLabel = settings.feedURL ? getFeedLabel(settings.feedURL) : 'RSS feed'
@@ -267,14 +343,14 @@ export const rssBlock: BlockDefinition = {
         const meta = [settings.displayAuthor ? item.author : '', settings.displayDate ? formatDate(item.date) : '']
           .filter(Boolean)
           .join(' · ')
-        const metaHtml = meta ? `<div class="wp-block-rss__item-meta">${meta}</div>` : ''
+        const metaHtml = meta ? `<div class="editor-block-rss__item-meta">${meta}</div>` : ''
         const excerptHtml = settings.displayExcerpt
-          ? `<p class="wp-block-rss__item-excerpt">${item.excerpt}</p>`
+          ? `<p class="editor-block-rss__item-excerpt">${item.excerpt}</p>`
           : ''
         return `<li><a href="${item.url}">${item.title}</a>${metaHtml}${excerptHtml}</li>`
       })
       .join('')
 
-    return `<div class="${classes.join(' ')}"${anchorAttr}><div class="wp-block-rss__source">${sourceLabel}</div><ul>${listHtml}</ul></div>`
+    return `<div class="${classes.join(' ')}"${anchorAttr}><div class="editor-block-rss__source">${sourceLabel}</div><ul>${listHtml}</ul></div>`
   },
 }

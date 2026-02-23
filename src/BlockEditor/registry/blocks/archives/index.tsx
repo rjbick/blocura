@@ -37,7 +37,7 @@ function ArchivesEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
         borderRadius: 2,
         padding: 12,
         backgroundColor: '#fff',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {isSelected && (
@@ -98,7 +98,7 @@ function ArchivesEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
             <li key={archive.url}>
               <a
                 href={archive.url}
-                style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}
+                style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}
               >
                 {archive.label}
               </a>
@@ -137,7 +137,7 @@ export const archivesBlock: BlockDefinition = {
       className: (attributes as ArchivesAttributes).className,
       anchor: (attributes as ArchivesAttributes).anchor,
     }
-    const classes = ['wp-block-archives']
+    const classes = ['editor-block-archives']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
 
@@ -148,7 +148,7 @@ export const archivesBlock: BlockDefinition = {
             `<option value="${archive.url}">${archive.label}${settings.showPostCounts ? ` (${archive.count})` : ''}</option>`
         )
         .join('')
-      return `<div class="${classes.join(' ')}"${anchorAttr}><label class="wp-block-archives__label">Archives</label><select name="archive-dropdown"><option value="">Select Month</option>${options}</select></div>`
+      return `<div class="${classes.join(' ')}"${anchorAttr}><label class="editor-block-archives__label">Archives</label><select name="archive-dropdown"><option value="">Select Month</option>${options}</select></div>`
     }
 
     const items = DEMO_ARCHIVES

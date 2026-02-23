@@ -125,7 +125,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -141,7 +141,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const navigationBlock: BlockDefinition = {
@@ -168,7 +168,7 @@ export const navigationBlock: BlockDefinition = {
   save: ({ attributes }) => {
     const { orientation = 'horizontal', justifyContent = 'left', className, anchor } =
       attributes as NavigationAttributes
-    const classes = ['wp-block-navigation']
+    const classes = ['editor-block-navigation']
     if (orientation === 'vertical') classes.push('is-vertical')
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
@@ -180,7 +180,7 @@ export const navigationBlock: BlockDefinition = {
         : justifyContent === 'space-between'
         ? 'space-between'
         : 'flex-start'
-    const listClass = ['wp-block-navigation__container']
+    const listClass = ['editor-block-navigation__container']
     if (orientation === 'vertical') listClass.push('is-vertical')
     return `<nav class="${classes.join(' ')}"${anchorAttr}><ul class="${listClass.join(' ')}" style="justify-content:${justify}"><!--inner--></ul></nav>`
   },

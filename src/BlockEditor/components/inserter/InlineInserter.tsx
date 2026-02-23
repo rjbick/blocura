@@ -15,6 +15,7 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const { insertBlock } = useEditorActions()
+  const containerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   const handleInsertBlock = useCallback((def: BlockDefinition) => {
@@ -27,6 +28,7 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
 
   return (
     <div
+      ref={containerRef}
       className="inline-inserter"
       style={{
         height: 16,
@@ -35,9 +37,15 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
         alignItems: 'center',
         justifyContent: 'center',
         marginBlock: 0,
+        cursor: 'pointer',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={(e) => {
+        e.stopPropagation()
+        setIsHovered(true)
+        setIsPickerOpen(true)
+      }}
     >
       <AnimatePresence>
         {isVisible && (
@@ -53,7 +61,7 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
                 left: 0,
                 right: 0,
                 height: 2,
-                backgroundColor: 'var(--wp-inserter-line-color)',
+                backgroundColor: 'var(--editor-inserter-line-color)',
                 transformOrigin: 'left center',
                 borderRadius: 1,
               }}
@@ -79,11 +87,11 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
                 height: 24,
                 borderRadius: 2,
                 backgroundColor: '#fff',
-                color: 'var(--wp-components-color-accent)',
+                color: 'var(--editor-components-color-accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '1px solid var(--wp-inserter-line-color)',
+                border: '1px solid var(--editor-inserter-line-color)',
                 cursor: 'pointer',
                 position: 'relative',
                 zIndex: 2,
@@ -99,10 +107,12 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
 
       {isPickerOpen && (
         <SlashInserter
-          anchorEl={buttonRef.current}
+          anchorEl={buttonRef.current ?? containerRef.current}
           rootClientId={rootClientId}
           query=""
           showAllByDefault={true}
+          searchable={true}
+          searchPlaceholder="Search blocks"
           onSelect={handleInsertBlock}
           onClose={() => setIsPickerOpen(false)}
         />

@@ -22,12 +22,12 @@ export function DocumentTitle() {
       style={{
         fontSize: 13,
         fontWeight: 600,
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
         color: '#1e1e1e',
         background: 'transparent',
         border: 'none',
         borderBottom: isFocused
-          ? '1px solid var(--wp-components-color-accent)'
+          ? '1px solid var(--editor-components-color-accent)'
           : isHovered
           ? '1px solid #949494'
           : '1px solid transparent',

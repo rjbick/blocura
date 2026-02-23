@@ -36,7 +36,7 @@ function SearchEdit({ attributes, setAttributes, isSelected }: BlockEditProps<Se
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
             gap: 8,
             marginBottom: 10,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             fontSize: 12,
           }}
         >
@@ -104,7 +104,7 @@ function SearchEdit({ attributes, setAttributes, isSelected }: BlockEditProps<Se
               fontSize: 13,
               fontWeight: 500,
               color: '#1e1e1e',
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
             }}
           >
             {label}
@@ -142,7 +142,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
 }
 
@@ -153,7 +153,7 @@ const outsideButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '0 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -197,15 +197,15 @@ export const searchBlock: BlockDefinition = {
       className,
       anchor,
     } = attributes as SearchAttributes
-    const classes = ['wp-block-search']
-    if (buttonPosition === 'button-inside') classes.push('wp-block-search__button-inside')
-    if (buttonPosition === 'no-button') classes.push('wp-block-search__no-button')
+    const classes = ['editor-block-search']
+    if (buttonPosition === 'button-inside') classes.push('editor-block-search__button-inside')
+    if (buttonPosition === 'no-button') classes.push('editor-block-search__no-button')
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
-    const labelHtml = showLabel ? `<label class="wp-block-search__label">${label}</label>` : ''
+    const labelHtml = showLabel ? `<label class="editor-block-search__label">${label}</label>` : ''
     const buttonHtml = buttonPosition !== 'no-button'
-      ? `<button class="wp-block-search__button" type="submit">${buttonText}</button>`
+      ? `<button class="editor-block-search__button" type="submit">${buttonText}</button>`
       : ''
-    return `<div class="${classes.join(' ')}"${anchorAttr}><form role="search" class="wp-block-search__button-${buttonPosition}">${labelHtml}<input class="wp-block-search__input" type="search" placeholder="${placeholder}" />${buttonHtml}</form></div>`
+    return `<div class="${classes.join(' ')}"${anchorAttr}><form role="search" class="editor-block-search__button-${buttonPosition}">${labelHtml}<input class="editor-block-search__input" type="search" placeholder="${placeholder}" />${buttonHtml}</form></div>`
   },
 }

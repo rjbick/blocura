@@ -57,7 +57,7 @@ function CategoriesEdit({
         borderRadius: 2,
         padding: 12,
         backgroundColor: '#fff',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {isSelected && (
@@ -143,7 +143,7 @@ function CategoriesEdit({
               <li key={category.id} style={{ marginLeft: depth * 14 }}>
                 <a
                   href={category.url}
-                  style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}
+                  style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}
                 >
                   {category.name}
                 </a>
@@ -185,7 +185,7 @@ export const categoriesBlock: BlockDefinition = {
       className: (attributes as CategoriesAttributes).className,
       anchor: (attributes as CategoriesAttributes).anchor,
     }
-    const classes = ['wp-block-categories']
+    const classes = ['editor-block-categories']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
 
@@ -198,7 +198,7 @@ export const categoriesBlock: BlockDefinition = {
           return `<option value="${category.url}">${prefix}${category.name}${count}</option>`
         })
         .join('')
-      return `<div class="${classes.join(' ')}"${anchorAttr}><label class="wp-block-categories__label">Categories</label><select name="cat" class="wp-block-categories-dropdown"><option value="">Select Category</option>${options}</select></div>`
+      return `<div class="${classes.join(' ')}"${anchorAttr}><label class="editor-block-categories__label">Categories</label><select name="cat" class="editor-block-categories-dropdown"><option value="">Select Category</option>${options}</select></div>`
     }
 
     const items = DEMO_CATEGORIES

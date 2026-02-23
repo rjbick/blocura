@@ -43,7 +43,7 @@ function ClassicEdit({ clientId, attributes, setAttributes }: BlockEditProps<Cla
           fontSize: 12,
           color: '#555',
           marginBottom: 8,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         Classic block content
@@ -105,7 +105,7 @@ export const classicBlock: BlockDefinition = {
   edit: ClassicEdit,
   save: ({ attributes }) => {
     const { content, className, anchor } = attributes as ClassicAttributes
-    const classes = ['wp-block-classic']
+    const classes = ['editor-block-classic']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     return `<div class="${classes.join(' ')}"${anchorAttr}>${content || ''}</div>`

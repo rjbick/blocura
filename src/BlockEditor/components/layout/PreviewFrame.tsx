@@ -2,6 +2,8 @@ import { X, Monitor, Tablet, Smartphone } from 'lucide-react'
 import { useEditorStore, useEditorActions } from '../../store'
 import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
 import { buildPreviewDocument } from '../../helpers/buildPreviewDocument'
+import { resolvePreviewAssetUrls } from '../../helpers/resolvePreviewAssetUrls'
+import type { EditorSettings, PreviewAssetUrlContext } from '../../types'
 
 const DEVICE_CONFIG = {
   desktop: {
@@ -35,7 +37,15 @@ const DEVICE_CONFIG = {
   },
 }
 
-export function PreviewFrame() {
+interface PreviewFrameProps {
+  previewSettings?: EditorSettings['preview']
+  previewAssetUrlResolver?: (
+    url: string,
+    context: PreviewAssetUrlContext
+  ) => string | null | undefined
+}
+
+export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: PreviewFrameProps) {
   const previewDevice = useEditorStore(s => s.previewDevice)
   const blocks = useEditorStore(s => s.blocks)
   const title = useEditorStore(s => s.title)
@@ -48,8 +58,15 @@ export function PreviewFrame() {
   const rawHtml = blocksToRawHtml(blocks, {
     title,
     includeTitle: includeTitleInContent,
+    preserveInternalClasses: true,
   })
-  const srcdoc = buildPreviewDocument({ rawHtml, title })
+  const resolvedRawHtml = resolvePreviewAssetUrls(rawHtml, previewAssetUrlResolver)
+  const srcdoc = buildPreviewDocument({
+    rawHtml: resolvedRawHtml,
+    title,
+    device: previewDevice,
+    preview: previewSettings,
+  })
 
   return (
     <div
@@ -108,7 +125,7 @@ export function PreviewFrame() {
         <div
           style={{
             fontSize: 13,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             color: '#757575',
           }}
         >
@@ -151,7 +168,8 @@ export function PreviewFrame() {
         <iframe
           srcDoc={srcdoc}
           title={`${config.label} preview`}
-          sandbox="allow-scripts allow-same-origin"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-presentation"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           style={{
             width: config.width,
             height: config.height,

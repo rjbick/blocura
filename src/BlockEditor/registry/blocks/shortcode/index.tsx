@@ -43,7 +43,7 @@ function ShortcodeEdit({ clientId, attributes, setAttributes, isSelected }: Bloc
           fontSize: 12,
           color: '#555',
           marginBottom: 8,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         Shortcode
@@ -104,7 +104,7 @@ export const shortcodeBlock: BlockDefinition = {
   edit: ShortcodeEdit,
   save: ({ attributes }) => {
     const { text, className, anchor } = attributes as ShortcodeAttributes
-    const classes = ['wp-block-shortcode']
+    const classes = ['editor-block-shortcode']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     return `<div class="${classes.join(' ')}"${anchorAttr}>${text || ''}</div>`

@@ -26,7 +26,7 @@ const DEMO_TAGS: DemoTag[] = [
   { name: 'Editorial', slug: 'editorial', count: 9 },
   { name: 'Workflow', slug: 'workflow', count: 13 },
   { name: 'UI', slug: 'ui', count: 15 },
-  { name: 'WordPress', slug: 'wordpress', count: 19 },
+  { name: 'Blocura', slug: 'blocura', count: 19 },
 ]
 
 function getVisibleTags(numberOfTags: number): DemoTag[] {
@@ -59,7 +59,7 @@ function TagCloudEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
         borderRadius: 2,
         padding: 12,
         backgroundColor: '#fff',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {isSelected && (
@@ -96,7 +96,7 @@ function TagCloudEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
             style={{
               fontSize: `${getTagFontSize(tag.count, tags)}px`,
               marginRight: 10,
-              color: 'var(--wp-components-color-accent)',
+              color: 'var(--editor-components-color-accent)',
               textDecoration: 'none',
               display: 'inline-block',
             }}
@@ -115,7 +115,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
   width: 80,
 }
@@ -147,7 +147,7 @@ export const tagCloudBlock: BlockDefinition = {
       anchor: (attributes as TagCloudAttributes).anchor,
     }
     const tags = getVisibleTags(settings.numberOfTags)
-    const classes = ['wp-block-tag-cloud']
+    const classes = ['editor-block-tag-cloud']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
     const links = tags

@@ -74,7 +74,7 @@ function Kbd({ children }: { children: string }) {
         borderBottomWidth: 2,
         borderRadius: 3,
         fontSize: 11,
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
         fontWeight: 500,
         color: '#1e1e1e',
         whiteSpace: 'nowrap',
@@ -105,13 +105,13 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
         style={{
           backgroundColor: '#fff',
           borderRadius: 4,
-          boxShadow: 'var(--wp-popover-shadow)',
+          boxShadow: 'var(--editor-popover-shadow)',
           width: 560,
           maxWidth: '90vw',
           maxHeight: '80vh',
           display: 'flex',
           flexDirection: 'column',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
           marginBottom: 32,
         }}
         onClick={(e) => e.stopPropagation()}

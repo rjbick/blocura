@@ -17,6 +17,7 @@ export interface KeymapCallbacks {
   onRemove?: (forward: boolean) => void
   onNavigateOut?: (direction: 'up' | 'down') => void
   disableLineBreaks?: boolean
+  allowedFormats?: string[]
 }
 
 function serializeBeforeCursor(state: EditorState): string {
@@ -46,7 +47,10 @@ export function buildKeymapPlugin(callbacks: KeymapCallbacks) {
     onRemove,
     onNavigateOut,
     disableLineBreaks = false,
+    allowedFormats,
   } = callbacks
+  const formatSet = allowedFormats ? new Set(allowedFormats.map((item) => item.toLowerCase())) : null
+  const canUse = (formatName: string) => !formatSet || formatSet.has(formatName.toLowerCase())
 
   const Enter: Command = (state, _dispatch) => {
     const { $from, $to } = state.selection
@@ -136,12 +140,12 @@ export function buildKeymapPlugin(callbacks: KeymapCallbacks) {
     ArrowDown,
     ArrowUp,
     // Format shortcuts
-    'Mod-b': toggleMark(schema.marks.bold),
-    'Mod-B': toggleMark(schema.marks.bold),
-    'Mod-i': toggleMark(schema.marks.italic),
-    'Mod-I': toggleMark(schema.marks.italic),
-    'Mod-u': toggleMark(schema.marks.underline),
-    'Mod-U': toggleMark(schema.marks.underline),
+    'Mod-b': (state, dispatch) => (canUse('bold') ? toggleMark(schema.marks.bold)(state, dispatch) : false),
+    'Mod-B': (state, dispatch) => (canUse('bold') ? toggleMark(schema.marks.bold)(state, dispatch) : false),
+    'Mod-i': (state, dispatch) => (canUse('italic') ? toggleMark(schema.marks.italic)(state, dispatch) : false),
+    'Mod-I': (state, dispatch) => (canUse('italic') ? toggleMark(schema.marks.italic)(state, dispatch) : false),
+    'Mod-u': (state, dispatch) => (canUse('underline') ? toggleMark(schema.marks.underline)(state, dispatch) : false),
+    'Mod-U': (state, dispatch) => (canUse('underline') ? toggleMark(schema.marks.underline)(state, dispatch) : false),
     'Mod-a': selectAll,
   }
 

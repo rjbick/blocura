@@ -1,7 +1,7 @@
 import { Code } from 'lucide-react'
-import { useRef, useEffect } from 'react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
+import { CodeMirrorEditor } from '../../../components/ui/CodeMirrorEditor'
 
 interface HtmlAttrs {
   content: string
@@ -13,16 +13,6 @@ function HtmlEdit({
   setAttributes,
   isSelected,
 }: BlockEditProps<HtmlAttrs>) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'
-    }
-  }, [attributes.content])
-
   useInspectorControls(
     clientId,
     () => (
@@ -44,31 +34,25 @@ function HtmlEdit({
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* Edit mode: code textarea */}
-      <textarea
-        ref={textareaRef}
-        value={attributes.content}
-        onChange={e => setAttributes({ content: e.target.value })}
-        placeholder="Write HTML…"
-        spellCheck={false}
+      <div
         style={{
-          width: '100%',
-          minHeight: 80,
-          fontFamily: '"Courier New", Courier, monospace',
-          fontSize: 13,
-          lineHeight: 1.6,
-          padding: '12px 16px',
           border: '1px solid #ddd',
           borderRadius: 2,
           backgroundColor: '#f6f7f7',
-          color: '#1e1e1e',
-          resize: 'none',
-          outline: 'none',
-          boxSizing: 'border-box',
-          overflow: 'hidden',
-          display: 'block',
+          minHeight: 80,
         }}
-      />
+      >
+        <CodeMirrorEditor
+          value={attributes.content}
+          onChange={(nextValue) => setAttributes({ content: nextValue })}
+          language="html"
+          tone="light"
+          className="html-block-code-mirror"
+          style={{
+            minHeight: 80,
+          }}
+        />
+      </div>
 
       {/* Preview (shown when not selected) */}
       {!isSelected && attributes.content && (

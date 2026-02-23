@@ -10,22 +10,24 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core'
 import { ZoomOut } from 'lucide-react'
-import { useEditorStore, useEditorActions, useBlocks } from '../../store'
+import { useEditorStore, useEditorActions, useBlocks, useEditorStoreApi } from '../../store'
 import type { Block } from '../../types'
 import { BlockList } from '../block/BlockList'
 import { BlockFloatingToolbar } from '../block/BlockFloatingToolbar'
+import { BlockMultiControls } from '../block/BlockMultiControls'
 import { BlockAppender } from '../inserter/BlockAppender'
 import { findBlock, flattenBlocks, findBlockParent, getBlockAncestors } from '../../helpers/flattenBlocks'
 import { BlockRegistry } from '../../registry/BlockRegistry'
-import { blocksToBlockMarkup } from '../../helpers/blocksToBlockMarkup'
-import { parseBlockMarkup } from '../../helpers/parseBlockMarkup'
+import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
 import { parseHtmlToBlocks } from '../../helpers/parseHtmlToBlocks'
+import { migrateLegacyHtmlClasses } from '../../helpers/migrateLegacyClasses'
+import { CodeMirrorEditor } from '../ui/CodeMirrorEditor'
 
 interface EditorCanvasProps {
   maxWidth?: number
 }
 
-export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
+export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
   const isCodeMode = useEditorStore(s => s.isCodeMode)
   const isZoomOut = useEditorStore(s => s.isZoomOut)
   const zoomLevel = useEditorStore(s => s.zoomLevel)
@@ -34,6 +36,7 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
   const fixedToolbar = useEditorStore(s => s.preferences.fixedToolbar)
   const isDistractionFree = useEditorStore(s => s.isDistractionFree)
   const { selectBlock, clearSelection, moveBlockToPosition, setIsDragging, toggleZoomOut } = useEditorActions()
+  const store = useEditorStoreApi()
   const blocks = useBlocks()
   const canvasRef = useRef<HTMLDivElement>(null)
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
@@ -46,13 +49,14 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
 
   const handleNavigateOut = useCallback(
     (clientId: string, direction: 'up' | 'down') => {
-      const flat = flattenBlocks(blocks)
+      const latestBlocks = store.getState().blocks
+      const flat = flattenBlocks(latestBlocks)
       const index = flat.findIndex(b => b.clientId === clientId)
       const target = direction === 'down' ? flat[index + 1] : flat[index - 1]
       if (!target) return
       selectBlock(target.clientId, direction === 'down' ? -1 : 1)
     },
-    [blocks, selectBlock]
+    [selectBlock, store]
   )
 
   const handleCanvasClick = useCallback(
@@ -152,7 +156,7 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
             gap: 8,
             padding: '8px 16px',
             fontSize: 13,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
           }}
         >
           <ZoomOut size={14} />
@@ -169,7 +173,7 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
               color: '#fff',
               fontSize: 12,
               cursor: 'pointer',
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
             }}
           >
             Exit
@@ -186,10 +190,12 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
         />
       )}
 
+      <BlockMultiControls />
+
       <div
         style={{
           minHeight: '100%',
-          backgroundColor: 'var(--wp-editor-bg)',
+          backgroundColor: 'var(--editor-editor-bg)',
           padding: '40px 24px 200px',
           display: 'flex',
           flexDirection: 'column',
@@ -201,9 +207,9 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
           ref={canvasRef}
           style={{
             width: '100%',
-            maxWidth,
-            backgroundColor: 'var(--wp-canvas-bg)',
-            boxShadow: 'var(--wp-canvas-shadow)',
+            maxWidth: maxWidth ?? '100%',
+            backgroundColor: 'var(--editor-canvas-bg)',
+            boxShadow: 'var(--editor-canvas-shadow)',
             borderRadius: 2,
             minHeight: 400,
             padding: '48px 56px 80px 80px',
@@ -233,15 +239,15 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
             left: '50%',
             transform: 'translateX(-50%)',
             maxWidth: 'min(900px, calc(100% - 48px))',
-            backgroundColor: 'var(--wp-breadcrumb-bg)',
+            backgroundColor: 'var(--editor-breadcrumb-bg)',
             border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: 2,
-            height: 'var(--wp-breadcrumb-height)',
+            height: 'var(--editor-breadcrumb-height)',
             display: 'inline-flex',
             alignItems: 'center',
             padding: '0 10px',
-            fontSize: 'var(--wp-breadcrumb-font-size)',
-            fontFamily: 'var(--wp-font-family)',
+            fontSize: 'var(--editor-breadcrumb-font-size)',
+            fontFamily: 'var(--editor-font-family)',
             color: '#1e1e1e',
             gap: 6,
             zIndex: 90,
@@ -287,11 +293,11 @@ export function EditorCanvas({ maxWidth = 620 }: EditorCanvasProps) {
           <div
             style={{
               backgroundColor: '#fff',
-              boxShadow: 'var(--wp-elevation-z4)',
+              boxShadow: 'var(--editor-elevation-z4)',
               borderRadius: 2,
               padding: '12px 16px',
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               color: '#1e1e1e',
               opacity: 0.9,
               maxWidth: 400,
@@ -329,7 +335,7 @@ function PostTitleArea() {
           fontSize: 40,
           fontWeight: 700,
           lineHeight: 1.3,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
           color: '#1e1e1e',
           padding: 0,
           background: 'transparent',
@@ -349,30 +355,26 @@ function PostTitleArea() {
 
 function CodeEditorView({ blocks }: { blocks: Block[] }) {
   const { resetBlocks } = useEditorActions()
-  const [markup, setMarkup] = useState(() => blocksToBlockMarkup(blocks))
+  const [markup, setMarkup] = useState(() => blocksToRawHtml(blocks))
   const [error, setError] = useState<string | null>(null)
-  const [sourceMode, setSourceMode] = useState<'block-markup' | 'raw-html'>('block-markup')
 
   // Keep markup in sync when blocks change externally (e.g. undo)
-  const markupFromBlocks = blocksToBlockMarkup(blocks)
+  const markupFromBlocks = blocksToRawHtml(blocks)
   useEffect(() => {
     setMarkup(markupFromBlocks)
     setError(null)
-  // Only sync if the serialized form differs from what we have
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [markupFromBlocks])
 
   const handleApply = useCallback(() => {
     try {
-      const parsed = sourceMode === 'raw-html'
-        ? parseHtmlToBlocks(markup)
-        : parseBlockMarkup(markup)
+      const migrated = migrateLegacyHtmlClasses(markup)
+      const parsed = parseHtmlToBlocks(migrated.value)
       resetBlocks(parsed)
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Parse error')
     }
-  }, [markup, resetBlocks, sourceMode])
+  }, [markup, resetBlocks])
 
   return (
     <div
@@ -398,63 +400,18 @@ function CodeEditorView({ blocks }: { blocks: Block[] }) {
         <span
           style={{
             fontSize: 11,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             color: '#a0a0a0',
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
             fontWeight: 600,
           }}
         >
-          {sourceMode === 'raw-html' ? 'Raw HTML' : 'Block Markup'}
+          Raw HTML
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            style={{
-              display: 'flex',
-              border: '1px solid #4b4b4b',
-              borderRadius: 2,
-              overflow: 'hidden',
-              marginRight: 8,
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setSourceMode('block-markup')}
-              style={{
-                height: 26,
-                paddingInline: 10,
-                border: 'none',
-                backgroundColor: sourceMode === 'block-markup' ? '#1e1e1e' : '#2c2c2c',
-                color: sourceMode === 'block-markup' ? '#fff' : '#a0a0a0',
-                fontSize: 11,
-                fontFamily: 'var(--wp-font-family)',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Markup
-            </button>
-            <button
-              type="button"
-              onClick={() => setSourceMode('raw-html')}
-              style={{
-                height: 26,
-                paddingInline: 10,
-                border: 'none',
-                borderLeft: '1px solid #4b4b4b',
-                backgroundColor: sourceMode === 'raw-html' ? '#1e1e1e' : '#2c2c2c',
-                color: sourceMode === 'raw-html' ? '#fff' : '#a0a0a0',
-                fontSize: 11,
-                fontFamily: 'var(--wp-font-family)',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              HTML
-            </button>
-          </div>
           {error && (
-            <span style={{ fontSize: 11, color: '#f87171', fontFamily: 'var(--wp-font-family)' }}>
+            <span style={{ fontSize: 11, color: '#f87171', fontFamily: 'var(--editor-font-family)' }}>
               {error}
             </span>
           )}
@@ -469,7 +426,7 @@ function CodeEditorView({ blocks }: { blocks: Block[] }) {
               border: 'none',
               borderRadius: 2,
               fontSize: 12,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               fontWeight: 500,
               cursor: 'pointer',
             }}
@@ -479,29 +436,21 @@ function CodeEditorView({ blocks }: { blocks: Block[] }) {
         </div>
       </div>
 
-      {/* Textarea */}
-      <textarea
+      <CodeMirrorEditor
         value={markup}
-        onChange={(e) => {
-          setMarkup(e.target.value)
+        onChange={(nextValue) => {
+          setMarkup(nextValue)
           setError(null)
         }}
         onBlur={handleApply}
-        spellCheck={false}
+        language="html"
+        className="editor-code-mirror"
         style={{
           flex: 1,
           width: '100%',
-          padding: '20px 24px',
+          minHeight: 400,
           backgroundColor: 'transparent',
           color: '#d4d4d4',
-          fontFamily: '"Courier New", "Consolas", monospace',
-          fontSize: 13,
-          lineHeight: 1.6,
-          border: 'none',
-          outline: 'none',
-          resize: 'none',
-          boxSizing: 'border-box',
-          minHeight: 400,
         }}
       />
     </div>

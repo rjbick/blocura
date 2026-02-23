@@ -53,7 +53,7 @@ function PageListEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
         borderRadius: 2,
         padding: 12,
         backgroundColor: '#fff',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {isSelected && (
@@ -83,7 +83,7 @@ function PageListEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
       <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
         {pages.map((page) => (
           <li key={page.url}>
-            <a href={page.url} style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}>
+            <a href={page.url} style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}>
               {page.title}
             </a>
             {settings.displayDate && (
@@ -101,7 +101,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
 }
 
@@ -132,13 +132,13 @@ export const pageListBlock: BlockDefinition = {
       anchor: (attributes as PageListAttributes).anchor,
     }
     const pages = getVisiblePages(settings.sortOrder)
-    const classes = ['wp-block-page-list']
+    const classes = ['editor-block-page-list']
     if (settings.className) classes.push(settings.className)
     const anchorAttr = settings.anchor ? ` id="${settings.anchor}"` : ''
     const items = pages
       .map((page) => {
         const dateHtml = settings.displayDate
-          ? `<time datetime="${page.date}" class="wp-block-page-list__date">${formatDate(page.date)}</time>`
+          ? `<time datetime="${page.date}" class="editor-block-page-list__date">${formatDate(page.date)}</time>`
           : ''
         return `<li><a href="${page.url}">${page.title}</a>${dateHtml}</li>`
       })

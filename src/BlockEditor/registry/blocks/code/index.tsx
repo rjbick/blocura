@@ -100,6 +100,6 @@ export const codeBlock: BlockDefinition = {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-    return `<pre class="wp-block-code"><code>${escaped}</code></pre>`
+    return `<pre class="editor-block-code"><code>${escaped}</code></pre>`
   },
 }

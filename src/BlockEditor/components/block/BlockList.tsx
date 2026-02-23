@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -26,6 +26,13 @@ export function BlockList({ blocks, rootClientId, onNavigateOut, direction = 've
   const isHorizontal = direction === 'horizontal'
   const dropZoneId = `dropzone:${rootClientId ?? '__root__'}`
   const { setNodeRef: setDropZoneRef, isOver: isOverDropZone } = useDroppable({ id: dropZoneId })
+  const dropZoneRef = useRef(setDropZoneRef)
+  useEffect(() => {
+    dropZoneRef.current = setDropZoneRef
+  }, [setDropZoneRef])
+  const stableDropZoneRef = useCallback((node: HTMLDivElement | null) => {
+    dropZoneRef.current(node)
+  }, [])
 
   const handleNavigateOut = useCallback(
     (clientId: string, direction: 'up' | 'down') => {
@@ -102,19 +109,17 @@ export function BlockList({ blocks, rootClientId, onNavigateOut, direction = 've
         })}
 
         <div
-          ref={setDropZoneRef}
+          ref={stableDropZoneRef}
           data-drop-zone-end
           style={{
             width: isHorizontal ? (blocks.length === 0 ? 56 : 20) : '100%',
             minHeight: isHorizontal ? 36 : undefined,
-            height: isHorizontal ? 'auto' : (blocks.length === 0 ? 36 : 10),
-            marginBottom: !isHorizontal && blocks.length === 0 ? 8 : 0,
+            height: isHorizontal ? 'auto' : (blocks.length === 0 ? 8 : 10),
+            marginBottom: 0,
             marginRight: isHorizontal ? 8 : 0,
             flexShrink: 0,
             border: isOverDropZone
-              ? '2px solid var(--wp-components-color-accent)'
-              : blocks.length === 0
-              ? '1px dashed #ddd'
+              ? '2px solid var(--editor-components-color-accent)'
               : '1px dashed transparent',
             borderRadius: 2,
             backgroundColor: isOverDropZone ? 'rgba(56,88,233,0.08)' : 'transparent',

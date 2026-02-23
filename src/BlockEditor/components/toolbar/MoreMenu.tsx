@@ -3,7 +3,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useEditorActions, useEditorStore } from '../../store'
 import { KeyboardShortcutsModal } from '../keyboard/KeyboardShortcutsModal'
 import { PreferencesModal } from '../preferences/PreferencesModal'
-import { blocksToBlockMarkup } from '../../helpers/blocksToBlockMarkup'
+import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
 
 export function MoreMenu() {
   const {
@@ -33,7 +33,7 @@ export function MoreMenu() {
     gap: 10,
     padding: '8px 16px',
     fontSize: 13,
-    fontFamily: 'var(--wp-font-family)',
+    fontFamily: 'var(--editor-font-family)',
     cursor: 'pointer',
     outline: 'none',
     color: '#1e1e1e',
@@ -76,14 +76,14 @@ export function MoreMenu() {
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="wp-popover-content"
+          className="editor-popover-content"
           align="end"
           sideOffset={4}
           style={{
             width: 280,
-            backgroundColor: 'var(--wp-popover-bg)',
-            borderRadius: 'var(--wp-popover-border-radius)',
-            boxShadow: 'var(--wp-popover-shadow)',
+            backgroundColor: 'var(--editor-popover-bg)',
+            borderRadius: 'var(--editor-popover-border-radius)',
+            boxShadow: 'var(--editor-popover-shadow)',
             padding: '4px 0',
             zIndex: 9999,
           }}
@@ -95,10 +95,10 @@ export function MoreMenu() {
             { id: 'tablet' as const, label: 'Tablet preview', icon: <Tablet size={16} />, action: () => setPreviewDevice('tablet') },
             { id: 'mobile' as const, label: 'Mobile preview', icon: <Smartphone size={16} />, action: () => setPreviewDevice('mobile') },
           ].map(item => (
-            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle} className="wp-dropdown-item">
+            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle} className="editor-dropdown-item">
               {item.icon}
               <span style={{ flex: 1 }}>{item.label}</span>
-              {previewDevice === item.id && <Check size={14} color="var(--wp-components-color-accent)" />}
+              {previewDevice === item.id && <Check size={14} color="var(--editor-components-color-accent)" />}
             </DropdownMenu.Item>
           ))}
 
@@ -112,10 +112,10 @@ export function MoreMenu() {
             { label: 'Distraction free', icon: <Type size={16} />, action: toggleDistractionFree, active: isDistractionFree },
             { label: 'Zoom out', icon: <ZoomOut size={16} />, action: toggleZoomOut, active: isZoomOut },
           ].map(item => (
-            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle} className="wp-dropdown-item">
+            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle} className="editor-dropdown-item">
               {item.icon}
               <span style={{ flex: 1 }}>{item.label}</span>
-              {item.active && <Check size={14} color="var(--wp-components-color-accent)" />}
+              {item.active && <Check size={14} color="var(--editor-components-color-accent)" />}
             </DropdownMenu.Item>
           ))}
 
@@ -126,24 +126,24 @@ export function MoreMenu() {
           <DropdownMenu.Item
             onSelect={openKeyboardShortcuts}
             style={menuItemStyle}
-            className="wp-dropdown-item"
+            className="editor-dropdown-item"
           >
             <Keyboard size={16} /><span>Keyboard shortcuts</span>
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={openPreferences}
             style={menuItemStyle}
-            className="wp-dropdown-item"
+            className="editor-dropdown-item"
           >
             <Settings size={16} /><span>Preferences</span>
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => {
-              const markup = blocksToBlockMarkup(blocks)
-              navigator.clipboard?.writeText(markup).catch(() => {})
+              const rawHtml = blocksToRawHtml(blocks)
+              navigator.clipboard?.writeText(rawHtml).catch(() => {})
             }}
             style={menuItemStyle}
-            className="wp-dropdown-item"
+            className="editor-dropdown-item"
           >
             <Copy size={16} /><span>Copy all content</span>
           </DropdownMenu.Item>
@@ -153,9 +153,9 @@ export function MoreMenu() {
           {/* SUPPORT */}
           <div style={labelStyle}>Support</div>
           <DropdownMenu.Item
-            onSelect={() => window.open('https://wordpress.org/support/article/wordpress-editor/', '_blank')}
+            onSelect={() => window.open('https://docs.blocura.com/editor', '_blank')}
             style={menuItemStyle}
-            className="wp-dropdown-item"
+            className="editor-dropdown-item"
           >
             <HelpCircle size={16} /><span>Help center</span>
           </DropdownMenu.Item>

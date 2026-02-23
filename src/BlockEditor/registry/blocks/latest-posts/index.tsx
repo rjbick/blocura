@@ -1,5 +1,8 @@
 import { Newspaper } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
+import type { LatestPostItem } from '../../../types'
+import { useEditorRuntime } from '../../../context'
 
 interface LatestPostsAttributes {
   postsToShow: number
@@ -72,17 +75,32 @@ function trimWords(value: string, length: number): string {
   return `${words.slice(0, length).join(' ')}…`
 }
 
-function getVisiblePosts(attributes: LatestPostsAttributes): DemoPost[] {
-  const sorted = [...DEMO_POSTS].sort((a, b) => {
+function sortPosts(posts: DemoPost[], order: 'desc' | 'asc'): DemoPost[] {
+  return [...posts].sort((a, b) => {
     const first = new Date(a.date).getTime()
     const second = new Date(b.date).getTime()
-    return attributes.order === 'asc' ? first - second : second - first
+    return order === 'asc' ? first - second : second - first
   })
+}
+
+function getVisiblePosts(attributes: LatestPostsAttributes, runtimePosts?: DemoPost[] | null): DemoPost[] {
+  const source = runtimePosts && runtimePosts.length > 0 ? runtimePosts : DEMO_POSTS
+  const sorted = sortPosts(source, attributes.order)
   const limit = Math.min(Math.max(attributes.postsToShow || 5, 1), 20)
   return sorted.slice(0, limit)
 }
 
+function toDemoPost(post: LatestPostItem): DemoPost {
+  return {
+    title: post.title || 'Untitled',
+    date: post.date || '1970-01-01',
+    excerpt: post.excerpt || '',
+    url: post.url || '#',
+  }
+}
+
 function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditProps<LatestPostsAttributes>) {
+  const { onFetchLatestPosts } = useEditorRuntime()
   const settings: LatestPostsAttributes = {
     postsToShow: Math.min(Math.max(attributes.postsToShow || 5, 1), 20),
     order: attributes.order || 'desc',
@@ -92,7 +110,53 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
     className: attributes.className,
     anchor: attributes.anchor,
   }
-  const posts = getVisiblePosts(settings)
+  const [runtimePosts, setRuntimePosts] = useState<DemoPost[] | null>(null)
+  const [hasRuntimeError, setHasRuntimeError] = useState(false)
+  const [isRuntimeLoading, setIsRuntimeLoading] = useState(false)
+
+  useEffect(() => {
+    if (!onFetchLatestPosts) {
+      setRuntimePosts(null)
+      setHasRuntimeError(false)
+      setIsRuntimeLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setIsRuntimeLoading(true)
+    setHasRuntimeError(false)
+
+    void onFetchLatestPosts({
+      postsToShow: settings.postsToShow,
+      order: settings.order,
+      displayPostDate: settings.displayPostDate,
+      displayExcerpt: settings.displayExcerpt,
+      excerptLength: settings.excerptLength,
+    }).then((items) => {
+      if (cancelled) return
+      setRuntimePosts((items ?? []).map(toDemoPost))
+    }).catch(() => {
+      if (cancelled) return
+      setRuntimePosts(null)
+      setHasRuntimeError(true)
+    }).finally(() => {
+      if (cancelled) return
+      setIsRuntimeLoading(false)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    onFetchLatestPosts,
+    settings.displayExcerpt,
+    settings.displayPostDate,
+    settings.excerptLength,
+    settings.order,
+    settings.postsToShow,
+  ])
+
+  const posts = getVisiblePosts(settings, runtimePosts)
 
   return (
     <div
@@ -110,7 +174,7 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
             gap: 8,
             marginBottom: 10,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             fontSize: 12,
           }}
         >
@@ -179,12 +243,12 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
           display: 'flex',
           flexDirection: 'column',
           gap: 6,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         {posts.map((post) => (
           <li key={post.url} style={{ color: '#1e1e1e' }}>
-            <a href={post.url} style={{ color: 'var(--wp-components-color-accent)', textDecoration: 'none' }}>
+            <a href={post.url} style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}>
               {post.title}
             </a>
             {settings.displayPostDate && (
@@ -200,6 +264,13 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
           </li>
         ))}
       </ul>
+      {(isRuntimeLoading || hasRuntimeError) && (
+        <div style={{ marginTop: 10, fontSize: 11, color: '#757575' }}>
+          {isRuntimeLoading
+            ? 'Loading recent posts...'
+            : 'Using fallback post previews because live data could not be loaded.'}
+        </div>
+      )}
     </div>
   )
 }
@@ -210,7 +281,7 @@ const controlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
 }
 
@@ -247,16 +318,16 @@ export const latestPostsBlock: BlockDefinition = {
       anchor: (attributes as LatestPostsAttributes).anchor,
     }
     const posts = getVisiblePosts(normalized)
-    const classes = ['wp-block-latest-posts']
+    const classes = ['editor-block-latest-posts']
     if (normalized.className) classes.push(normalized.className)
     const anchorAttr = normalized.anchor ? ` id="${normalized.anchor}"` : ''
     const items = posts
       .map((post) => {
         const dateHtml = normalized.displayPostDate
-          ? `<time class="wp-block-latest-posts__post-date" datetime="${post.date}">${formatDate(post.date)}</time>`
+          ? `<time class="editor-block-latest-posts__post-date" datetime="${post.date}">${formatDate(post.date)}</time>`
           : ''
         const excerptHtml = normalized.displayExcerpt
-          ? `<div class="wp-block-latest-posts__post-excerpt">${trimWords(post.excerpt, normalized.excerptLength)}</div>`
+          ? `<div class="editor-block-latest-posts__post-excerpt">${trimWords(post.excerpt, normalized.excerptLength)}</div>`
           : ''
         return `<li><a href="${post.url}">${post.title}</a>${dateHtml}${excerptHtml}</li>`
       })

@@ -63,7 +63,7 @@ export function BlockValidationError({ block, def }: BlockValidationErrorProps) 
         borderRadius: 2,
         padding: '16px 20px',
         backgroundColor: '#fef8ee',
-        fontFamily: 'var(--wp-font-family)',
+        fontFamily: 'var(--editor-font-family)',
       }}
     >
       {/* Header */}
@@ -84,7 +84,7 @@ export function BlockValidationError({ block, def }: BlockValidationErrorProps) 
             This block contains unexpected or invalid content.
           </div>
           <div style={{ fontSize: 12, color: '#757575', lineHeight: 1.5 }}>
-            WordPress attempted to recover, but some content may have been lost. You can
+            The editor attempted to recover, but some content may have been lost. You can
             try recovering the block, convert it to HTML, or delete it.
           </div>
         </div>
@@ -157,7 +157,7 @@ function ActionButton({
     borderRadius: 2,
     border: '1px solid',
     fontSize: 12,
-    fontFamily: 'var(--wp-font-family)',
+    fontFamily: 'var(--editor-font-family)',
     cursor: 'pointer',
     fontWeight: 500,
     ...(variant === 'primary'

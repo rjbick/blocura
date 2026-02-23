@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/index.ts",
+    "src/BlockEditor/**/*.ts",
+    "src/BlockEditor/**/*.tsx",
+    "src/vite-env.d.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/test/**"
+  ]
+}

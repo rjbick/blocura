@@ -142,7 +142,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const pullquoteBlock: BlockDefinition = {
@@ -169,7 +169,7 @@ export const pullquoteBlock: BlockDefinition = {
   edit: PullquoteEdit as BlockDefinition['edit'],
   save: ({ attributes }) => {
     const { value, citation, textAlign, className, anchor } = attributes as PullquoteAttrs
-    const classes = ['wp-block-pullquote']
+    const classes = ['editor-block-pullquote']
     if (textAlign) classes.push(`has-text-align-${textAlign}`)
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''

@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
 import { Video } from 'lucide-react'
-import type { BlockDefinition, BlockEditProps } from '../../../types'
+import type { Block, BlockDefinition, BlockEditProps } from '../../../types'
 import { useEditorRuntime } from '../../../context'
 import { useEditorActions } from '../../../store'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
+import { resolveEmbedInput } from '../../../helpers/resolveEmbed'
+import { generateClientId } from '../../../helpers/generateClientId'
 
 interface VideoAttributes {
   src: string
@@ -19,13 +21,47 @@ interface VideoAttributes {
   anchor?: string
 }
 
-function VideoEdit({ clientId, attributes, setAttributes, isSelected }: BlockEditProps<VideoAttributes>) {
+function VideoEdit({
+  clientId,
+  attributes,
+  setAttributes,
+  isSelected,
+  onReplace,
+}: BlockEditProps<VideoAttributes>) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [urlInput, setUrlInput] = useState('')
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const { onImageUpload } = useEditorRuntime()
-  const { createSuccessNotice, createErrorNotice } = useEditorActions()
+  const { createSuccessNotice, createErrorNotice, createInfoNotice } = useEditorActions()
+
+  const maybeConvertToEmbed = (value: string): boolean => {
+    const resolved = resolveEmbedInput(value)
+    if (!resolved) return false
+    if (resolved.providerNameSlug !== 'youtube' && resolved.providerNameSlug !== 'vimeo') {
+      return false
+    }
+    if (!onReplace) return false
+
+    const replacement: Block = {
+      clientId: generateClientId(),
+      name: 'core/embed',
+      attributes: {
+        url: resolved.url,
+        type: resolved.type,
+        providerNameSlug: resolved.providerNameSlug,
+        previewHtml: resolved.previewHtml,
+        caption: attributes.caption ?? '',
+        className: attributes.className ?? '',
+        anchor: attributes.anchor ?? '',
+      },
+      innerBlocks: [],
+    }
+
+    onReplace(replacement)
+    createInfoNotice('Converted Video block to Embed for external video URL.')
+    return true
+  }
 
   useInspectorControls(
     clientId,
@@ -36,7 +72,12 @@ function VideoEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
           <input
             type="url"
             value={attributes.src || ''}
-            onChange={(e) => setAttributes({ src: e.target.value })}
+            onChange={(e) => {
+              const next = e.target.value
+              if (!maybeConvertToEmbed(next.trim())) {
+                setAttributes({ src: next })
+              }
+            }}
             placeholder="https://example.com/video.mp4"
             style={inspectorInputStyle}
           />
@@ -146,6 +187,7 @@ function VideoEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
     e.preventDefault()
     const value = urlInput.trim()
     if (!value) return
+    if (maybeConvertToEmbed(value)) return
     setAttributes({ src: value })
     setShowUrlInput(false)
     setUrlInput('')
@@ -160,7 +202,7 @@ function VideoEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
           padding: '28px 20px',
           textAlign: 'center',
           backgroundColor: '#f9f9f9',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <div
@@ -278,7 +320,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -289,7 +331,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -299,7 +341,7 @@ const urlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorLabelStyle: React.CSSProperties = {
@@ -314,7 +356,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -365,10 +407,10 @@ export const videoBlock: BlockDefinition = {
       anchor,
     } = attributes as VideoAttributes
     if (!src) return ''
-    const classes = ['wp-block-video']
+    const classes = ['editor-block-video']
     if (align) classes.push(`align${align}`)
     if (className) classes.push(className)
-    const captionHtml = caption ? `\n<figcaption class="wp-element-caption">${caption}</figcaption>` : ''
+    const captionHtml = caption ? `\n<figcaption class="editor-element-caption">${caption}</figcaption>` : ''
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const attrs = [
       `src="${src}"`,

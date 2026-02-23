@@ -73,7 +73,7 @@ function ListItemEdit({
           lineHeight: 1.8,
           textAlign: 'right',
           userSelect: 'none',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         {marker}
@@ -128,7 +128,7 @@ const inspectorTextareaStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   resize: 'vertical',
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronRight, X } from 'lucide-react'
 import { useEditorStore, useEditorActions } from '../../store'
 import { useEditorRuntime } from '../../context'
-import type { Term } from '../../types'
+import type { EditorSettings, Term } from '../../types'
 
 interface PanelProps {
   title: string
@@ -14,7 +14,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div className="sidebar-panel" style={{ borderBottom: '1px solid var(--wp-sidebar-border)' }}>
+    <div className="sidebar-panel" style={{ borderBottom: '1px solid var(--editor-sidebar-border)' }}>
       <button
         className="sidebar-panel-toggle"
         type="button"
@@ -29,7 +29,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
           border: 'none',
           backgroundColor: 'transparent',
           cursor: 'pointer',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
           fontSize: 13,
           fontWeight: 600,
           color: '#1e1e1e',
@@ -158,11 +158,16 @@ function useTermSuggestions(
   return { results, isLoading }
 }
 
-export function DocumentSidebar() {
+interface DocumentSidebarProps {
+  settings?: Partial<EditorSettings>
+}
+
+export function DocumentSidebar({ settings }: DocumentSidebarProps) {
   const postSettings = useEditorStore(s => s.postSettings)
   const enableCustomFields = useEditorStore(s => s.preferences.enableCustomFields)
   const { updatePostSettings, createSuccessNotice, createErrorNotice } = useEditorActions()
   const { onImageUpload, onSearchCategories, onSearchTerms } = useEditorRuntime()
+  const isBodyContentMode = settings?.contentMode === 'body'
 
   const featuredInputRef = useRef<HTMLInputElement>(null)
   const [isUploadingFeatured, setIsUploadingFeatured] = useState(false)
@@ -262,7 +267,7 @@ export function DocumentSidebar() {
             onChange={(e) => updatePostSettings({ visibility: e.target.value as 'public' | 'private' | 'password' })}
             style={{
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               border: '1px solid #ddd',
               borderRadius: 2,
               padding: '4px 8px',
@@ -285,7 +290,7 @@ export function DocumentSidebar() {
               style={{
                 width: 140,
                 fontSize: 13,
-                fontFamily: 'var(--wp-font-family)',
+                fontFamily: 'var(--editor-font-family)',
                 border: '1px solid #ddd',
                 borderRadius: 2,
                 padding: '4px 8px',
@@ -303,7 +308,7 @@ export function DocumentSidebar() {
             }
             style={{
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
               border: '1px solid #ddd',
               borderRadius: 2,
               padding: '4px 8px',
@@ -328,7 +333,7 @@ export function DocumentSidebar() {
               style={{
                 width: 190,
                 fontSize: 12,
-                fontFamily: 'var(--wp-font-family)',
+                fontFamily: 'var(--editor-font-family)',
                 border: '1px solid #ddd',
                 borderRadius: 2,
                 padding: '4px 8px',
@@ -367,13 +372,13 @@ export function DocumentSidebar() {
               border: '1px solid #ddd',
               borderRadius: 2,
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
             }}
           />
         </div>
         {postSettings.permalink && (
           <p style={{ fontSize: 11, color: '#757575', margin: 0 }}>
-            <a href={postSettings.permalink} target="_blank" rel="noreferrer" style={{ color: 'var(--wp-admin-theme-color)' }}>
+            <a href={postSettings.permalink} target="_blank" rel="noreferrer" style={{ color: 'var(--editor-admin-theme-color)' }}>
               {postSettings.permalink}
             </a>
           </p>
@@ -381,15 +386,21 @@ export function DocumentSidebar() {
       </Panel>
 
       <Panel title="Title">
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={!postSettings.includeTitleInContent}
-            onChange={(e) => updatePostSettings({ includeTitleInContent: !e.target.checked })}
-            style={{ width: 16, height: 16 }}
-          />
-          <span style={{ fontSize: 13 }}>Remove title from page</span>
-        </label>
+        {isBodyContentMode ? (
+          <p style={{ margin: 0, fontSize: 13, color: '#757575' }}>
+            Body mode is enabled. Title stays in metadata and is excluded from raw HTML.
+          </p>
+        ) : (
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={!postSettings.includeTitleInContent}
+              onChange={(e) => updatePostSettings({ includeTitleInContent: !e.target.checked })}
+              style={{ width: 16, height: 16 }}
+            />
+            <span style={{ fontSize: 13 }}>Remove title from page</span>
+          </label>
+        )}
       </Panel>
 
       <Panel title="Categories">
@@ -405,7 +416,7 @@ export function DocumentSidebar() {
               border: '1px solid #ddd',
               borderRadius: 2,
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
             }}
           />
           <button
@@ -447,7 +458,7 @@ export function DocumentSidebar() {
                     border: 'none',
                     borderBottom: '1px solid #f0f0f0',
                     backgroundColor: selected ? 'rgba(56,88,233,0.08)' : '#fff',
-                    color: selected ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                    color: selected ? 'var(--editor-components-color-accent)' : '#1e1e1e',
                     fontSize: 12,
                     cursor: 'pointer',
                   }}
@@ -510,7 +521,7 @@ export function DocumentSidebar() {
               border: '1px solid #ddd',
               borderRadius: 2,
               fontSize: 13,
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
             }}
           />
           <button
@@ -552,7 +563,7 @@ export function DocumentSidebar() {
                     border: 'none',
                     borderBottom: '1px solid #f0f0f0',
                     backgroundColor: selected ? 'rgba(56,88,233,0.08)' : '#fff',
-                    color: selected ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                    color: selected ? 'var(--editor-components-color-accent)' : '#1e1e1e',
                     fontSize: 12,
                     cursor: 'pointer',
                   }}
@@ -618,7 +629,7 @@ export function DocumentSidebar() {
               style={{
                 marginTop: 8,
                 fontSize: 12,
-                color: 'var(--wp-admin-theme-color)',
+                color: 'var(--editor-admin-theme-color)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -642,7 +653,7 @@ export function DocumentSidebar() {
               cursor: 'pointer',
               fontSize: 13,
               color: '#757575',
-              fontFamily: 'var(--wp-font-family)',
+              fontFamily: 'var(--editor-font-family)',
             }}
           >
             {isUploadingFeatured ? 'Uploading…' : 'Set featured image'}
@@ -670,7 +681,7 @@ export function DocumentSidebar() {
             border: '1px solid #ddd',
             borderRadius: 2,
             fontSize: 13,
-            fontFamily: 'var(--wp-font-family)',
+            fontFamily: 'var(--editor-font-family)',
             resize: 'vertical',
             boxSizing: 'border-box',
           }}

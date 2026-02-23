@@ -1,0 +1,9 @@
+.editor-block {
+  max-width: 100%;
+}
+
+.editor-block img,
+.editor-block video,
+.editor-block iframe {
+  max-width: 100%;
+}

@@ -19,6 +19,7 @@ interface CoverAttributes {
   dimRatio?: number
   overlayColor?: string
   minHeight?: number
+  maxHeight?: number
   isDark?: boolean
   focalPoint?: FocalPoint
   align?: string
@@ -43,6 +44,11 @@ function CoverEdit({
   const dimRatio = attributes.dimRatio ?? 50
   const overlayColor = attributes.overlayColor || '#000000'
   const minHeight = attributes.minHeight ?? 320
+  const maxHeightRaw = attributes.maxHeight
+  const maxHeight =
+    typeof maxHeightRaw === 'number' && Number.isFinite(maxHeightRaw)
+      ? Math.max(maxHeightRaw, minHeight)
+      : undefined
   const focal = attributes.focalPoint ?? { x: 0.5, y: 0.5 }
   const focalPos = `${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%`
 
@@ -109,7 +115,36 @@ function CoverEdit({
             type="number"
             min={100}
             value={minHeight}
-            onChange={(e) => setAttributes({ minHeight: Math.max(Number(e.target.value) || 320, 100) })}
+            onChange={(e) => {
+              const nextMinHeight = Math.max(Number(e.target.value) || 320, 100)
+              setAttributes({
+                minHeight: nextMinHeight,
+                ...(typeof maxHeightRaw === 'number' && maxHeightRaw < nextMinHeight
+                  ? { maxHeight: nextMinHeight }
+                  : {}),
+              })
+            }}
+            style={inspectorInputStyle}
+          />
+        </div>
+
+        <div>
+          <div style={inspectorLabelStyle}>Maximum height (px)</div>
+          <input
+            type="number"
+            min={minHeight}
+            value={maxHeight ?? ''}
+            placeholder="No limit"
+            onChange={(e) => {
+              const rawValue = e.target.value.trim()
+              if (!rawValue) {
+                setAttributes({ maxHeight: undefined })
+                return
+              }
+              const parsed = Number(rawValue)
+              if (!Number.isFinite(parsed)) return
+              setAttributes({ maxHeight: Math.max(parsed, minHeight, 100) })
+            }}
             style={inspectorInputStyle}
           />
         </div>
@@ -161,6 +196,7 @@ function CoverEdit({
       dimRatio,
       overlayColor,
       minHeight,
+      maxHeight,
       focal.x,
       focal.y,
       attributes.isDark,
@@ -212,7 +248,7 @@ function CoverEdit({
           padding: '28px 20px',
           textAlign: 'center',
           backgroundColor: '#f9f9f9',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <div
@@ -280,6 +316,7 @@ function CoverEdit({
         style={{
           position: 'relative',
           minHeight,
+          maxHeight,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -343,7 +380,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -354,7 +391,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -364,7 +401,7 @@ const urlInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorLabelStyle: React.CSSProperties = {
@@ -379,7 +416,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const colorInputStyle: React.CSSProperties = {
@@ -420,6 +457,7 @@ export const coverBlock: BlockDefinition = {
     dimRatio: { type: 'number', default: 50 },
     overlayColor: { type: 'string', default: '#000000' },
     minHeight: { type: 'number', default: 320 },
+    maxHeight: { type: 'number' },
     isDark: { type: 'boolean', default: true },
     focalPoint: { type: 'object', default: { x: 0.5, y: 0.5 } },
     align: { type: 'string', default: '' },
@@ -434,6 +472,7 @@ export const coverBlock: BlockDefinition = {
       dimRatio = 50,
       overlayColor = '#000000',
       minHeight = 320,
+      maxHeight,
       isDark = true,
       focalPoint = { x: 0.5, y: 0.5 },
       align,
@@ -441,12 +480,20 @@ export const coverBlock: BlockDefinition = {
       anchor,
     } = attributes as CoverAttributes
     if (!url) return ''
-    const classes = ['wp-block-cover']
+    const classes = ['editor-block-cover']
     if (align) classes.push(`align${align}`)
     if (isDark) classes.push('is-dark')
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const focalPos = `${Math.round(focalPoint.x * 100)}% ${Math.round(focalPoint.y * 100)}%`
-    return `<div class="${classes.join(' ')}"${anchorAttr} style="min-height:${minHeight}px"><span aria-hidden="true" class="wp-block-cover__background" style="background-color:${overlayColor};opacity:${dimRatio / 100}"></span><img class="wp-block-cover__image-background" alt="${alt ?? ''}" src="${url}" style="object-position:${focalPos}" /><div class="wp-block-cover__inner-container"><!--inner--></div></div>`
+    const normalizedMaxHeight =
+      typeof maxHeight === 'number' && Number.isFinite(maxHeight)
+        ? Math.max(maxHeight, minHeight)
+        : undefined
+    const heightStyles = [`min-height:${minHeight}px`]
+    if (normalizedMaxHeight !== undefined) {
+      heightStyles.push(`max-height:${normalizedMaxHeight}px`)
+    }
+    return `<div class="${classes.join(' ')}"${anchorAttr} style="${heightStyles.join(';')}"><span aria-hidden="true" class="editor-block-cover__background" style="background-color:${overlayColor};opacity:${dimRatio / 100}"></span><img class="editor-block-cover__image-background" alt="${alt ?? ''}" src="${url}" style="object-position:${focalPos}" /><div class="editor-block-cover__inner-container"><!--inner--></div></div>`
   },
 }

@@ -123,7 +123,7 @@ const controlButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 10px',
   fontSize: 12,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -139,7 +139,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -170,7 +170,7 @@ export const tableBlock: BlockDefinition = {
   edit: TableEdit,
   save: ({ attributes }) => {
     const { body, hasFixedLayout, caption, className, anchor } = attributes as TableAttributes
-    const classes = ['wp-block-table']
+    const classes = ['editor-block-table']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const tableClass = hasFixedLayout ? ' class="has-fixed-layout"' : ''

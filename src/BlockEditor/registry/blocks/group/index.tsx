@@ -28,7 +28,7 @@ function GroupEdit({
   const Tag = (tagName || 'div') as ElementType
 
   const bgColor = backgroundColor
-    ? `var(--wp--preset--color--${backgroundColor})`
+    ? `var(--editor--preset--color--${backgroundColor})`
     : (style as { color?: { background?: string } })?.color?.background
 
   useInspectorControls(
@@ -84,7 +84,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const groupBlock: BlockDefinition = {
@@ -116,7 +116,7 @@ export const groupBlock: BlockDefinition = {
   edit: GroupEdit,
   save: ({ attributes, innerBlocks = [] }) => {
     const { tagName = 'div', className } = attributes as GroupAttributes
-    const classAttr = ['wp-block-group', className].filter(Boolean).join(' ')
+    const classAttr = ['editor-block-group', className].filter(Boolean).join(' ')
     // Inner blocks HTML would be serialized separately
     const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
     return `<${tagName} class="${classAttr}">\n${innerHtml}\n</${tagName}>`

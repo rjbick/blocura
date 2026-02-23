@@ -113,7 +113,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 export const quoteBlock: BlockDefinition = {
@@ -141,6 +141,6 @@ export const quoteBlock: BlockDefinition = {
     const citationHtml = citation
       ? `\n<cite>${citation}</cite>`
       : ''
-    return `<blockquote class="wp-block-quote"><p>${value}</p>${citationHtml}\n</blockquote>`
+    return `<blockquote class="editor-block-quote"><p>${value}</p>${citationHtml}\n</blockquote>`
   },
 }

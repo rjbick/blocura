@@ -97,7 +97,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -128,10 +128,10 @@ export const detailsBlock: BlockDefinition = {
   edit: DetailsEdit,
   save: ({ attributes }) => {
     const { summary, open = false, className, anchor } = attributes as DetailsAttributes
-    const classes = ['wp-block-details']
+    const classes = ['editor-block-details']
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
     const openAttr = open ? ' open' : ''
-    return `<details class="${classes.join(' ')}"${anchorAttr}${openAttr}><summary>${summary || ''}</summary><div class="wp-block-details__content"><!--inner--></div></details>`
+    return `<details class="${classes.join(' ')}"${anchorAttr}${openAttr}><summary>${summary || ''}</summary><div class="editor-block-details__content"><!--inner--></div></details>`
   },
 }

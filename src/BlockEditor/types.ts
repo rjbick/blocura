@@ -282,6 +282,28 @@ export interface Term {
   slug: string;
 }
 
+export interface LinkablePage {
+  id?: string | number;
+  title: string;
+  url: string;
+  type?: string;
+}
+
+export interface SearchPagesOptions {
+  query: string;
+  page: number;
+  perPage: number;
+  signal?: AbortSignal;
+}
+
+export interface SearchPagesResponse {
+  pages: LinkablePage[];
+  nextPage?: number | null;
+  total?: number;
+}
+
+export type SearchPagesResult = LinkablePage[] | SearchPagesResponse;
+
 export interface HistoryStack {
   past: HistoryEntry[];
   present: HistoryEntry;
@@ -353,6 +375,38 @@ export interface Pattern {
   postTypes?: string[];
 }
 
+export interface LatestPostItem {
+  id?: string | number;
+  title: string;
+  date?: string;
+  excerpt?: string;
+  url?: string;
+}
+
+export interface LatestCommentItem {
+  id?: string | number;
+  author: string;
+  avatarUrl?: string;
+  date?: string;
+  excerpt?: string;
+  postTitle?: string;
+  postUrl?: string;
+}
+
+export interface RssFeedItem {
+  id?: string | number;
+  title: string;
+  url?: string;
+  author?: string;
+  date?: string;
+  excerpt?: string;
+}
+
+export interface RssFeedResult {
+  sourceLabel?: string;
+  items: RssFeedItem[];
+}
+
 export interface SyncedPattern {
   id: string;
   clientId: string;
@@ -365,12 +419,13 @@ export interface SyncedPattern {
 
 export interface SavePayload {
   blocks: Block[];
+  blocksJson: string;
   title: string;
-  content: string;
   rawHtml: string;
   postSettings: PostSettings;
   metadata: Record<string, unknown>;
   images: ImageAsset[];
+  tailwindSafelist: string[];
   titleIncludedInContent: boolean;
 }
 
@@ -389,6 +444,8 @@ export interface ImageAsset {
 
 export interface BlockEditorProps {
   initialBlocks?: Block[];
+  initialBlocksJson?: Block[] | string;
+  initialRawHtml?: string;
   initialTitle?: string;
   initialPostSettings?: Partial<PostSettings>;
   onChange?: (blocks: Block[]) => void;
@@ -401,6 +458,31 @@ export interface BlockEditorProps {
   }>;
   onSearchTerms?: (query: string) => Promise<Term[]>;
   onSearchCategories?: (query: string) => Promise<Term[]>;
+  onSearchPages?: (options: SearchPagesOptions) => Promise<SearchPagesResult>;
+  onFetchLatestPosts?: (options: {
+    postsToShow: number;
+    order: 'desc' | 'asc';
+    displayPostDate: boolean;
+    displayExcerpt: boolean;
+    excerptLength: number;
+  }) => Promise<LatestPostItem[]>;
+  onFetchLatestComments?: (options: {
+    commentsToShow: number;
+    displayAvatar: boolean;
+    displayDate: boolean;
+    displayExcerpt: boolean;
+  }) => Promise<LatestCommentItem[]>;
+  onFetchRssFeed?: (options: {
+    feedURL: string;
+    itemsToShow: number;
+    displayAuthor: boolean;
+    displayDate: boolean;
+    displayExcerpt: boolean;
+  }) => Promise<RssFeedResult | RssFeedItem[]>;
+  onResolvePreviewAssetUrl?: (
+    url: string,
+    context: PreviewAssetUrlContext
+  ) => string | null | undefined;
   patterns?: Pattern[];
   customBlocks?: BlockDefinition[];
   settings?: Partial<EditorSettings>;
@@ -416,15 +498,17 @@ export interface EditorSettings {
   wideWidth: number;
   bodyPlaceholder: string;
   titlePlaceholder: string;
+  contentMode?: 'document' | 'body';
+  showDocumentMetadata?: boolean;
   allowedBlockTypes: string[] | true;
   templateLock: false | 'all' | 'insert' | 'contentOnly';
   template?: [string, Record<string, unknown>, unknown[]?][];
   supportsLayout: boolean;
   supportsTemplateMode: boolean;
-  colors: WPColor[];
-  gradients: WPGradient[];
-  fontSizes: WPFontSize[];
-  fontFamilies?: WPFontFamily[];
+  colors: EditorColor[];
+  gradients: EditorGradient[];
+  fontSizes: EditorFontSize[];
+  fontFamilies?: EditorFontFamily[];
   defaultEditorStyles?: string;
   locale: string;
   isRTL: boolean;
@@ -436,14 +520,58 @@ export interface EditorSettings {
     typography?: { defaultFontSizes?: boolean; fluid?: boolean };
     layout?: { definitions?: Record<string, unknown> };
   };
+  preview?: PreviewSettings;
   postType?: string;
   logo?: string;
 }
 
-export interface WPColor    { name: string; slug: string; color: string; }
-export interface WPGradient { name: string; slug: string; gradient: string; }
-export interface WPFontSize { name: string; slug: string; size: string | number; fluid?: { min: string; max: string; }; }
-export interface WPFontFamily { name: string; slug: string; fontFamily: string; fontFace?: unknown[]; }
+export interface PreviewSettings {
+  /**
+   * External stylesheet URLs loaded into preview documents.
+   * Use this to load your site's Tailwind/Bootstrap/custom CSS bundle.
+   */
+  stylesheets?: string[];
+  /**
+   * Optional script URLs loaded into preview documents.
+   */
+  scripts?: string[];
+  /**
+   * Optional raw markup injected into <head> (for meta tags or inline CSS).
+   */
+  headHtml?: string;
+  /**
+   * Optional class name added to the preview <html>.
+   */
+  htmlClassName?: string;
+  /**
+   * Optional class name added to the preview <body>.
+   */
+  bodyClassName?: string;
+  /**
+   * Optional base URL for resolving relative links/assets.
+   */
+  baseUrl?: string;
+  /**
+   * Optional body template markup with {{content}} placeholder.
+   * Example: `<main class="site-content">{{content}}</main>`.
+   */
+  templateHtml?: string;
+  /**
+   * Keep built-in fallback preview CSS.
+   * Set false to rely entirely on site stylesheets.
+   */
+  includeDefaultStyles?: boolean;
+}
+
+export interface PreviewAssetUrlContext {
+  tagName: string;
+  attribute: string;
+}
+
+export interface EditorColor    { name: string; slug: string; color: string; }
+export interface EditorGradient { name: string; slug: string; gradient: string; }
+export interface EditorFontSize { name: string; slug: string; size: string | number; fluid?: { min: string; max: string; }; }
+export interface EditorFontFamily { name: string; slug: string; fontFamily: string; fontFace?: unknown[]; }
 
 // ─── Sidebar Panel ────────────────────────────────────────────────────────────
 

@@ -4,6 +4,7 @@ import { BlockRegistry } from '../registry/BlockRegistry'
 interface RawHtmlOptions {
   title?: string
   includeTitle?: boolean
+  preserveInternalClasses?: boolean
 }
 
 function escapeHtml(text: string): string {
@@ -16,25 +17,24 @@ function escapeHtml(text: string): string {
 }
 
 /**
- * Serialize blocks to plain HTML without WordPress block comment delimiters.
+ * Serialize blocks to plain HTML without block comment delimiters.
  * Suitable for preview rendering inside an iframe or for external consumers
  * that only need the rendered markup.
  *
  * Custom CSS (stored in `__customCSS`) is injected as a scoped `<style>` tag
- * before each block's markup, scoped to `#anchor` if an anchor is set,
- * otherwise to `.wp-block-name`.
+ * before each block's markup, scoped to `#anchor` when available.
  */
 export function blocksToRawHtml(blocks: Block[], options: RawHtmlOptions = {}): string {
-  const renderedBlocks = blocks.map(blockToHtml).filter(Boolean).join('\n')
+  const renderedBlocks = blocks.map((block) => blockToHtml(block, options)).filter(Boolean).join('\n')
   if (!options.includeTitle) return renderedBlocks
 
   const title = options.title?.trim()
   if (!title) return renderedBlocks
-  const titleHtml = `<h1 class="wp-block-post-title">${escapeHtml(title)}</h1>`
+  const titleHtml = `<h1>${escapeHtml(title)}</h1>`
   return renderedBlocks ? `${titleHtml}\n${renderedBlocks}` : titleHtml
 }
 
-function blockToHtml(block: Block): string {
+function blockToHtml(block: Block, options: RawHtmlOptions): string {
   const def = BlockRegistry.get(block.name)
 
   if (!def) {
@@ -54,9 +54,9 @@ function blockToHtml(block: Block): string {
   // If inner blocks exist but save() already includes their markup, skip.
   if (block.innerBlocks.length > 0) {
     if (html.includes('<!--inner-->')) {
-      html = html.replace('<!--inner-->', blocksToRawHtml(block.innerBlocks))
+      html = html.replace('<!--inner-->', blocksToRawHtml(block.innerBlocks, options))
     } else if (html.includes('<!-- inner block -->')) {
-      const renderedInner = block.innerBlocks.map(blockToHtml)
+      const renderedInner = block.innerBlocks.map((child) => blockToHtml(child, options))
       let innerIndex = 0
       html = html.replace(/<!--\s*inner block\s*-->/g, () => renderedInner[innerIndex++] ?? '')
     }
@@ -66,10 +66,38 @@ function blockToHtml(block: Block): string {
   const customCSS = attrs['__customCSS'] as string | undefined
   if (customCSS) {
     const anchor = attrs['anchor'] as string | undefined
-    const blockClass = `wp-block-${block.name.replace('core/', '').replace('/', '-')}`
-    const scope = anchor ? `#${anchor}` : `.${blockClass}`
-    html = `<style>${scope} { ${customCSS} }</style>\n` + html
+    const scopedCss = anchor
+      ? `#${anchor} { ${customCSS} }`
+      : customCSS
+    html = `<style>${scopedCss}</style>\n` + html
   }
 
-  return html
+  return options.preserveInternalClasses ? html : stripInternalEditorClasses(html)
+}
+
+function stripInternalEditorClasses(html: string): string {
+  if (!html || !html.includes('editor-')) {
+    return html
+  }
+
+  const container = document.createElement('div')
+  container.innerHTML = html
+
+  for (const node of container.querySelectorAll('[class]')) {
+    const classAttr = node.getAttribute('class')
+    if (!classAttr) continue
+    const kept = classAttr
+      .split(/\s+/)
+      .map((token) => token.trim())
+      .filter(Boolean)
+      .filter((token) => !token.startsWith('editor-'))
+
+    if (kept.length === 0) {
+      node.removeAttribute('class')
+    } else {
+      node.setAttribute('class', kept.join(' '))
+    }
+  }
+
+  return container.innerHTML
 }

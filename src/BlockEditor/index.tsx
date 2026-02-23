@@ -1,5 +1,12 @@
-import { useMemo, useCallback, useEffect, useRef, useState } from 'react'
-import type { BlockEditorProps, SavePayload } from './types'
+import { useMemo, useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
+import type {
+  Block,
+  BlockDefinition,
+  BlockEditorProps,
+  EditorSettings,
+  PostSettings,
+  SavePayload,
+} from './types'
 import { createEditorStore, EditorStoreContext, useEditorStore } from './store'
 import { useEditorActions } from './store'
 import { registerCoreBlocks } from './registry/registerCoreBlocks'
@@ -10,20 +17,87 @@ import { Inserter } from './components/inserter/Inserter'
 import { Sidebar } from './components/sidebar/Sidebar'
 import { ListView } from './components/listview/ListView'
 import { SnackbarList } from './components/ui/SnackbarList'
-import { FormatToolbar } from './components/richtext/FormatToolbar'
-import { CommandPalette } from './components/commandpalette/CommandPalette'
-import { PreviewFrame } from './components/layout/PreviewFrame'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { BlockRegistry } from './registry/BlockRegistry'
-import { blocksToBlockMarkup } from './helpers/blocksToBlockMarkup'
 import { blocksToRawHtml } from './helpers/blocksToRawHtml'
 import { collectImageAssets } from './helpers/collectImageAssets'
-import type { BlockDefinition } from './types'
+import { extractTailwindSafelist } from './helpers/extractTailwindSafelist'
+import { parseHtmlToBlocks } from './helpers/parseHtmlToBlocks'
+import { parseBlocksJson } from './helpers/parseBlocksJson'
+import { migrateLegacyBlockClasses, migrateLegacyHtmlClasses } from './helpers/migrateLegacyClasses'
 import { EditorRuntimeContext } from './context'
 import { InspectorControlsProvider } from './components/sidebar/InspectorControlsContext'
+import { LinkDialogProvider } from './components/link/LinkDialogContext'
+
+const FormatToolbar = lazy(async () => {
+  const mod = await import('./components/richtext/FormatToolbar')
+  return { default: mod.FormatToolbar }
+})
+
+const CommandPalette = lazy(async () => {
+  const mod = await import('./components/commandpalette/CommandPalette')
+  return { default: mod.CommandPalette }
+})
+
+const PreviewFrame = lazy(async () => {
+  const mod = await import('./components/layout/PreviewFrame')
+  return { default: mod.PreviewFrame }
+})
 
 // Register core blocks once
 registerCoreBlocks()
+
+function resolveInitialBlocks(
+  initialBlocks: BlockEditorProps['initialBlocks'],
+  initialBlocksJson: BlockEditorProps['initialBlocksJson'],
+  initialRawHtml: BlockEditorProps['initialRawHtml']
+): Block[] {
+  if (initialBlocksJson !== undefined) {
+    const parsed = parseBlocksJson(initialBlocksJson)
+    return migrateLegacyBlockClasses(parsed).value
+  }
+
+  if (initialBlocks !== undefined) {
+    const parsed = parseBlocksJson(initialBlocks)
+    return migrateLegacyBlockClasses(parsed).value
+  }
+
+  if (typeof initialRawHtml === 'string' && initialRawHtml.trim()) {
+    try {
+      const migrated = migrateLegacyHtmlClasses(initialRawHtml)
+      return parseHtmlToBlocks(migrated.value)
+    } catch {
+      return []
+    }
+  }
+
+  return []
+}
+
+function isBodyContentMode(settings?: Partial<EditorSettings>): boolean {
+  return settings?.contentMode === 'body'
+}
+
+function resolveIncludeTitleInContent(
+  includeTitleInContent: boolean,
+  settings?: Partial<EditorSettings>
+): boolean {
+  return isBodyContentMode(settings) ? false : includeTitleInContent
+}
+
+function resolveInitialPostSettings(
+  initialPostSettings: Partial<PostSettings>,
+  settings?: Partial<EditorSettings>
+): Partial<PostSettings> {
+  if (!isBodyContentMode(settings)) {
+    return initialPostSettings
+  }
+
+  return {
+    ...initialPostSettings,
+    includeTitleInContent: false,
+  }
+}
 
 function EditorInner({
   onSave,
@@ -31,7 +105,11 @@ function EditorInner({
   onChange,
   customBlocks = [],
   settings,
-}: Omit<BlockEditorProps, 'initialBlocks' | 'initialTitle' | 'initialPostSettings'>) {
+  onResolvePreviewAssetUrl,
+}: Omit<
+  BlockEditorProps,
+  'initialBlocks' | 'initialBlocksJson' | 'initialRawHtml' | 'initialTitle' | 'initialPostSettings'
+>) {
   const [isSaving, setIsSaving] = useState(false)
   const didMountRef = useRef(false)
   const blocks = useEditorStore(s => s.blocks)
@@ -56,21 +134,31 @@ function EditorInner({
   }, [customBlocks])
 
   const buildPayload = useCallback((): SavePayload => {
+    const includeTitleInContent = resolveIncludeTitleInContent(
+      postSettings.includeTitleInContent,
+      settings
+    )
+    const resolvedPostSettings =
+      includeTitleInContent === postSettings.includeTitleInContent
+        ? postSettings
+        : { ...postSettings, includeTitleInContent }
+
     const rawHtml = blocksToRawHtml(blocks, {
       title,
-      includeTitle: postSettings.includeTitleInContent,
+      includeTitle: includeTitleInContent,
     })
     return {
       blocks,
+      blocksJson: JSON.stringify(blocks),
       title,
-      content: blocksToBlockMarkup(blocks),
       rawHtml,
-      postSettings,
-      metadata: postSettings.meta,
+      postSettings: resolvedPostSettings,
+      metadata: resolvedPostSettings.meta,
       images: collectImageAssets(blocks, rawHtml),
-      titleIncludedInContent: postSettings.includeTitleInContent,
+      tailwindSafelist: extractTailwindSafelist(blocks),
+      titleIncludedInContent: includeTitleInContent,
     }
-  }, [blocks, title, postSettings])
+  }, [blocks, postSettings, settings, title])
 
   const handleSave = useCallback(async () => {
     if (!onSave) return
@@ -115,22 +203,37 @@ function EditorInner({
   return (
     <>
       <EditorLayout
-        toolbar={<TopToolbar onSave={handleSave} isSaving={isSaving} logoSrc={settings?.logo} />}
+        toolbar={
+          <TopToolbar
+            onSave={handleSave}
+            isSaving={isSaving}
+            logoSrc={settings?.logo}
+            previewSettings={settings?.preview}
+            previewAssetUrlResolver={onResolvePreviewAssetUrl}
+          />
+        }
         inserter={<Inserter />}
-        canvas={<EditorCanvas maxWidth={settings?.maxWidth ?? 620} />}
-        sidebar={<Sidebar />}
+        canvas={<EditorCanvas maxWidth={settings?.maxWidth} />}
+        sidebar={<Sidebar settings={settings} />}
         listView={<ListView />}
         snackbarList={<SnackbarList />}
       />
-      <FormatToolbar />
-      <CommandPalette />
-      <PreviewFrame />
+      <Suspense fallback={null}>
+        <FormatToolbar />
+        <CommandPalette />
+        <PreviewFrame
+          previewSettings={settings?.preview}
+          previewAssetUrlResolver={onResolvePreviewAssetUrl}
+        />
+      </Suspense>
     </>
   )
 }
 
 export function BlockEditor({
-  initialBlocks = [],
+  initialBlocks,
+  initialBlocksJson,
+  initialRawHtml,
   initialTitle = '',
   initialPostSettings = {},
   customBlocks,
@@ -143,50 +246,94 @@ export function BlockEditor({
   onImageUpload,
   onSearchTerms,
   onSearchCategories,
+  onSearchPages,
+  onFetchLatestPosts,
+  onFetchLatestComments,
+  onFetchRssFeed,
+  onResolvePreviewAssetUrl,
   patterns,
 }: BlockEditorProps) {
+  const resolvedInitialBlocks = useMemo(
+    () => resolveInitialBlocks(initialBlocks, initialBlocksJson, initialRawHtml),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+
+  const resolvedInitialPostSettings = useMemo(
+    () => resolveInitialPostSettings(initialPostSettings, settings),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+
   const runtime = useMemo(
     () => ({
       onImageUpload,
       onSearchTerms,
       onSearchCategories,
+      onSearchPages,
+      onFetchLatestPosts,
+      onFetchLatestComments,
+      onFetchRssFeed,
       patterns: patterns ?? [],
     }),
-    [onImageUpload, onSearchTerms, onSearchCategories, patterns]
+    [
+      onImageUpload,
+      onSearchTerms,
+      onSearchCategories,
+      onSearchPages,
+      onFetchLatestPosts,
+      onFetchLatestComments,
+      onFetchRssFeed,
+      patterns,
+    ]
   )
 
   // Create editor store instance (stable reference)
   const store = useMemo(
     () =>
       createEditorStore({
-        initialBlocks,
+        initialBlocks: resolvedInitialBlocks,
         initialTitle,
-        initialPostSettings,
+        initialPostSettings: resolvedInitialPostSettings,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [] // Only create once
   )
 
   return (
-    <EditorStoreContext.Provider value={store}>
-      <EditorRuntimeContext.Provider value={runtime}>
-        <InspectorControlsProvider>
-          <EditorInner
-            onSave={onSave}
-            onAutoSave={onAutoSave}
-            customBlocks={customBlocks}
-            settings={settings}
-            onChange={onChange}
-          />
-        </InspectorControlsProvider>
-      </EditorRuntimeContext.Provider>
-    </EditorStoreContext.Provider>
+    <div className="editor-shell" style={{ width: '100%', height: '100%' }}>
+      <EditorStoreContext.Provider value={store}>
+        <EditorRuntimeContext.Provider value={runtime}>
+          <LinkDialogProvider>
+            <InspectorControlsProvider>
+              <EditorInner
+                onSave={onSave}
+                onAutoSave={onAutoSave}
+                customBlocks={customBlocks}
+                settings={settings}
+                onChange={onChange}
+                onResolvePreviewAssetUrl={onResolvePreviewAssetUrl}
+              />
+            </InspectorControlsProvider>
+          </LinkDialogProvider>
+        </EditorRuntimeContext.Provider>
+      </EditorStoreContext.Provider>
+    </div>
   )
 }
 
-export type { BlockEditorProps, SavePayload, ImageAsset } from './types'
-export { parseBlockMarkup } from './helpers/parseBlockMarkup'
+export type {
+  BlockEditorProps,
+  SavePayload,
+  ImageAsset,
+  PreviewAssetUrlContext,
+  LinkablePage,
+  SearchPagesOptions,
+  SearchPagesResponse,
+  SearchPagesResult,
+} from './types'
 export { parseHtmlToBlocks } from './helpers/parseHtmlToBlocks'
-export { blocksToBlockMarkup } from './helpers/blocksToBlockMarkup'
 export { blocksToRawHtml } from './helpers/blocksToRawHtml'
 export { collectImageAssets } from './helpers/collectImageAssets'
+export { extractTailwindSafelist } from './helpers/extractTailwindSafelist'
+export { migrateLegacyHtmlClasses, migrateLegacyBlockClasses } from './helpers/migrateLegacyClasses'

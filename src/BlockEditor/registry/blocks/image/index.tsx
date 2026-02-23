@@ -21,7 +21,7 @@ interface ImageAttributes {
 }
 
 function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEditProps<ImageAttributes>) {
-  const { url, alt, caption, width, height, align, href, linkDestination } = attributes
+  const { url, alt, caption, width, align, href, linkDestination } = attributes
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [urlInput, setUrlInput] = useState('')
   const [showUrlInput, setShowUrlInput] = useState(false)
@@ -190,7 +190,7 @@ function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
                   borderRadius: 2,
                   padding: '8px 16px',
                   fontSize: 13,
-                  fontFamily: 'var(--wp-font-family)',
+                  fontFamily: 'var(--editor-font-family)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -211,7 +211,7 @@ function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
                   borderRadius: 2,
                   padding: '8px 16px',
                   fontSize: 13,
-                  fontFamily: 'var(--wp-font-family)',
+                  fontFamily: 'var(--editor-font-family)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -237,7 +237,7 @@ function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
                   borderRadius: 2,
                   padding: '8px 12px',
                   fontSize: 13,
-                  fontFamily: 'var(--wp-font-family)',
+                  fontFamily: 'var(--editor-font-family)',
                   outline: 'none',
                 }}
               />
@@ -251,7 +251,7 @@ function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
                   borderRadius: 2,
                   padding: '8px 12px',
                   fontSize: 13,
-                  fontFamily: 'var(--wp-font-family)',
+                  fontFamily: 'var(--editor-font-family)',
                   cursor: 'pointer',
                 }}
               >
@@ -268,7 +268,7 @@ function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
                   borderRadius: 2,
                   padding: '8px 12px',
                   fontSize: 13,
-                  fontFamily: 'var(--wp-font-family)',
+                  fontFamily: 'var(--editor-font-family)',
                   cursor: 'pointer',
                 }}
               >
@@ -355,7 +355,7 @@ function ImageEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
                 borderRadius: 2,
                 padding: '6px 10px',
                 fontSize: 12,
-                fontFamily: 'var(--wp-font-family)',
+                fontFamily: 'var(--editor-font-family)',
                 cursor: 'pointer',
               }}
             >
@@ -388,7 +388,7 @@ const inspectorInputStyle: React.CSSProperties = {
   border: '1px solid #ddd',
   borderRadius: 2,
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   backgroundColor: '#fff',
   boxSizing: 'border-box',
 }
@@ -424,10 +424,10 @@ export const imageBlock: BlockDefinition = {
     const { url, alt, caption, width, href, align } = attributes as ImageAttributes
     if (!url) return ''
     const widthAttr = width ? ` width="${width}"` : ''
-    const img = `<img src="${url}" alt="${alt ?? ''}"${widthAttr} class="wp-image"/>`
+    const img = `<img src="${url}" alt="${alt ?? ''}"${widthAttr} class="editor-image"/>`
     const linked = href ? `<a href="${href}">${img}</a>` : img
-    const captionHtml = caption ? `\n<figcaption class="wp-element-caption">${caption}</figcaption>` : ''
+    const captionHtml = caption ? `\n<figcaption class="editor-element-caption">${caption}</figcaption>` : ''
     const alignClass = align ? ` align${align}` : ''
-    return `<figure class="wp-block-image${alignClass}">${linked}${captionHtml}\n</figure>`
+    return `<figure class="editor-block-image${alignClass}">${linked}${captionHtml}\n</figure>`
   },
 }

@@ -126,7 +126,7 @@ function GalleryEdit({ clientId, attributes, setAttributes, isSelected }: BlockE
           padding: '28px 20px',
           textAlign: 'center',
           backgroundColor: '#f9f9f9',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 14, fontWeight: 500 }}>
@@ -224,7 +224,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -235,7 +235,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -266,7 +266,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -299,7 +299,7 @@ export const galleryBlock: BlockDefinition = {
   save: ({ attributes }) => {
     const { images = [], columns = 3, imageCrop = true, className, anchor } = attributes as GalleryAttributes
     if (images.length === 0) return ''
-    const classes = ['wp-block-gallery', 'has-nested-images', `columns-${columns}`]
+    const classes = ['editor-block-gallery', 'has-nested-images', `columns-${columns}`]
     if (imageCrop) classes.push('is-cropped')
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
@@ -307,7 +307,7 @@ export const galleryBlock: BlockDefinition = {
       const captionHtml = image.caption
         ? `\n<figcaption class="blocks-gallery-item__caption">${image.caption}</figcaption>`
         : ''
-      return `<figure class="wp-block-image"><img src="${image.url}" alt="${image.alt ?? ''}" />${captionHtml}\n</figure>`
+      return `<figure class="editor-block-image"><img src="${image.url}" alt="${image.alt ?? ''}" />${captionHtml}\n</figure>`
     }).join('\n')
     return `<figure class="${classes.join(' ')}"${anchorAttr}>\n${inner}\n</figure>`
   },

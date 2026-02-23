@@ -48,7 +48,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="sidebar-panel" style={{ borderBottom: '1px solid var(--wp-sidebar-border)' }}>
+    <div className="sidebar-panel" style={{ borderBottom: '1px solid var(--editor-sidebar-border)' }}>
       <button
         className="sidebar-panel-toggle"
         type="button"
@@ -65,7 +65,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
           cursor: 'pointer',
           fontSize: 13,
           fontWeight: 600,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
           color: '#1e1e1e',
         }}
       >
@@ -102,7 +102,7 @@ function inputStyle(): React.CSSProperties {
     border: '1px solid #ddd',
     borderRadius: 2,
     fontSize: 13,
-    fontFamily: 'var(--wp-font-family)',
+    fontFamily: 'var(--editor-font-family)',
     backgroundColor: '#fff',
     boxSizing: 'border-box',
   }
@@ -191,7 +191,7 @@ function BoxControl({
             height: 28,
             border: '1px solid #ddd',
             borderRadius: 2,
-            background: linked ? 'var(--wp-components-color-accent)' : '#fff',
+            background: linked ? 'var(--editor-components-color-accent)' : '#fff',
             color: linked ? '#fff' : '#757575',
             cursor: 'pointer',
             fontSize: 11,
@@ -263,10 +263,10 @@ function BlockStylesPanel({ def, attrs, updateAttributes }: StylesPanelProps) {
                 borderRadius: 2,
                 padding: '8px 6px',
                 textAlign: 'center',
-                background: isActive ? 'var(--wp-components-color-accent)' : '#fff',
+                background: isActive ? 'var(--editor-components-color-accent)' : '#fff',
                 color: isActive ? '#fff' : '#1e1e1e',
                 fontSize: 12,
-                fontFamily: 'var(--wp-font-family)',
+                fontFamily: 'var(--editor-font-family)',
                 cursor: 'pointer',
               }}
             >
@@ -909,7 +909,7 @@ export function BlockSidebar({ block }: BlockSidebarProps) {
           textAlign: 'center',
           color: '#757575',
           fontSize: 13,
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
         }}
       >
         <p style={{ margin: '0 0 8px' }}>Select a block to see its settings.</p>
@@ -928,11 +928,11 @@ export function BlockSidebar({ block }: BlockSidebarProps) {
   }
 
   return (
-    <div style={{ fontFamily: 'var(--wp-font-family)' }}>
+    <div style={{ fontFamily: 'var(--editor-font-family)' }}>
       <div
         style={{
           padding: '12px 16px',
-          borderBottom: '1px solid var(--wp-sidebar-border)',
+          borderBottom: '1px solid var(--editor-sidebar-border)',
           display: 'flex',
           alignItems: 'center',
           gap: 8,

@@ -38,7 +38,7 @@ export const separatorBlock: BlockDefinition = {
     const { align, backgroundColor, className } = attributes as {
       align?: string; backgroundColor?: string; className?: string
     }
-    const classes = ['wp-block-separator']
+    const classes = ['editor-block-separator']
     if (align) classes.push(`align${align}`)
     if (backgroundColor) classes.push(`has-${backgroundColor}-background-color`, 'has-background')
     if (className) classes.push(className)

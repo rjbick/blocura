@@ -153,7 +153,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '10px 20px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
   fontWeight: 500,
 }
@@ -165,7 +165,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -181,7 +181,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -219,9 +219,9 @@ export const buttonsBlock: BlockDefinition = {
         const { text, url, linkTarget, rel } = b.attributes as Record<string, string>
         const targetAttr = linkTarget ? ` target="${linkTarget}"` : ''
         const relAttr = rel ? ` rel="${rel}"` : ''
-        return `<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="${url ?? ''}"${targetAttr}${relAttr}>${text ?? ''}</a></div>`
+        return `<div class="editor-block-button"><a class="editor-block-button__link editor-element-button" href="${url ?? ''}"${targetAttr}${relAttr}>${text ?? ''}</a></div>`
       })
       .join('\n')
-    return `<div class="wp-block-buttons${classAttr}">\n${inner}\n</div>`
+    return `<div class="editor-block-buttons${classAttr}">\n${inner}\n</div>`
   },
 }

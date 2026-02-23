@@ -151,7 +151,7 @@ function ButtonEdit({
           fontWeight: 600,
           fontSize: 14,
           cursor: 'pointer',
-          fontFamily: 'var(--wp-font-family)',
+          fontFamily: 'var(--editor-font-family)',
           width: normalizedWidth ? '100%' : undefined,
           textAlign: normalizedWidth ? 'center' : undefined,
           ...variantStyle,
@@ -173,7 +173,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxRowStyle: React.CSSProperties = {
@@ -223,6 +223,6 @@ export const buttonBlock: BlockDefinition = {
     const targetAttr = linkTarget ? ` target="${linkTarget}"` : ''
     const relAttr = rel ? ` rel="${rel}"` : ''
     const classAttr = className ? ` class="${className}"` : ''
-    return `<div class="wp-block-button${classAttr}"><a class="wp-block-button__link wp-element-button" href="${url ?? ''}"${targetAttr}${relAttr}>${text}</a></div>`
+    return `<div class="editor-block-button${classAttr}"><a class="editor-block-button__link editor-element-button" href="${url ?? ''}"${targetAttr}${relAttr}>${text}</a></div>`
   },
 }

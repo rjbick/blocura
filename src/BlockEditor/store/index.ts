@@ -9,6 +9,10 @@ import { createUISlice, type UISlice } from './slices/ui.slice'
 import { createNoticesSlice, type NoticesSlice } from './slices/notices.slice'
 import { createPreferencesSlice, type PreferencesSlice } from './slices/preferences.slice'
 import { createPostSettingsSlice, type PostSettingsSlice } from './slices/postSettings.slice'
+import {
+  createSyncedPatternsSlice,
+  type SyncedPatternsSlice,
+} from './slices/syncedPatterns.slice'
 import { findBlock } from '../helpers/flattenBlocks'
 
 export type EditorStore =
@@ -17,7 +21,8 @@ export type EditorStore =
   UISlice &
   NoticesSlice &
   PreferencesSlice &
-  PostSettingsSlice
+  PostSettingsSlice &
+  SyncedPatternsSlice
 
 export interface EditorStoreOptions {
   initialBlocks?: Block[]
@@ -50,6 +55,10 @@ export function createEditorStore(options: EditorStoreOptions = {}) {
         options.initialTitle ?? '',
         options.initialPostSettings ?? {}
       ),
+      ...createSyncedPatternsSlice(
+        set as Parameters<typeof createSyncedPatternsSlice>[0],
+        get as Parameters<typeof createSyncedPatternsSlice>[1]
+      ),
     }))
   )
 
@@ -72,6 +81,10 @@ function useEditorStoreInstance(): EditorStoreInstance {
     throw new Error('useEditorStore must be used within an EditorStoreProvider')
   }
   return store
+}
+
+export function useEditorStoreApi(): EditorStoreInstance {
+  return useEditorStoreInstance()
 }
 
 // Subscribe to a slice of state. The selector must return a stable primitive or
@@ -188,12 +201,18 @@ export function useEditorActions() {
       // Post settings
       setTitle: s.setTitle,
       updatePostSettings: s.updatePostSettings,
+      // Synced patterns
+      createSyncedPattern: s.createSyncedPattern,
+      insertSyncedPattern: s.insertSyncedPattern,
+      updateSyncedPattern: s.updateSyncedPattern,
+      refreshSyncedPatternFromInstance: s.refreshSyncedPatternFromInstance,
+      detachSyncedPattern: s.detachSyncedPattern,
+      removeSyncedPattern: s.removeSyncedPattern,
       // Preferences
       setPreference: s.setPreference,
       togglePreference: s.togglePreference,
       resetPreferences: s.resetPreferences,
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store]) // store is stable (created once in BlockEditor)
 }
 

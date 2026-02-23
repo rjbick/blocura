@@ -149,7 +149,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '8px 12px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
   cursor: 'pointer',
 }
 
@@ -165,7 +165,7 @@ const inspectorInputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
-  fontFamily: 'var(--wp-font-family)',
+  fontFamily: 'var(--editor-font-family)',
 }
 
 const inspectorCheckboxStyle: React.CSSProperties = {
@@ -215,7 +215,7 @@ export const socialLinksBlock: BlockDefinition = {
       className,
       anchor,
     } = attributes as SocialLinksAttributes
-    const classes = ['wp-block-social-links', size]
+    const classes = ['editor-block-social-links', size]
     if (iconColor) classes.push(`has-${iconColor}-color`)
     if (className) classes.push(className)
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
