@@ -197,6 +197,61 @@ export function Inserter() {
           )}
         </div>
 
+        {activeTab === 'blocks' && (
+          <div
+            style={{
+              display: 'flex',
+              gap: 6,
+              overflowX: 'auto',
+              paddingBottom: 10,
+              marginBottom: 2,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveCategory(null)}
+              className={`inserter-category-chip${activeCategory === null ? ' inserter-category-chip--active' : ''}`}
+              style={{
+                padding: '4px 8px',
+                borderRadius: 999,
+                border: '1px solid #ddd',
+                backgroundColor: activeCategory === null ? 'rgba(var(--wp-components-color-accent-rgb), 0.1)' : '#fff',
+                color: activeCategory === null ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                fontSize: 11,
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              All
+            </button>
+            {CATEGORIES.map((category) => {
+              const count = allBlocks.filter((block) => block.category === category.slug).length
+              if (count === 0) return null
+              const isActive = activeCategory === category.slug
+              return (
+                <button
+                  key={category.slug}
+                  type="button"
+                  onClick={() => setActiveCategory(isActive ? null : category.slug)}
+                  className={`inserter-category-chip${isActive ? ' inserter-category-chip--active' : ''}`}
+                  style={{
+                    padding: '4px 8px',
+                    borderRadius: 999,
+                    border: '1px solid #ddd',
+                    backgroundColor: isActive ? 'rgba(var(--wp-components-color-accent-rgb), 0.1)' : '#fff',
+                    color: isActive ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {category.label}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         {activeTab === 'blocks' && targetRootBlock?.name === 'core/columns' && (
           <div
             style={{
@@ -362,6 +417,8 @@ export function Inserter() {
                   key={entry.pattern.name}
                   type="button"
                   onClick={() => handleInsertPattern(entry)}
+                  className="inserter-pattern-card"
+                  data-disabled={entry.isAllowed ? 'false' : 'true'}
                   style={{
                     border: '1px solid #e0e0e0',
                     borderRadius: 4,
@@ -371,15 +428,6 @@ export function Inserter() {
                     cursor: entry.isAllowed ? 'pointer' : 'not-allowed',
                     opacity: entry.isAllowed ? 1 : 0.65,
                     transition: 'border-color 0.1s ease, background-color 0.1s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!entry.isAllowed) return
-                    e.currentTarget.style.borderColor = 'var(--wp-components-color-accent)'
-                    e.currentTarget.style.backgroundColor = 'rgba(56,88,233,0.03)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e0e0e0'
-                    e.currentTarget.style.backgroundColor = entry.isAllowed ? '#fff' : '#f7f7f7'
                   }}
                 >
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e' }}>{entry.pattern.title}</div>
@@ -411,10 +459,9 @@ interface BlockIconProps {
 }
 
 function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIconProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
   return (
     <button
+      className="inserter-block-icon"
       type="button"
       onClick={() => {
         if (disabled) {
@@ -423,8 +470,7 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
         }
         onClick()
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      data-disabled={disabled ? 'true' : 'false'}
       aria-label={`Insert ${def.title}`}
       style={{
         display: 'flex',
@@ -435,11 +481,7 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
         padding: '12px 8px',
         borderRadius: 4,
         border: 'none',
-        backgroundColor: disabled
-          ? '#f7f7f7'
-          : isHovered
-          ? 'rgba(var(--wp-components-color-accent-rgb), 0.08)'
-          : 'transparent',
+        backgroundColor: disabled ? '#f7f7f7' : 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.65 : 1,
         transition: 'background-color 0.05s ease',
@@ -447,26 +489,20 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
       }}
     >
       <span
+        className="inserter-block-icon-icon"
         style={{
           fontSize: 24,
           lineHeight: 1,
-          color: disabled
-            ? '#757575'
-            : isHovered
-            ? 'var(--wp-components-color-accent)'
-            : '#1e1e1e',
+          color: disabled ? '#757575' : '#1e1e1e',
         }}
       >
         {typeof def.icon === 'string' ? def.icon : def.icon}
       </span>
       <span
+        className="inserter-block-icon-label"
         style={{
           fontSize: 11,
-          color: disabled
-            ? '#757575'
-            : isHovered
-            ? 'var(--wp-components-color-accent)'
-            : '#1e1e1e',
+          color: disabled ? '#757575' : '#1e1e1e',
           textAlign: 'center',
           lineHeight: 1.3,
           wordBreak: 'break-word',

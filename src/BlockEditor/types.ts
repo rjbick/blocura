@@ -272,6 +272,8 @@ export interface PostSettings {
   template?: string;
   order?: number;
   revisionsCount?: number;
+  includeTitleInContent: boolean;
+  meta: Record<string, unknown>;
 }
 
 export interface Term {
@@ -367,6 +369,20 @@ export interface SavePayload {
   content: string;
   rawHtml: string;
   postSettings: PostSettings;
+  metadata: Record<string, unknown>;
+  images: ImageAsset[];
+  titleIncludedInContent: boolean;
+}
+
+export interface ImageAsset {
+  url: string;
+  alt?: string;
+  id?: string | number;
+  width?: number;
+  height?: number;
+  caption?: string;
+  blockClientId?: string;
+  blockName?: string;
 }
 
 // ─── Component Props ──────────────────────────────────────────────────────────

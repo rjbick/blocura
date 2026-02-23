@@ -12,11 +12,19 @@ interface SlashInserterProps {
   query: string
   onSelect: (def: BlockDefinition) => void
   onClose: () => void
+  showAllByDefault?: boolean
 }
 
-export function SlashInserter({ anchorEl, rootClientId, query, onSelect, onClose }: SlashInserterProps) {
+export function SlashInserter({
+  anchorEl,
+  rootClientId,
+  query,
+  onSelect,
+  onClose,
+  showAllByDefault = false,
+}: SlashInserterProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const listRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const blocks = useEditorStore(s => s.blocks)
 
   const allBlocks = filterBlockDefinitionsForRoot(BlockRegistry.getInsertable(), blocks, rootClientId)
@@ -26,6 +34,8 @@ export function SlashInserter({ anchorEl, rootClientId, query, onSelect, onClose
           def.title.toLowerCase().includes(query.toLowerCase()) ||
           def.keywords?.some(k => k.toLowerCase().includes(query.toLowerCase()))
       )
+    : showAllByDefault
+    ? allBlocks
     : allBlocks.slice(0, 8) // Show first 8 by default
 
   // Reset active index when results change
@@ -35,7 +45,7 @@ export function SlashInserter({ anchorEl, rootClientId, query, onSelect, onClose
 
   // Scroll active into view
   useEffect(() => {
-    const el = listRef.current?.querySelector('[data-active="true"]') as HTMLElement
+    const el = containerRef.current?.querySelector('[data-active="true"]') as HTMLElement
     el?.scrollIntoView({ block: 'nearest' })
   }, [activeIndex])
 
@@ -65,6 +75,24 @@ export function SlashInserter({ anchorEl, rootClientId, query, onSelect, onClose
     return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [handleKeyDown])
 
+  // Close when clicking outside of anchor and popup.
+  useEffect(() => {
+    if (!anchorEl) return
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null
+      if (!target) return
+      if (containerRef.current?.contains(target)) return
+      if (anchorEl.contains(target)) return
+      onClose()
+    }
+
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+    }
+  }, [anchorEl, onClose])
+
   if (filtered.length === 0 || !anchorEl) return null
 
   // Position below the anchor element
@@ -76,6 +104,7 @@ export function SlashInserter({ anchorEl, rootClientId, query, onSelect, onClose
     <div
       role="listbox"
       aria-label="Block inserter"
+      ref={containerRef}
       style={{
         position: 'absolute',
         top,
@@ -90,7 +119,6 @@ export function SlashInserter({ anchorEl, rootClientId, query, onSelect, onClose
         padding: '4px 0',
       }}
       onMouseDown={e => e.preventDefault()}
-      ref={listRef}
     >
       {filtered.map((def, idx) => (
         <button

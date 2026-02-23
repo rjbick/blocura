@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Copy, Trash2, ChevronDown } from 'lucide-react'
 import { useEditorActions } from '../../store'
 import type { Block, BlockDefinition } from '../../types'
@@ -10,6 +10,8 @@ import { BlockMover } from './BlockMover'
 interface BlockFloatingToolbarProps {
   block: Block
   def: BlockDefinition
+  variant?: 'floating' | 'fixed'
+  topOffset?: number
 }
 
 // Simple transform map: which block types can this block be converted to
@@ -30,9 +32,15 @@ function getTextContent(block: Block): string {
     ''
 }
 
-export function BlockFloatingToolbar({ block, def }: BlockFloatingToolbarProps) {
+export function BlockFloatingToolbar({
+  block,
+  def,
+  variant = 'floating',
+  topOffset = 64,
+}: BlockFloatingToolbarProps) {
   const { duplicateBlock, removeBlock, replaceBlock } = useEditorActions()
   const [switcherOpen, setSwitcherOpen] = useState(false)
+  const switcherRef = useRef<HTMLDivElement>(null)
 
   const transformTargets = (TRANSFORM_TO[block.name] ?? [])
     .map(name => BlockRegistry.get(name))
@@ -70,16 +78,31 @@ export function BlockFloatingToolbar({ block, def }: BlockFloatingToolbarProps) 
     setSwitcherOpen(false)
   }
 
+  useEffect(() => {
+    if (!switcherOpen) return
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!switcherRef.current) return
+      if (switcherRef.current.contains(event.target as Node)) return
+      setSwitcherOpen(false)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [switcherOpen])
+
   return (
     <div
       contentEditable={false}
       suppressContentEditableWarning
       style={{
-        position: 'absolute',
-        top: -46,
+        position: variant === 'fixed' ? 'fixed' : 'absolute',
+        top: variant === 'fixed' ? topOffset : -46,
         left: '50%',
         transform: 'translateX(-50%)',
-        zIndex: 20,
+        zIndex: variant === 'fixed' ? 120 : 20,
         display: 'flex',
         alignItems: 'center',
         backgroundColor: '#fff',
@@ -94,7 +117,7 @@ export function BlockFloatingToolbar({ block, def }: BlockFloatingToolbarProps) 
       onClick={(e) => e.stopPropagation()}
     >
       {/* Block type switcher button */}
-      <div style={{ position: 'relative' }}>
+      <div ref={switcherRef} style={{ position: 'relative' }}>
         <button
           type="button"
           onClick={() => setSwitcherOpen(v => !v)}
@@ -120,6 +143,7 @@ export function BlockFloatingToolbar({ block, def }: BlockFloatingToolbarProps) 
         {/* Switcher popover */}
         {switcherOpen && transformTargets.length > 0 && (
           <div
+            className="wp-popover-content"
             style={{
               position: 'absolute',
               top: '100%',
@@ -135,6 +159,7 @@ export function BlockFloatingToolbar({ block, def }: BlockFloatingToolbarProps) 
           >
             {transformTargets.map(targetDef => (
               <button
+                className="block-transform-item"
                 key={targetDef.name}
                 type="button"
                 onClick={() => transformTo(targetDef)}
@@ -151,12 +176,6 @@ export function BlockFloatingToolbar({ block, def }: BlockFloatingToolbarProps) 
                   fontSize: 13,
                   color: '#1e1e1e',
                   textAlign: 'left',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(56,88,233,0.08)'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'
                 }}
               >
                 <span style={{ width: 20, height: 20, flexShrink: 0, color: '#757575', display: 'flex', alignItems: 'center' }}>

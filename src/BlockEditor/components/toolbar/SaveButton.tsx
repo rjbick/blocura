@@ -19,6 +19,7 @@ export function SaveButton({ onSave, isSaving = false }: SaveButtonProps) {
 
   return (
     <button
+      className="save-button"
       type="button"
       onClick={onSave}
       disabled={isSaving}
@@ -40,26 +41,6 @@ export function SaveButton({ onSave, isSaving = false }: SaveButtonProps) {
         transition: 'background-color 0.05s ease',
         whiteSpace: 'nowrap',
         flexShrink: 0,
-      }}
-      onMouseEnter={(e) => {
-        if (!isSaving) {
-          ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#135e96'
-        }
-      }}
-      onMouseLeave={(e) => {
-        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = isSaving
-          ? '#135e96'
-          : '#2271b1'
-      }}
-      onMouseDown={(e) => {
-        if (!isSaving) {
-          ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0a4b78'
-        }
-      }}
-      onMouseUp={(e) => {
-        if (!isSaving) {
-          ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#135e96'
-        }
       }}
     >
       {isSaving && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}

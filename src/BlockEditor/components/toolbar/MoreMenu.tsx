@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { MoreVertical, Monitor, Tablet, Smartphone, Maximize2, Focus, Type, AlignJustify, ZoomOut, Keyboard, Settings, Copy, HelpCircle } from 'lucide-react'
+import { MoreVertical, Monitor, Tablet, Smartphone, Maximize2, Focus, Type, ZoomOut, Keyboard, Settings, Copy, HelpCircle, Check } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useEditorActions, useEditorStore } from '../../store'
 import { KeyboardShortcutsModal } from '../keyboard/KeyboardShortcutsModal'
@@ -13,7 +12,6 @@ export function MoreMenu() {
     toggleDistractionFree,
     toggleSpotlightMode,
     toggleZoomOut,
-    openCommandPalette,
     openKeyboardShortcuts,
     closeKeyboardShortcuts,
     openPreferences,
@@ -23,6 +21,8 @@ export function MoreMenu() {
   const isFullscreen = useEditorStore(s => s.isFullscreen)
   const isDistractionFree = useEditorStore(s => s.isDistractionFree)
   const isZoomOut = useEditorStore(s => s.isZoomOut)
+  const isSpotlightMode = useEditorStore(s => s.isSpotlightMode)
+  const previewDevice = useEditorStore(s => s.previewDevice)
   const blocks = useEditorStore(s => s.blocks)
   const showShortcuts = useEditorStore(s => s.keyboardShortcutsOpen)
   const showPreferences = useEditorStore(s => s.preferencesOpen)
@@ -30,7 +30,7 @@ export function MoreMenu() {
   const menuItemStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     padding: '8px 16px',
     fontSize: 13,
     fontFamily: 'var(--wp-font-family)',
@@ -55,6 +55,7 @@ export function MoreMenu() {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
+          className="toolbar-button"
           type="button"
           aria-label="Options"
           style={{
@@ -75,6 +76,7 @@ export function MoreMenu() {
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
+          className="wp-popover-content"
           align="end"
           sideOffset={4}
           style={{
@@ -89,14 +91,14 @@ export function MoreMenu() {
           {/* VIEW */}
           <div style={labelStyle}>View</div>
           {[
-            { label: 'Desktop preview', icon: <Monitor size={16} />, action: () => setPreviewDevice('desktop') },
-            { label: 'Tablet preview', icon: <Tablet size={16} />, action: () => setPreviewDevice('tablet') },
-            { label: 'Mobile preview', icon: <Smartphone size={16} />, action: () => setPreviewDevice('mobile') },
+            { id: 'desktop' as const, label: 'Desktop preview', icon: <Monitor size={16} />, action: () => setPreviewDevice('desktop') },
+            { id: 'tablet' as const, label: 'Tablet preview', icon: <Tablet size={16} />, action: () => setPreviewDevice('tablet') },
+            { id: 'mobile' as const, label: 'Mobile preview', icon: <Smartphone size={16} />, action: () => setPreviewDevice('mobile') },
           ].map(item => (
-            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-              {item.icon}<span>{item.label}</span>
+            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle} className="wp-dropdown-item">
+              {item.icon}
+              <span style={{ flex: 1 }}>{item.label}</span>
+              {previewDevice === item.id && <Check size={14} color="var(--wp-components-color-accent)" />}
             </DropdownMenu.Item>
           ))}
 
@@ -105,15 +107,15 @@ export function MoreMenu() {
           {/* EDITOR */}
           <div style={labelStyle}>Editor</div>
           {[
-            { label: isFullscreen ? 'Exit fullscreen' : 'Fullscreen mode', icon: <Maximize2 size={16} />, action: toggleFullscreen },
-            { label: 'Spotlight mode', icon: <Focus size={16} />, action: toggleSpotlightMode },
-            { label: isDistractionFree ? 'Exit distraction free' : 'Distraction free', icon: <Type size={16} />, action: toggleDistractionFree },
-            { label: isZoomOut ? 'Exit zoom out' : 'Zoom out', icon: <ZoomOut size={16} />, action: toggleZoomOut },
+            { label: 'Fullscreen mode', icon: <Maximize2 size={16} />, action: toggleFullscreen, active: isFullscreen },
+            { label: 'Spotlight mode', icon: <Focus size={16} />, action: toggleSpotlightMode, active: isSpotlightMode },
+            { label: 'Distraction free', icon: <Type size={16} />, action: toggleDistractionFree, active: isDistractionFree },
+            { label: 'Zoom out', icon: <ZoomOut size={16} />, action: toggleZoomOut, active: isZoomOut },
           ].map(item => (
-            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-              {item.icon}<span>{item.label}</span>
+            <DropdownMenu.Item key={item.label} onSelect={item.action} style={menuItemStyle} className="wp-dropdown-item">
+              {item.icon}
+              <span style={{ flex: 1 }}>{item.label}</span>
+              {item.active && <Check size={14} color="var(--wp-components-color-accent)" />}
             </DropdownMenu.Item>
           ))}
 
@@ -124,16 +126,14 @@ export function MoreMenu() {
           <DropdownMenu.Item
             onSelect={openKeyboardShortcuts}
             style={menuItemStyle}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            className="wp-dropdown-item"
           >
             <Keyboard size={16} /><span>Keyboard shortcuts</span>
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={openPreferences}
             style={menuItemStyle}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            className="wp-dropdown-item"
           >
             <Settings size={16} /><span>Preferences</span>
           </DropdownMenu.Item>
@@ -143,8 +143,7 @@ export function MoreMenu() {
               navigator.clipboard?.writeText(markup).catch(() => {})
             }}
             style={menuItemStyle}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            className="wp-dropdown-item"
           >
             <Copy size={16} /><span>Copy all content</span>
           </DropdownMenu.Item>
@@ -156,8 +155,7 @@ export function MoreMenu() {
           <DropdownMenu.Item
             onSelect={() => window.open('https://wordpress.org/support/article/wordpress-editor/', '_blank')}
             style={menuItemStyle}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            className="wp-dropdown-item"
           >
             <HelpCircle size={16} /><span>Help center</span>
           </DropdownMenu.Item>

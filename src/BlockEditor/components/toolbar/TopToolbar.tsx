@@ -3,15 +3,8 @@ import {
   Undo2,
   Redo2,
   List,
-  Eye,
-  ChevronDown,
   PanelRight,
-  MoreVertical,
-  Monitor,
-  Tablet,
-  Smartphone,
 } from 'lucide-react'
-import { useState, useRef } from 'react'
 import { useEditorStore, useEditorActions } from '../../store'
 import { ToolbarButton } from './ToolbarButton'
 import { ViewModeToggle } from './ViewModeToggle'
@@ -23,14 +16,17 @@ import { PreviewDropdown } from './PreviewDropdown'
 interface TopToolbarProps {
   onSave?: () => void | Promise<void>
   isSaving?: boolean
+  logoSrc?: string
 }
 
-export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
+export function TopToolbar({ onSave, isSaving, logoSrc }: TopToolbarProps) {
   const canUndo = useEditorStore(s => s.canUndo)
   const canRedo = useEditorStore(s => s.canRedo)
   const inserterOpen = useEditorStore(s => s.inserterOpen)
   const listViewOpen = useEditorStore(s => s.listViewOpen)
   const isCodeMode = useEditorStore(s => s.isCodeMode)
+  const sidebarOpen = useEditorStore(s => s.sidebarOpen)
+  const showIconLabels = useEditorStore(s => s.preferences.showIconLabels)
 
   const {
     undo,
@@ -38,7 +34,7 @@ export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
     toggleInserter,
     toggleListView,
     toggleSidebar,
-    toggleCodeMode,
+    setCodeMode,
   } = useEditorActions()
 
   return (
@@ -67,9 +63,35 @@ export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
           flexShrink: 0,
         }}
       >
+        {logoSrc && (
+          <button
+            type="button"
+            aria-label="Site logo"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              backgroundColor: '#fff',
+              border: '1px solid rgba(0,0,0,0.08)',
+              padding: 0,
+            }}
+          >
+            <img
+              src={logoSrc}
+              alt="Site logo"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </button>
+        )}
+
         {/* Inserter toggle */}
         <ToolbarButton
           icon={<Plus size={24} />}
+          label={showIconLabels ? 'Add' : undefined}
           tooltip="Toggle block inserter"
           shortcut="⇧⌘K"
           isActive={inserterOpen}
@@ -79,6 +101,7 @@ export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
         {/* Undo */}
         <ToolbarButton
           icon={<Undo2 size={24} />}
+          label={showIconLabels ? 'Undo' : undefined}
           tooltip="Undo"
           shortcut="Ctrl+Z"
           isDisabled={!canUndo}
@@ -88,6 +111,7 @@ export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
         {/* Redo */}
         <ToolbarButton
           icon={<Redo2 size={24} />}
+          label={showIconLabels ? 'Redo' : undefined}
           tooltip="Redo"
           shortcut="Ctrl+Shift+Z"
           isDisabled={!canRedo}
@@ -108,12 +132,13 @@ export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
         {/* View mode toggle */}
         <ViewModeToggle
           isCodeMode={isCodeMode}
-          onToggle={toggleCodeMode}
+          onChange={(mode) => setCodeMode(mode === 'code')}
         />
 
         {/* List View toggle */}
         <ToolbarButton
           icon={<List size={24} />}
+          label={showIconLabels ? 'List' : undefined}
           tooltip="List View"
           shortcut="Ctrl+Shift+J"
           isActive={listViewOpen}
@@ -165,8 +190,10 @@ export function TopToolbar({ onSave, isSaving }: TopToolbarProps) {
         {/* Settings toggle */}
         <ToolbarButton
           icon={<PanelRight size={24} />}
+          label={showIconLabels ? 'Settings' : undefined}
           tooltip="Settings"
           shortcut="Ctrl+,"
+          isActive={sidebarOpen}
           onClick={toggleSidebar}
         />
 

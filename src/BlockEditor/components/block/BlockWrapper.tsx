@@ -28,6 +28,9 @@ export function BlockWrapper({
   const isMultiSelection = useEditorStore(s => s.selectedClientIds.length > 1)
   const selectedClientIds = useEditorStore(s => s.selectedClientIds)
   const isDragging = useEditorStore(s => s.isDragging)
+  const isSpotlightMode = useEditorStore(s => s.isSpotlightMode)
+  const focusMode = useEditorStore(s => s.preferences.focusMode)
+  const fixedToolbar = useEditorStore(s => s.preferences.fixedToolbar)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const lock = (block.attributes as Record<string, unknown> | undefined)?.lock as Record<string, unknown> | undefined
   const isMoveLocked = lock?.move === true || lock?.remove === true
@@ -92,6 +95,9 @@ export function BlockWrapper({
     transition,
     opacity: isSortableDragging ? 0.4 : 1,
   }
+  const spotlightActive = (isSpotlightMode || focusMode) && selectedClientIds.length > 0
+  const shouldDim = spotlightActive && !isSelected && !isSortableDragging
+  const contentOpacity = shouldDim ? (isHovered ? 0.72 : 0.36) : 1
 
   return (
     <div
@@ -104,6 +110,7 @@ export function BlockWrapper({
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      data-spotlight-dimmed={shouldDim ? 'true' : 'false'}
       style={{
         position: 'relative',
         outline: outlineStyle,
@@ -169,12 +176,19 @@ export function BlockWrapper({
       )}
 
       {/* Floating toolbar */}
-      {isSelected && !isMultiSelection && (
+      {isSelected && !isMultiSelection && !fixedToolbar && (
         <BlockFloatingToolbar block={block} def={def} />
       )}
 
       {/* Block content */}
-      <div className={supportedClass} style={supportedStyle}>
+      <div
+        className={supportedClass}
+        style={{
+          ...supportedStyle,
+          opacity: contentOpacity,
+          transition: 'opacity 0.2s ease',
+        }}
+      >
         {children}
       </div>
     </div>

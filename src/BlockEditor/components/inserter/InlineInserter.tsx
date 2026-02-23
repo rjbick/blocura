@@ -1,8 +1,10 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEditorActions, useEditorStore } from '../../store'
-import { createDefaultBlockForRoot } from '../../helpers/insertionRules'
+import { useEditorActions } from '../../store'
+import { createBlockFromDefinition } from '../../helpers/insertionRules'
+import { SlashInserter } from './SlashInserter'
+import type { BlockDefinition } from '../../types'
 
 interface InlineInserterProps {
   rootClientId: string | null
@@ -11,17 +13,21 @@ interface InlineInserterProps {
 
 export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
   const [isHovered, setIsHovered] = useState(false)
-  const blocks = useEditorStore(s => s.blocks)
+  const [isPickerOpen, setIsPickerOpen] = useState(false)
   const { insertBlock } = useEditorActions()
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-  const handleInsertParagraph = useCallback(() => {
-    const block = createDefaultBlockForRoot(blocks, rootClientId)
-    if (!block) return
-    insertBlock(block, rootClientId, index)
-  }, [blocks, insertBlock, rootClientId, index])
+  const handleInsertBlock = useCallback((def: BlockDefinition) => {
+    insertBlock(createBlockFromDefinition(def), rootClientId, index)
+    setIsPickerOpen(false)
+    setIsHovered(false)
+  }, [insertBlock, rootClientId, index])
+
+  const isVisible = isHovered || isPickerOpen
 
   return (
     <div
+      className="inline-inserter"
       style={{
         height: 16,
         position: 'relative',
@@ -34,7 +40,7 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <AnimatePresence>
-        {isHovered && (
+        {isVisible && (
           <>
             {/* Blue line */}
             <motion.div
@@ -55,6 +61,8 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
 
             {/* + button */}
             <motion.button
+              ref={buttonRef}
+              className="inline-inserter-button"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
@@ -62,23 +70,24 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
-                handleInsertParagraph()
+                setIsPickerOpen(v => !v)
               }}
+              aria-expanded={isPickerOpen}
               aria-label="Insert block"
               style={{
                 width: 24,
                 height: 24,
-                borderRadius: 12,
-                backgroundColor: 'var(--wp-components-color-accent)',
-                color: '#fff',
+                borderRadius: 2,
+                backgroundColor: '#fff',
+                color: 'var(--wp-components-color-accent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: 'none',
+                border: '1px solid var(--wp-inserter-line-color)',
                 cursor: 'pointer',
                 position: 'relative',
                 zIndex: 2,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                 flexShrink: 0,
               }}
             >
@@ -87,6 +96,17 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
           </>
         )}
       </AnimatePresence>
+
+      {isPickerOpen && (
+        <SlashInserter
+          anchorEl={buttonRef.current}
+          rootClientId={rootClientId}
+          query=""
+          showAllByDefault={true}
+          onSelect={handleInsertBlock}
+          onClose={() => setIsPickerOpen(false)}
+        />
+      )}
     </div>
   )
 }

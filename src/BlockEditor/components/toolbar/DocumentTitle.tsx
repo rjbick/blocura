@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useEditorStore, useEditorActions } from '../../store'
 
 export function DocumentTitle() {
@@ -6,11 +6,10 @@ export function DocumentTitle() {
   const { setTitle } = useEditorActions()
   const [isHovered, setIsHovered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <input
-      ref={inputRef}
+      className="document-title-input"
       type="text"
       value={title}
       onChange={(e) => setTitle(e.target.value)}
@@ -36,7 +35,7 @@ export function DocumentTitle() {
         outline: 'none',
         padding: '2px 0',
         maxWidth: 400,
-        width: '100%',
+        width: 'min(100%, 400px)',
         textAlign: 'center',
         transition: 'border-color 0.05s ease',
       }}

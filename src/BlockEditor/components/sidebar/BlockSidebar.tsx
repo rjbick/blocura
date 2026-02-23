@@ -48,10 +48,12 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div style={{ borderBottom: '1px solid var(--wp-sidebar-border)' }}>
+    <div className="sidebar-panel" style={{ borderBottom: '1px solid var(--wp-sidebar-border)' }}>
       <button
+        className="sidebar-panel-toggle"
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         style={{
           width: '100%',
           display: 'flex',

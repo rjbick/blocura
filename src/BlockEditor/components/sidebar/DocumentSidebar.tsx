@@ -14,10 +14,12 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div style={{ borderBottom: '1px solid var(--wp-sidebar-border)' }}>
+    <div className="sidebar-panel" style={{ borderBottom: '1px solid var(--wp-sidebar-border)' }}>
       <button
+        className="sidebar-panel-toggle"
         type="button"
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
         style={{
           width: '100%',
           display: 'flex',
@@ -62,6 +64,24 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
+}
+
+function padTwo(value: number): string {
+  return value.toString().padStart(2, '0')
+}
+
+function toLocalDateTimeValue(value?: string): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return `${date.getFullYear()}-${padTwo(date.getMonth() + 1)}-${padTwo(date.getDate())}T${padTwo(date.getHours())}:${padTwo(date.getMinutes())}`
+}
+
+function fromLocalDateTimeValue(value: string): string | undefined {
+  if (!value.trim()) return undefined
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return undefined
+  return parsed.toISOString()
 }
 
 function termMatches(a: Term, b: Term): boolean {
@@ -140,6 +160,7 @@ function useTermSuggestions(
 
 export function DocumentSidebar() {
   const postSettings = useEditorStore(s => s.postSettings)
+  const enableCustomFields = useEditorStore(s => s.preferences.enableCustomFields)
   const { updatePostSettings, createSuccessNotice, createErrorNotice } = useEditorActions()
   const { onImageUpload, onSearchCategories, onSearchTerms } = useEditorRuntime()
 
@@ -148,10 +169,15 @@ export function DocumentSidebar() {
 
   const [categoryQuery, setCategoryQuery] = useState('')
   const [tagQuery, setTagQuery] = useState('')
+  const [metaDraft, setMetaDraft] = useState(() => JSON.stringify(postSettings.meta, null, 2))
   const { results: categorySuggestions, isLoading: categoryLoading } =
     useTermSuggestions(categoryQuery, onSearchCategories)
   const { results: tagSuggestions, isLoading: tagLoading } =
     useTermSuggestions(tagQuery, onSearchTerms)
+
+  useEffect(() => {
+    setMetaDraft(JSON.stringify(postSettings.meta, null, 2))
+  }, [postSettings.meta])
 
   const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -209,6 +235,24 @@ export function DocumentSidebar() {
     addCategory(createLocalTerm(value, postSettings.categories))
   }
 
+  const applyMetaDraft = () => {
+    const trimmed = metaDraft.trim()
+    if (!trimmed) {
+      updatePostSettings({ meta: {} })
+      return
+    }
+
+    try {
+      const parsed = JSON.parse(trimmed)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('Metadata must be a JSON object.')
+      }
+      updatePostSettings({ meta: parsed as Record<string, unknown> })
+    } catch {
+      createErrorNotice('Metadata JSON is invalid.')
+    }
+  }
+
   return (
     <div>
       <Panel title="Status & visibility" defaultOpen={true}>
@@ -231,6 +275,25 @@ export function DocumentSidebar() {
             <option value="password">Password protected</option>
           </select>
         </Row>
+        {postSettings.visibility === 'password' && (
+          <Row label="Password">
+            <input
+              type="text"
+              value={postSettings.password ?? ''}
+              onChange={(e) => updatePostSettings({ password: e.target.value || undefined })}
+              placeholder="Enter password"
+              style={{
+                width: 140,
+                fontSize: 13,
+                fontFamily: 'var(--wp-font-family)',
+                border: '1px solid #ddd',
+                borderRadius: 2,
+                padding: '4px 8px',
+                backgroundColor: '#fff',
+              }}
+            />
+          </Row>
+        )}
 
         <Row label="Status">
           <select
@@ -251,16 +314,42 @@ export function DocumentSidebar() {
             <option value="draft">Draft</option>
             <option value="pending">Pending review</option>
             <option value="publish">Published</option>
+            <option value="future">Scheduled</option>
+            <option value="private">Privately published</option>
           </select>
         </Row>
 
         <Row label="Publish">
-          <span style={{ fontSize: 13, color: '#757575' }}>Immediately</span>
+          {postSettings.status === 'future' ? (
+            <input
+              type="datetime-local"
+              value={toLocalDateTimeValue(postSettings.scheduledDate)}
+              onChange={(e) => updatePostSettings({ scheduledDate: fromLocalDateTimeValue(e.target.value) })}
+              style={{
+                width: 190,
+                fontSize: 12,
+                fontFamily: 'var(--wp-font-family)',
+                border: '1px solid #ddd',
+                borderRadius: 2,
+                padding: '4px 8px',
+                backgroundColor: '#fff',
+              }}
+            />
+          ) : (
+            <span style={{ fontSize: 13, color: '#757575' }}>Immediately</span>
+          )}
         </Row>
 
         <Row label="Template">
           <span style={{ fontSize: 13, color: '#757575' }}>Single Post</span>
         </Row>
+        {typeof postSettings.revisionsCount === 'number' && (
+          <Row label="Revisions">
+            <span style={{ fontSize: 13, color: '#757575' }}>
+              {postSettings.revisionsCount}
+            </span>
+          </Row>
+        )}
       </Panel>
 
       <Panel title="Permalink">
@@ -289,6 +378,18 @@ export function DocumentSidebar() {
             </a>
           </p>
         )}
+      </Panel>
+
+      <Panel title="Title">
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={!postSettings.includeTitleInContent}
+            onChange={(e) => updatePostSettings({ includeTitleInContent: !e.target.checked })}
+            style={{ width: 16, height: 16 }}
+          />
+          <span style={{ fontSize: 13 }}>Remove title from page</span>
+        </label>
       </Panel>
 
       <Panel title="Categories">
@@ -598,6 +699,48 @@ export function DocumentSidebar() {
           </label>
         </div>
       </Panel>
+
+      {enableCustomFields && (
+        <Panel title="Custom fields">
+          <p style={{ fontSize: 12, color: '#757575', margin: '0 0 8px' }}>
+            Metadata is saved as a JSON object and included in save payloads.
+          </p>
+          <textarea
+            value={metaDraft}
+            onChange={(e) => setMetaDraft(e.target.value)}
+            onBlur={applyMetaDraft}
+            rows={8}
+            spellCheck={false}
+            style={{
+              width: '100%',
+              padding: '8px',
+              border: '1px solid #ddd',
+              borderRadius: 2,
+              fontSize: 12,
+              lineHeight: 1.5,
+              fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace',
+              resize: 'vertical',
+              boxSizing: 'border-box',
+            }}
+          />
+          <button
+            type="button"
+            onClick={applyMetaDraft}
+            style={{
+              marginTop: 8,
+              height: 30,
+              padding: '0 10px',
+              border: '1px solid #ddd',
+              borderRadius: 2,
+              backgroundColor: '#fff',
+              fontSize: 12,
+              cursor: 'pointer',
+            }}
+          >
+            Apply metadata
+          </button>
+        </Panel>
+      )}
     </div>
   )
 }

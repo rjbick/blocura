@@ -107,10 +107,190 @@ button {
   font: inherit;
 }
 
+.toolbar-button:hover:not(:disabled):not(.toolbar-button--active) {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.toolbar-button:active:not(:disabled):not(.toolbar-button--active) {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.toolbar-button--disabled {
+  pointer-events: none;
+}
+
+.sidebar-tab-button:hover {
+  background-color: #f6f7f7 !important;
+}
+
+.sidebar-panel-toggle:hover {
+  background-color: #f6f7f7 !important;
+}
+
+.sidebar-panel-toggle[aria-expanded='true'] {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-close-button:hover {
+  color: #1e1e1e !important;
+  background-color: #f6f7f7 !important;
+}
+
+.list-view-row:hover:not(.list-view-row--selected) {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.list-view-toggle:hover {
+  opacity: 1 !important;
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.inline-inserter-button:hover {
+  background-color: rgba(var(--wp-components-color-accent-rgb), 0.08) !important;
+}
+
+.inline-inserter-button:active {
+  background-color: rgba(var(--wp-components-color-accent-rgb), 0.14) !important;
+}
+
+.block-appender-button:hover {
+  border-color: var(--wp-components-color-accent) !important;
+  color: var(--wp-components-color-accent) !important;
+  background-color: rgba(var(--wp-components-color-accent-rgb), 0.08) !important;
+}
+
+.inserter-category-chip:hover {
+  background-color: #f6f7f7 !important;
+}
+
+.inserter-category-chip--active {
+  border-color: rgba(56, 88, 233, 0.25) !important;
+}
+
+.inserter-block-icon[data-disabled='false']:hover {
+  background-color: rgba(var(--wp-components-color-accent-rgb), 0.08) !important;
+}
+
+.inserter-block-icon[data-disabled='false']:hover .inserter-block-icon-icon,
+.inserter-block-icon[data-disabled='false']:hover .inserter-block-icon-label {
+  color: var(--wp-components-color-accent) !important;
+}
+
+.inserter-pattern-card[data-disabled='false']:hover {
+  border-color: var(--wp-components-color-accent) !important;
+  background-color: rgba(56, 88, 233, 0.03) !important;
+}
+
+.block-transform-item:hover {
+  background-color: rgba(56, 88, 233, 0.08) !important;
+}
+
+.format-toolbar-button:hover:not(.format-toolbar-button--active) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #135e96 !important;
+}
+
+.save-button:active:not(:disabled) {
+  background-color: #0a4b78 !important;
+}
+
+.preview-trigger-button:hover {
+  background-color: #f6f7f7 !important;
+}
+
+.preview-trigger-button:active {
+  background-color: #f0f0f0 !important;
+}
+
+.preview-open-tab-link {
+  color: var(--wp-admin-theme-color);
+}
+
+.wp-dropdown-item:hover,
+.wp-dropdown-item[data-highlighted] {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.wp-dropdown-item[data-highlighted] {
+  outline: none;
+}
+
+.preview-open-tab-link:hover {
+  color: var(--wp-admin-theme-color-darker-10);
+}
+
+.wp-popover-content {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+  will-change: transform, opacity;
+}
+
+.wp-popover-content[data-state='open'] {
+  animation: wp-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wp-popover-content:not([data-state]) {
+  animation: wp-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wp-popover-content[data-state='closed'] {
+  animation: wp-popover-out 0.1s ease-in;
+}
+
+.tooltip-content {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  will-change: transform, opacity;
+}
+
+.tooltip-content[data-state='delayed-open'],
+.tooltip-content[data-state='instant-open'] {
+  animation: wp-tooltip-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.document-title-input::placeholder {
+  color: #949494;
+  opacity: 1;
+}
+
 /* Animations */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes wp-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wp-popover-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-1px) scale(0.99);
+  }
+}
+
+@keyframes wp-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ProseMirror editor base styles */

@@ -17,6 +17,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { BlockRegistry } from './registry/BlockRegistry'
 import { blocksToBlockMarkup } from './helpers/blocksToBlockMarkup'
 import { blocksToRawHtml } from './helpers/blocksToRawHtml'
+import { collectImageAssets } from './helpers/collectImageAssets'
 import type { BlockDefinition } from './types'
 import { EditorRuntimeContext } from './context'
 import { InspectorControlsProvider } from './components/sidebar/InspectorControlsContext'
@@ -36,7 +37,14 @@ function EditorInner({
   const blocks = useEditorStore(s => s.blocks)
   const title = useEditorStore(s => s.title)
   const postSettings = useEditorStore(s => s.postSettings)
-  const { createSuccessNotice, createErrorNotice } = useEditorActions()
+  const showListViewByDefault = useEditorStore(s => s.preferences.showListViewByDefault)
+  const listViewOpen = useEditorStore(s => s.listViewOpen)
+  const {
+    createSuccessNotice,
+    createErrorNotice,
+    toggleListView,
+  } = useEditorActions()
+  const didApplyListViewDefaultRef = useRef(false)
 
   // Register custom blocks
   useMemo(() => {
@@ -47,19 +55,28 @@ function EditorInner({
     }
   }, [customBlocks])
 
+  const buildPayload = useCallback((): SavePayload => {
+    const rawHtml = blocksToRawHtml(blocks, {
+      title,
+      includeTitle: postSettings.includeTitleInContent,
+    })
+    return {
+      blocks,
+      title,
+      content: blocksToBlockMarkup(blocks),
+      rawHtml,
+      postSettings,
+      metadata: postSettings.meta,
+      images: collectImageAssets(blocks, rawHtml),
+      titleIncludedInContent: postSettings.includeTitleInContent,
+    }
+  }, [blocks, title, postSettings])
+
   const handleSave = useCallback(async () => {
     if (!onSave) return
     setIsSaving(true)
     try {
-      const content = blocksToBlockMarkup(blocks)
-      const rawHtml = blocksToRawHtml(blocks)
-      const payload = {
-        blocks,
-        title,
-        content,
-        rawHtml,
-        postSettings,
-      } as SavePayload
+      const payload = buildPayload()
       await onSave(payload)
       createSuccessNotice('Post updated.')
     } catch {
@@ -67,11 +84,19 @@ function EditorInner({
     } finally {
       setIsSaving(false)
     }
-  }, [onSave, blocks, title, postSettings, createSuccessNotice, createErrorNotice])
+  }, [onSave, buildPayload, createSuccessNotice, createErrorNotice])
 
   useEffect(() => {
     onChange?.(blocks)
   }, [blocks, onChange])
+
+  useEffect(() => {
+    if (didApplyListViewDefaultRef.current) return
+    didApplyListViewDefaultRef.current = true
+    if (showListViewByDefault && !listViewOpen) {
+      toggleListView()
+    }
+  }, [listViewOpen, showListViewByDefault, toggleListView])
 
   useEffect(() => {
     if (!onAutoSave) return
@@ -80,23 +105,17 @@ function EditorInner({
       return
     }
     const timer = window.setTimeout(() => {
-      onAutoSave({
-        blocks,
-        title,
-        content: blocksToBlockMarkup(blocks),
-        rawHtml: blocksToRawHtml(blocks),
-        postSettings,
-      })
+      onAutoSave(buildPayload())
     }, 3000)
     return () => window.clearTimeout(timer)
-  }, [blocks, title, postSettings, onAutoSave])
+  }, [buildPayload, onAutoSave])
 
   useKeyboardShortcuts({ onSave: handleSave })
 
   return (
     <>
       <EditorLayout
-        toolbar={<TopToolbar onSave={handleSave} isSaving={isSaving} />}
+        toolbar={<TopToolbar onSave={handleSave} isSaving={isSaving} logoSrc={settings?.logo} />}
         inserter={<Inserter />}
         canvas={<EditorCanvas maxWidth={settings?.maxWidth ?? 620} />}
         sidebar={<Sidebar />}
@@ -165,4 +184,9 @@ export function BlockEditor({
   )
 }
 
-export type { BlockEditorProps, SavePayload } from './types'
+export type { BlockEditorProps, SavePayload, ImageAsset } from './types'
+export { parseBlockMarkup } from './helpers/parseBlockMarkup'
+export { parseHtmlToBlocks } from './helpers/parseHtmlToBlocks'
+export { blocksToBlockMarkup } from './helpers/blocksToBlockMarkup'
+export { blocksToRawHtml } from './helpers/blocksToRawHtml'
+export { collectImageAssets } from './helpers/collectImageAssets'

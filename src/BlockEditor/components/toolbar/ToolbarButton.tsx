@@ -28,6 +28,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     ref
   ) => {
     const buttonSize = size === 'sm' ? 24 : 36
+    const hasLabel = Boolean(label)
 
     const button = (
       <button
@@ -46,9 +47,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           className
         )}
         style={{
-          width: buttonSize,
+          width: hasLabel ? 'auto' : buttonSize,
           height: buttonSize,
           minWidth: buttonSize,
+          paddingInline: hasLabel ? 8 : 0,
           borderRadius: 2,
           color: isDisabled
             ? 'rgba(30,30,30,0.3)'
@@ -62,24 +64,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           transition: 'background-color 0.05s ease, color 0.05s ease',
           flexShrink: 0,
         }}
-        onMouseEnter={(e) => {
-          if (!isDisabled && !isActive) {
-            ;(e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              'rgba(0,0,0,0.06)'
-          }
-        }}
-        onMouseLeave={(e) => {
-          ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = isActive
-            ? `rgba(var(--wp-components-color-accent-rgb), 0.1)`
-            : 'transparent'
-        }}
         {...props}
       >
         <span style={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {icon}
         </span>
         {label && (
-          <span style={{ fontSize: 11, marginLeft: 4, whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: 11, marginLeft: 6, whiteSpace: 'nowrap' }}>
             {label}
           </span>
         )}

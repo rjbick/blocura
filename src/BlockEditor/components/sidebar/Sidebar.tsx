@@ -19,24 +19,27 @@ export function Sidebar() {
     >
       {/* Sidebar tabs */}
       <div
+        className="sidebar-tabs-header"
         style={{
           display: 'flex',
           alignItems: 'center',
           borderBottom: '1px solid var(--wp-sidebar-border)',
-          padding: '0 4px',
+          padding: '0 8px',
           height: 48,
           flexShrink: 0,
         }}
       >
         <div style={{ display: 'flex', flex: 1 }}>
           {([
-            { id: 'document', label: 'Post' },
+            { id: 'document', label: 'Document' },
             { id: 'block', label: 'Block' },
           ] as const).map((tab) => (
             <button
+              className="sidebar-tab-button"
               key={tab.id}
               type="button"
               onClick={() => setSidebarTab(tab.id)}
+              aria-pressed={sidebarTab === tab.id}
               style={{
                 flex: 1,
                 height: 40,
@@ -45,12 +48,12 @@ export function Sidebar() {
                 borderBottom: sidebarTab === tab.id
                   ? '2px solid var(--wp-components-color-accent)'
                   : '2px solid transparent',
-                color: sidebarTab === tab.id ? 'var(--wp-components-color-accent)' : '#1e1e1e',
+                color: '#1e1e1e',
                 fontSize: 13,
                 fontWeight: sidebarTab === tab.id ? 600 : 400,
                 fontFamily: 'inherit',
                 cursor: 'pointer',
-                transition: 'all 0.1s ease',
+                transition: 'background-color 0.1s ease',
                 paddingBottom: 2,
               }}
             >
@@ -60,12 +63,13 @@ export function Sidebar() {
         </div>
 
         <button
+          className="sidebar-close-button"
           type="button"
           onClick={closeSidebar}
           aria-label="Close settings"
           style={{
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

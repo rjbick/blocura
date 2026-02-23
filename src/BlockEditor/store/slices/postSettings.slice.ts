@@ -21,6 +21,8 @@ const defaultPostSettings: PostSettings = {
   excerpt: '',
   allowComments: true,
   allowPingbacks: true,
+  includeTitleInContent: true,
+  meta: {},
 }
 
 export function createPostSettingsSlice(

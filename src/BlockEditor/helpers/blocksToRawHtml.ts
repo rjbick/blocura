@@ -1,6 +1,20 @@
 import type { Block } from '../types'
 import { BlockRegistry } from '../registry/BlockRegistry'
 
+interface RawHtmlOptions {
+  title?: string
+  includeTitle?: boolean
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 /**
  * Serialize blocks to plain HTML without WordPress block comment delimiters.
  * Suitable for preview rendering inside an iframe or for external consumers
@@ -10,8 +24,14 @@ import { BlockRegistry } from '../registry/BlockRegistry'
  * before each block's markup, scoped to `#anchor` if an anchor is set,
  * otherwise to `.wp-block-name`.
  */
-export function blocksToRawHtml(blocks: Block[]): string {
-  return blocks.map(blockToHtml).filter(Boolean).join('\n')
+export function blocksToRawHtml(blocks: Block[], options: RawHtmlOptions = {}): string {
+  const renderedBlocks = blocks.map(blockToHtml).filter(Boolean).join('\n')
+  if (!options.includeTitle) return renderedBlocks
+
+  const title = options.title?.trim()
+  if (!title) return renderedBlocks
+  const titleHtml = `<h1 class="wp-block-post-title">${escapeHtml(title)}</h1>`
+  return renderedBlocks ? `${titleHtml}\n${renderedBlocks}` : titleHtml
 }
 
 function blockToHtml(block: Block): string {

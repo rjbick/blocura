@@ -342,6 +342,7 @@ interface FormatButtonProps {
 function FormatButton({ icon, label, active, onClick }: FormatButtonProps) {
   return (
     <button
+      className={`format-toolbar-button${active ? ' format-toolbar-button--active' : ''}`}
       type="button"
       title={label}
       aria-label={label}
@@ -359,16 +360,6 @@ function FormatButton({ icon, label, active, onClick }: FormatButtonProps) {
         backgroundColor: active ? 'rgba(255,255,255,0.2)' : 'transparent',
         color: active ? '#fff' : 'rgba(255,255,255,0.75)',
         transition: 'background-color 0.05s ease, color 0.05s ease',
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.1)'
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'
-        }
       }}
     >
       {icon}

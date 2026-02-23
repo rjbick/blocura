@@ -1,22 +1,30 @@
 import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useEditorActions, useEditorStore } from '../../store'
-import { createDefaultBlockForRoot } from '../../helpers/insertionRules'
+import { createBlockFromDefinition } from '../../helpers/insertionRules'
+import { findBlock } from '../../helpers/flattenBlocks'
+import { SlashInserter } from './SlashInserter'
+import type { BlockDefinition } from '../../types'
 
 interface BlockAppenderProps {
   rootClientId: string | null
 }
 
 export function BlockAppender({ rootClientId }: BlockAppenderProps) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isPickerOpen, setIsPickerOpen] = useState(false)
   const blocks = useEditorStore(s => s.blocks)
   const { insertBlock } = useEditorActions()
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-  const handleClick = () => {
-    const block = createDefaultBlockForRoot(blocks, rootClientId)
-    if (!block) return
-    insertBlock(block, rootClientId, 9999) // append at end
-  }
+  const insertIndex = useMemo(() => {
+    if (rootClientId === null) return blocks.length
+    return findBlock(blocks, rootClientId)?.innerBlocks.length ?? blocks.length
+  }, [blocks, rootClientId])
+
+  const handleInsertBlock = useCallback((def: BlockDefinition) => {
+    insertBlock(createBlockFromDefinition(def), rootClientId, insertIndex)
+    setIsPickerOpen(false)
+  }, [insertBlock, rootClientId, insertIndex])
 
   return (
     <div
@@ -29,25 +37,24 @@ export function BlockAppender({ rootClientId }: BlockAppenderProps) {
       }}
     >
       <button
+        ref={buttonRef}
+        className="block-appender-button"
         type="button"
-        onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onClick={() => setIsPickerOpen(v => !v)}
+        aria-expanded={isPickerOpen}
         aria-label="Add block"
         style={{
           width: 36,
           height: 36,
-          borderRadius: 18,
-          backgroundColor: isHovered
-            ? 'var(--wp-components-color-accent)'
-            : 'rgba(0,0,0,0.1)',
-          color: isHovered ? '#fff' : '#1e1e1e',
+          borderRadius: 2,
+          backgroundColor: '#fff',
+          color: '#1e1e1e',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: 'none',
+          border: '1px solid #ddd',
           cursor: 'pointer',
-          transition: 'background-color 0.1s ease, color 0.1s ease',
+          transition: 'background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease',
           flexShrink: 0,
         }}
       >
@@ -55,17 +62,26 @@ export function BlockAppender({ rootClientId }: BlockAppenderProps) {
       </button>
 
       {/* Placeholder text */}
-      {!isHovered && (
-        <span
-          style={{
-            fontSize: 13,
-            color: '#949494',
-            fontFamily: 'var(--wp-font-family)',
-            pointerEvents: 'none',
-          }}
-        >
-          Type / to choose a block
-        </span>
+      <span
+        style={{
+          fontSize: 13,
+          color: '#949494',
+          fontFamily: 'var(--wp-font-family)',
+          pointerEvents: 'none',
+        }}
+      >
+        Type / to choose a block
+      </span>
+
+      {isPickerOpen && (
+        <SlashInserter
+          anchorEl={buttonRef.current}
+          rootClientId={rootClientId}
+          query=""
+          showAllByDefault={true}
+          onSelect={handleInsertBlock}
+          onClose={() => setIsPickerOpen(false)}
+        />
       )}
     </div>
   )
