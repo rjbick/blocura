@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Search, X } from 'lucide-react'
+import { Search, Sparkles, X } from 'lucide-react'
 import { useEditorStore, useEditorActions } from '../../store'
 import { BlockRegistry } from '../../registry/BlockRegistry'
 import { CommandRegistry } from '../../registry/CommandRegistry'
 import { findBlock, findBlockParent } from '../../helpers/flattenBlocks'
 import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
+import { useEditorRuntime } from '../../context'
 import {
   createBlockFromDefinition,
   createDefaultBlockForRoot,
@@ -33,7 +34,9 @@ function useCommands(query: string, closeAndRun: (fn: () => void) => void): Comm
     toggleSpotlightMode,
     openPreferences,
     openKeyboardShortcuts,
+    openAIAssistant,
   } = useEditorActions()
+  const { onPromptAI } = useEditorRuntime()
   const selectedClientId = useEditorStore(s => s.selectedClientIds[0] ?? null)
   const blocks = useEditorStore(s => s.blocks)
   const insertTarget = getInsertTargetFromSelection(blocks, selectedClientId)
@@ -139,6 +142,15 @@ function useCommands(query: string, closeAndRun: (fn: () => void) => void): Comm
   ]
 
   const editorCommands: Command[] = [
+    ...(onPromptAI
+      ? [{
+          id: 'open-ai-assistant',
+          label: 'Ask AI',
+          category: 'Editor',
+          icon: <Sparkles size={16} />,
+          action: () => closeAndRun(() => openAIAssistant()),
+        }]
+      : []),
     {
       id: 'open-preferences',
       label: 'Preferences',

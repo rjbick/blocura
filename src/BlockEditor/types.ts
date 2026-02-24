@@ -415,6 +415,36 @@ export interface SyncedPattern {
   modified: boolean;
 }
 
+export interface AiAssistantContext {
+  title: string;
+  blocks: Block[];
+  rawHtml: string;
+  selectedClientIds: string[];
+  selectedBlocks: Block[];
+}
+
+export interface AiAssistantRequest {
+  prompt: string;
+  context: AiAssistantContext;
+}
+
+export type AiAssistantResponse =
+  | {
+      type: 'text';
+      text: string;
+      message?: string;
+    }
+  | {
+      type: 'html';
+      html: string;
+      message?: string;
+    }
+  | {
+      type: 'blocks';
+      blocks: Block[] | string;
+      message?: string;
+    };
+
 // ─── Save / Output ────────────────────────────────────────────────────────────
 
 export interface SavePayload {
@@ -479,6 +509,7 @@ export interface BlockEditorProps {
     displayDate: boolean;
     displayExcerpt: boolean;
   }) => Promise<RssFeedResult | RssFeedItem[]>;
+  onPromptAI?: (request: AiAssistantRequest) => Promise<AiAssistantResponse>;
   onResolvePreviewAssetUrl?: (
     url: string,
     context: PreviewAssetUrlContext

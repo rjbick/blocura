@@ -9,6 +9,7 @@ export interface EditorRuntime {
   onFetchLatestPosts?: BlockEditorProps['onFetchLatestPosts']
   onFetchLatestComments?: BlockEditorProps['onFetchLatestComments']
   onFetchRssFeed?: BlockEditorProps['onFetchRssFeed']
+  onPromptAI?: BlockEditorProps['onPromptAI']
   patterns: Pattern[]
 }
 

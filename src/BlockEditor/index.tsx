@@ -44,6 +44,11 @@ const PreviewFrame = lazy(async () => {
   return { default: mod.PreviewFrame }
 })
 
+const AIAssistantPanel = lazy(async () => {
+  const mod = await import('./components/ai/AIAssistantPanel')
+  return { default: mod.AIAssistantPanel }
+})
+
 // Register core blocks once
 registerCoreBlocks()
 
@@ -221,6 +226,7 @@ function EditorInner({
       <Suspense fallback={null}>
         <FormatToolbar />
         <CommandPalette />
+        <AIAssistantPanel />
         <PreviewFrame
           previewSettings={settings?.preview}
           previewAssetUrlResolver={onResolvePreviewAssetUrl}
@@ -250,6 +256,7 @@ export function BlockEditor({
   onFetchLatestPosts,
   onFetchLatestComments,
   onFetchRssFeed,
+  onPromptAI,
   onResolvePreviewAssetUrl,
   patterns,
 }: BlockEditorProps) {
@@ -274,6 +281,7 @@ export function BlockEditor({
       onFetchLatestPosts,
       onFetchLatestComments,
       onFetchRssFeed,
+      onPromptAI,
       patterns: patterns ?? [],
     }),
     [
@@ -284,6 +292,7 @@ export function BlockEditor({
       onFetchLatestPosts,
       onFetchLatestComments,
       onFetchRssFeed,
+      onPromptAI,
       patterns,
     ]
   )
@@ -324,6 +333,9 @@ export function BlockEditor({
 
 export type {
   BlockEditorProps,
+  AiAssistantContext,
+  AiAssistantRequest,
+  AiAssistantResponse,
   SavePayload,
   ImageAsset,
   PreviewAssetUrlContext,

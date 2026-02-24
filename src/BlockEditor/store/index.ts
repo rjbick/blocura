@@ -190,6 +190,8 @@ export function useEditorActions() {
       closeKeyboardShortcuts: s.closeKeyboardShortcuts,
       openPreferences: s.openPreferences,
       closePreferences: s.closePreferences,
+      openAIAssistant: s.openAIAssistant,
+      closeAIAssistant: s.closeAIAssistant,
       // Notices
       addNotice: s.addNotice,
       createSuccessNotice: s.createSuccessNotice,

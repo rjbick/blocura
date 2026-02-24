@@ -4,8 +4,10 @@ import {
   Redo2,
   List,
   PanelRight,
+  Sparkles,
 } from 'lucide-react'
 import { useEditorStore, useEditorActions } from '../../store'
+import { useEditorRuntime } from '../../context'
 import { ToolbarButton } from './ToolbarButton'
 import { ViewModeToggle } from './ViewModeToggle'
 import { SaveButton } from './SaveButton'
@@ -39,6 +41,7 @@ export function TopToolbar({
   const isCodeMode = useEditorStore(s => s.isCodeMode)
   const sidebarOpen = useEditorStore(s => s.sidebarOpen)
   const showIconLabels = useEditorStore(s => s.preferences.showIconLabels)
+  const { onPromptAI } = useEditorRuntime()
 
   const {
     undo,
@@ -47,6 +50,7 @@ export function TopToolbar({
     toggleListView,
     toggleSidebar,
     setCodeMode,
+    openAIAssistant,
   } = useEditorActions()
 
   return (
@@ -182,6 +186,15 @@ export function TopToolbar({
           flexShrink: 0,
         }}
       >
+        {onPromptAI && (
+          <ToolbarButton
+            icon={<Sparkles size={20} />}
+            label={showIconLabels ? 'AI' : undefined}
+            tooltip="Ask AI"
+            onClick={openAIAssistant}
+          />
+        )}
+
         {/* Preview dropdown */}
         <PreviewDropdown
           previewSettings={previewSettings}

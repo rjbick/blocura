@@ -366,6 +366,8 @@ export function useKeyboardShortcuts({ onSave }: UseKeyboardShortcutsOptions = {
           s.closeKeyboardShortcuts()
         } else if (s.preferencesOpen) {
           s.closePreferences()
+        } else if (s.aiAssistantOpen) {
+          s.closeAIAssistant()
         } else if (s.inserterOpen) {
           s.closeInserter()
         } else if (s.selectedClientIds.length > 0) {

@@ -15,6 +15,7 @@ export type UISliceState = {
   commandPaletteOpen: boolean
   keyboardShortcutsOpen: boolean
   preferencesOpen: boolean
+  aiAssistantOpen: boolean
 }
 
 export type UISliceActions = {
@@ -39,6 +40,8 @@ export type UISliceActions = {
   closeKeyboardShortcuts: () => void
   openPreferences: () => void
   closePreferences: () => void
+  openAIAssistant: () => void
+  closeAIAssistant: () => void
 }
 
 export type UISlice = UISliceState & UISliceActions
@@ -63,6 +66,7 @@ export function createUISlice(
     commandPaletteOpen: false,
     keyboardShortcutsOpen: false,
     preferencesOpen: false,
+    aiAssistantOpen: false,
 
     toggleSidebar() {
       set((state) => { state.sidebarOpen = !state.sidebarOpen })
@@ -135,6 +139,12 @@ export function createUISlice(
     },
     closePreferences() {
       set((state) => { state.preferencesOpen = false })
+    },
+    openAIAssistant() {
+      set((state) => { state.aiAssistantOpen = true })
+    },
+    closeAIAssistant() {
+      set((state) => { state.aiAssistantOpen = false })
     },
   }
 }
