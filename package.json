@@ -54,11 +54,12 @@
     "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc -b --pretty false",
     "test:run": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "pack:check": "npm pack --dry-run --cache .npm-cache",
-    "release:check": "npm run test:run && npm run build:lib && npm run pack:check",
+    "release:check": "npm run lint && npm run typecheck && npm run test:coverage && npm run build:lib && npm run pack:check",
     "prepublishOnly": "npm run release:check"
   },
   "peerDependencies": {

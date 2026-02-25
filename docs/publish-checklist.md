@@ -11,7 +11,9 @@ npm run release:check
 
 `release:check` runs:
 
-- tests (`vitest`)
+- lint (`eslint`)
+- typecheck (`tsc -b`)
+- tests with coverage thresholds (`vitest --coverage`)
 - library build (`dist` JS + types + CSS)
 - `npm pack --dry-run`
 

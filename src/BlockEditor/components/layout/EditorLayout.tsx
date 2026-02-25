@@ -11,6 +11,9 @@ interface EditorLayoutProps {
   snackbarList: ReactNode
 }
 
+const LEFT_PANEL_WIDTH = 280
+const PANEL_SPRING = { type: 'spring' as const, stiffness: 300, damping: 30 }
+
 export function EditorLayout({
   toolbar,
   inserter,
@@ -84,12 +87,12 @@ export function EditorLayout({
           {effectiveInserterOpen && (
             <motion.div
               key="inserter"
-              initial={{ x: -280, opacity: 0 }}
+              initial={{ x: -LEFT_PANEL_WIDTH, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -280, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              exit={{ x: -LEFT_PANEL_WIDTH, opacity: 0 }}
+              transition={PANEL_SPRING}
               style={{
-                width: 280,
+                width: LEFT_PANEL_WIDTH,
                 height: '100%',
                 position: 'absolute',
                 left: 0,
@@ -111,15 +114,15 @@ export function EditorLayout({
           {effectiveListViewOpen && (
             <motion.div
               key="listview"
-              initial={{ x: -280, opacity: 0 }}
+              initial={{ x: -LEFT_PANEL_WIDTH, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -280, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              exit={{ x: -LEFT_PANEL_WIDTH, opacity: 0 }}
+              transition={PANEL_SPRING}
               style={{
-                width: 280,
+                width: LEFT_PANEL_WIDTH,
                 height: '100%',
                 position: 'absolute',
-                left: effectiveInserterOpen ? 280 : 0,
+                left: effectiveInserterOpen ? LEFT_PANEL_WIDTH : 0,
                 top: 0,
                 zIndex: 49,
                 backgroundColor: 'var(--editor-sidebar-bg)',
@@ -138,9 +141,11 @@ export function EditorLayout({
             flex: 1,
             overflow: 'auto',
             marginLeft: effectiveInserterOpen || effectiveListViewOpen
-              ? (effectiveInserterOpen && effectiveListViewOpen ? 560 : 280)
+              ? (effectiveInserterOpen && effectiveListViewOpen
+                ? LEFT_PANEL_WIDTH * 2
+                : LEFT_PANEL_WIDTH)
               : 0,
-            marginRight: effectiveSidebarOpen ? 280 : 0,
+              marginRight: effectiveSidebarOpen ? 280 : 0,
             transition: 'margin 0.3s ease',
           }}
         >
@@ -155,7 +160,7 @@ export function EditorLayout({
               initial={{ x: 280, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 280, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              transition={PANEL_SPRING}
               style={{
                 width: 280,
                 height: '100%',

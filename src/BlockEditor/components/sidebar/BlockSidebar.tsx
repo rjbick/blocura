@@ -16,6 +16,7 @@ type SidebarPanelKey =
   | 'typography'
   | 'dimensions'
   | 'border'
+  | 'position'
   | 'advanced'
 
 interface SidebarPanelConfig {
@@ -739,6 +740,78 @@ function BorderPanel({ attrs, updateAttributes, supports }: PanelCommonProps) {
   )
 }
 
+function PositionPanel({ attrs, updateAttributes, supports }: PanelCommonProps) {
+  const positionSupport = supports.position
+  if (!positionSupport?.sticky) return null
+
+  const styleObj = (attrs.style as Record<string, unknown>) ?? {}
+  const positionObj = (styleObj.position as Record<string, unknown>) ?? {}
+  const isSticky = positionObj.type === 'sticky'
+  const topValue = String(positionObj.top ?? '')
+
+  const setPosition = (next: Record<string, unknown> | undefined) => {
+    updateAttributes(
+      withStyleFragment(attrs, {
+        position: next,
+      })
+    )
+  }
+
+  const toggleSticky = (enabled: boolean) => {
+    if (!enabled) {
+      setPosition(undefined)
+      return
+    }
+    setPosition({
+      ...positionObj,
+      type: 'sticky',
+      top: positionObj.top ?? '0px',
+    })
+  }
+
+  return (
+    <Panel title="Position" defaultOpen={false}>
+      <ControlRow label="Sticky">
+        <label
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 13,
+            color: '#1e1e1e',
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isSticky}
+            onChange={(e) => toggleSticky(e.target.checked)}
+            style={{ width: 14, height: 14 }}
+          />
+          <span>Stick to viewport while scrolling</span>
+        </label>
+      </ControlRow>
+
+      {isSticky && (
+        <ControlRow label="Top offset">
+          <input
+            type="text"
+            value={topValue}
+            onChange={(e) =>
+              setPosition({
+                ...positionObj,
+                type: 'sticky',
+                top: e.target.value || undefined,
+              })}
+            placeholder="e.g. 0px"
+            style={inputStyle()}
+          />
+        </ControlRow>
+      )}
+    </Panel>
+  )
+}
+
 function AdvancedPanel({ attrs, updateAttributes, supports }: PanelCommonProps) {
   const hideOn = (attrs.__hideOn as Record<string, boolean> | undefined) ?? {}
 
@@ -860,6 +933,10 @@ function getSidebarPanels(def: BlockDefinition, hasBlockSpecific: boolean): Side
     panels.push({ key: 'border', title: 'Border', defaultOpen: false })
   }
 
+  if (supports.position?.sticky) {
+    panels.push({ key: 'position', title: 'Position', defaultOpen: false })
+  }
+
   panels.push({ key: 'advanced', title: 'Advanced', defaultOpen: false })
   return panels
 }
@@ -890,6 +967,8 @@ function renderPanel(
       return <DimensionsPanel {...commonProps} />
     case 'border':
       return <BorderPanel {...commonProps} />
+    case 'position':
+      return <PositionPanel {...commonProps} />
     case 'advanced':
       return <AdvancedPanel {...commonProps} />
     default:

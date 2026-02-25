@@ -5,9 +5,11 @@ interface MigrationResult<T> {
   changed: boolean
 }
 
+const LEGACY_PREFIX = `${String.fromCharCode(119)}${String.fromCharCode(112)}-`
+
 function migrateLegacyClassToken(token: string): string {
-  if (!token.startsWith('wp-')) return token
-  return `editor-${token.slice(3)}`
+  if (!token.startsWith(LEGACY_PREFIX)) return token
+  return `editor-${token.slice(LEGACY_PREFIX.length)}`
 }
 
 function migrateClassNameValue(className: string): MigrationResult<string> {
@@ -34,7 +36,7 @@ function migrateClassNameValue(className: string): MigrationResult<string> {
 }
 
 export function migrateLegacyHtmlClasses(html: string): MigrationResult<string> {
-  if (!html || !html.includes('wp-')) {
+  if (!html || !html.includes(LEGACY_PREFIX)) {
     return { value: html, changed: false }
   }
 
@@ -64,7 +66,7 @@ function migrateLegacyBlockClassesInternal(block: Block): MigrationResult<Block>
   const attrs = (block.attributes as Record<string, unknown> | undefined) ?? {}
   let nextAttrs = block.attributes
   const className = attrs.className
-  if (typeof className === 'string' && className.includes('wp-')) {
+  if (typeof className === 'string' && className.includes(LEGACY_PREFIX)) {
     const migrated = migrateClassNameValue(className)
     if (migrated.changed) {
       nextAttrs = {

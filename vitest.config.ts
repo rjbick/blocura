@@ -23,6 +23,12 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'html'],
       reportsDirectory: './coverage',
+      thresholds: {
+        statements: 40,
+        branches: 55,
+        functions: 30,
+        lines: 40,
+      },
     },
   },
 })

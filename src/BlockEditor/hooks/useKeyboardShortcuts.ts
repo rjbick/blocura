@@ -368,8 +368,18 @@ export function useKeyboardShortcuts({ onSave }: UseKeyboardShortcutsOptions = {
           s.closePreferences()
         } else if (s.aiAssistantOpen) {
           s.closeAIAssistant()
+        } else if (s.previewDevice !== null) {
+          s.setPreviewDevice(null)
         } else if (s.inserterOpen) {
           s.closeInserter()
+        } else if (s.isZoomOut) {
+          s.toggleZoomOut()
+        } else if (s.isSpotlightMode) {
+          s.toggleSpotlightMode()
+        } else if (s.isDistractionFree) {
+          s.toggleDistractionFree()
+        } else if (s.isFullscreen) {
+          s.toggleFullscreen()
         } else if (s.selectedClientIds.length > 0) {
           s.clearSelection()
         }
