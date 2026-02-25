@@ -18,10 +18,16 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: 'src/index.ts',
+      entry: {
+        index: 'src/index.ts',
+        'index.unstyled': 'src/index.unstyled.ts',
+      },
       name: 'Blocura',
       formats: ['es', 'cjs'],
-      fileName: (format) => (format === 'es' ? 'index.js' : 'index.cjs'),
+      fileName: (format, entryName) => {
+        const base = entryName ?? 'index'
+        return format === 'es' ? `${base}.js` : `${base}.cjs`
+      },
       cssFileName: 'styles',
     },
     sourcemap: false,

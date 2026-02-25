@@ -1,4 +1,4 @@
-import type { DragEvent } from 'react'
+import type { DragEvent, KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { GripVertical } from 'lucide-react'
 import type { Block } from '../../types'
 import { BlockRegistry } from '../../registry/BlockRegistry'
@@ -12,12 +12,16 @@ interface ListViewItemProps {
   mode: ListViewMode
   depth: number
   isSelected: boolean
+  isActive: boolean
   isDragging: boolean
   hasChildren: boolean
   isCollapsed: boolean
+  ariaSetSize?: number
+  ariaPosInSet?: number
   dropPosition: DropPosition | null
   onSelect: (clientId: string) => void
   onToggle: (clientId: string) => void
+  onKeyDown: (clientId: string, event: ReactKeyboardEvent<HTMLElement>) => void
   onDragStart: (clientId: string, event: DragEvent<HTMLElement>) => void
   onDragOver: (clientId: string, event: DragEvent<HTMLElement>) => void
   onDrop: (clientId: string, event: DragEvent<HTMLElement>) => void
@@ -29,12 +33,16 @@ export function ListViewItem({
   mode,
   depth,
   isSelected,
+  isActive,
   isDragging,
   hasChildren,
   isCollapsed,
+  ariaSetSize,
+  ariaPosInSet,
   dropPosition,
   onSelect,
   onToggle,
+  onKeyDown,
   onDragStart,
   onDragOver,
   onDrop,
@@ -48,13 +56,18 @@ export function ListViewItem({
       <ListViewDropZone active={dropPosition === 'before'} />
 
       <div
+        data-listview-item-id={block.clientId}
         className={`list-view-row${isSelected ? ' list-view-row--selected' : ''}`}
         role="treeitem"
         aria-selected={isSelected}
         aria-level={depth + 1}
+        aria-setsize={ariaSetSize}
+        aria-posinset={ariaPosInSet}
         aria-expanded={hasChildren ? !isCollapsed : undefined}
+        tabIndex={isActive ? 0 : -1}
         onDragOver={(event) => onDragOver(block.clientId, event)}
         onDrop={(event) => onDrop(block.clientId, event)}
+        onKeyDown={(event) => onKeyDown(block.clientId, event)}
         onClick={() => onSelect(block.clientId)}
         style={{
           paddingLeft: depth * 14 + 8,
@@ -71,12 +84,14 @@ export function ListViewItem({
           fontSize: 13,
           opacity: isDragging ? 0.45 : 1,
           transition: 'opacity 0.1s ease',
+          borderRadius: 2,
         }}
         >
         <button
           type="button"
           aria-label="Drag block"
           draggable
+          tabIndex={-1}
           onClick={(event) => event.stopPropagation()}
           onDragStart={(event) => onDragStart(block.clientId, event)}
           onDragEnd={onDragEnd}
@@ -101,6 +116,7 @@ export function ListViewItem({
         {hasChildren ? (
           <button
             type="button"
+            tabIndex={-1}
             onClick={(event) => {
               event.stopPropagation()
               onToggle(block.clientId)

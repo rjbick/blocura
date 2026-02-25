@@ -1,9 +1,9 @@
-.editor-block {
+.editor-shell .editor-block {
   max-width: 100%;
 }
 
-.editor-block img,
-.editor-block video,
-.editor-block iframe {
+.editor-shell .editor-block img,
+.editor-shell .editor-block video,
+.editor-shell .editor-block iframe {
   max-width: 100%;
 }

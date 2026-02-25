@@ -10,6 +10,7 @@
   },
   "include": [
     "src/index.ts",
+    "src/index.unstyled.ts",
     "src/BlockEditor/**/*.ts",
     "src/BlockEditor/**/*.tsx",
     "src/vite-env.d.ts"

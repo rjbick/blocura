@@ -1,6 +1,6 @@
 {
   "name": "blocura",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Standalone React block editor with Gutenberg-like UX.",
   "license": "MIT",
   "repository": {
@@ -30,6 +30,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./unstyled": {
+      "types": "./dist/index.unstyled.d.ts",
+      "import": "./dist/index.unstyled.js",
+      "require": "./dist/index.unstyled.cjs"
+    },
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
@@ -58,6 +63,7 @@
     "test:run": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "pack:local": "node scripts/pack-local.mjs",
     "pack:check": "npm pack --dry-run --cache .npm-cache",
     "release:check": "npm run lint && npm run typecheck && npm run test:coverage && npm run build:lib && npm run pack:check",
     "prepublishOnly": "npm run release:check"

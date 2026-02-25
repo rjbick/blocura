@@ -108,6 +108,15 @@ Behavior in body mode:
 - `postSettings.includeTitleInContent` is forced to `false`.
 - Metadata (`postSettings`, `metadata`) remains in the payload.
 
+## Raw HTML Styling Notes
+
+`rawHtml` does not include linked CSS or JS assets.
+
+It may include:
+
+- inline `style=""` attributes produced by block serializers
+- a scoped `<style>` tag when a block carries `__customCSS`
+
 ## Recommended Persistence Wiring
 
 Store all three values on save:

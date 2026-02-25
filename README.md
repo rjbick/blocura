@@ -10,6 +10,8 @@ npm install blocura
 
 `react` and `react-dom` are peer dependencies.
 
+For local cross-project testing before publish, use the tarball workflow in `docs/local-package.md`.
+
 ## Usage
 
 ```tsx
@@ -32,6 +34,25 @@ export function EditorPage() {
 }
 ```
 
+## Style Isolation
+
+`blocura` (default entry) auto-imports editor CSS.
+
+- Use this when you want zero setup:
+
+```tsx
+import { BlockEditor } from 'blocura'
+```
+
+- Use this when you want explicit style control in host apps (for example Tailwind-heavy apps):
+
+```tsx
+import { BlockEditor } from 'blocura/unstyled'
+import 'blocura/styles.css'
+```
+
+All shipped editor selectors are scoped to `.editor-shell`.
+
 ## Save Payload
 
 `onSave` and `onAutoSave` receive:
@@ -44,6 +65,11 @@ export function EditorPage() {
 - `titleIncludedInContent`
 
 See `docs/save-payload.md` for full contract and examples.
+
+`rawHtml` is markup only (no linked stylesheets/scripts). It can still contain:
+
+- inline `style=""` attributes emitted by block serializers
+- scoped `<style>` tags only when block attribute `__customCSS` is present
 
 ## Preview Parity Settings
 

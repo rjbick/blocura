@@ -1,11 +1,11 @@
-.editor-block-post-title {
+.editor-shell .editor-block-post-title {
   margin-top: 0;
 }
 
-.has-text-align-center {
+.editor-shell .has-text-align-center {
   text-align: center;
 }
 
-.has-text-align-right {
+.editor-shell .has-text-align-right {
   text-align: right;
 }

@@ -113,7 +113,7 @@ describe('BlockSidebar Position panel', () => {
       })
 
       positionStyle = (store.getState().blocks[0].attributes as {
-        style?: { position?: unknown }
+        style?: { position?: { type?: string; top?: string } }
       }).style?.position
       expect(positionStyle).toBeUndefined()
     } finally {
