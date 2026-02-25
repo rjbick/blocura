@@ -19,7 +19,13 @@ function setRelToken(rel: string | undefined, token: string, enabled: boolean): 
   return Array.from(next).join(' ')
 }
 
-function ReadMoreEdit({ clientId, attributes, setAttributes, isSelected }: BlockEditProps<ReadMoreAttributes>) {
+function ReadMoreEdit({
+  clientId,
+  attributes,
+  setAttributes,
+  isSelected,
+  onReplace,
+}: BlockEditProps<ReadMoreAttributes>) {
   const isOpenInNewTab = attributes.linkTarget === '_blank'
 
   useInspectorControls(
@@ -77,6 +83,7 @@ function ReadMoreEdit({ clientId, attributes, setAttributes, isSelected }: Block
         tagName="a"
         value={attributes.content}
         onChange={(content) => setAttributes({ content })}
+        onReplace={(blocks) => onReplace?.(blocks)}
         placeholder="Read more"
         disableLineBreaks
         isSelected={isSelected}

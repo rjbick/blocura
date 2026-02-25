@@ -5,7 +5,8 @@ import { cloneBlock } from '../../helpers/cloneBlock'
 import { findBlock, findBlockParent, flattenBlocks } from '../../helpers/flattenBlocks'
 import { BlockRegistry } from '../../registry/BlockRegistry'
 import { validateBlock } from '../../helpers/validateBlock'
-import type { SelectionSliceActions } from './selection.slice'
+import type { SelectionSliceActions, SelectionSliceState } from './selection.slice'
+import type { UISliceState } from './ui.slice'
 
 export type BlocksSliceState = {
   blocks: Block[]
@@ -44,15 +45,74 @@ export type BlocksSliceActions = {
 
 export type BlocksSlice = BlocksSliceState & BlocksSliceActions
 
-function makeEntry(blocks: Block[], clientIds: string[] = []): HistoryEntry {
+type BlocksSliceMutationState =
+  BlocksSlice &
+  SelectionSliceState &
+  Pick<UISliceState, 'sidebarTab'>
+
+function normalizeSelection(
+  selection: HistoryEntry['selection'] | string[] = []
+): HistoryEntry['selection'] {
+  if (Array.isArray(selection)) {
+    return {
+      clientIds: [...selection],
+      focusedClientId: selection[0] ?? null,
+      initialPosition: null,
+    }
+  }
+
+  return {
+    clientIds: [...selection.clientIds],
+    focusedClientId: selection.focusedClientId,
+    initialPosition: selection.initialPosition,
+  }
+}
+
+function makeEntry(
+  blocks: Block[],
+  selection: HistoryEntry['selection'] | string[] = []
+): HistoryEntry {
   // JSON round-trip instead of structuredClone: Immer Draft Proxies are not
   // structuredCloneable, but JSON.stringify correctly reads through the Proxy
   // traps returning the current values. Block attributes are always
   // JSON-serializable (no Functions, Symbols, or DOM nodes).
   return {
     blocks: JSON.parse(JSON.stringify(blocks)) as Block[],
-    selection: { clientIds },
+    selection: normalizeSelection(selection),
     lastModifiedClientId: null,
+  }
+}
+
+function captureSelection(state: SelectionSliceState): HistoryEntry['selection'] {
+  return {
+    clientIds: [...state.selectedClientIds],
+    focusedClientId: state.focusedClientId,
+    initialPosition: state.selectionInitialPosition,
+  }
+}
+
+function restoreSelection(
+  state: BlocksSliceMutationState,
+  selection: HistoryEntry['selection']
+) {
+  const nextSelectedIds = selection.clientIds.filter((clientId) => (
+    findBlock(state.blocks, clientId) !== null
+  ))
+  const focusedClientId = selection.focusedClientId &&
+    findBlock(state.blocks, selection.focusedClientId)
+    ? selection.focusedClientId
+    : (nextSelectedIds[0] ?? null)
+
+  state.selectedClientIds = nextSelectedIds
+  state.focusedClientId = focusedClientId
+  state.selectionInitialPosition = nextSelectedIds.length === 1
+    ? selection.initialPosition
+    : null
+  state.selectionStart = null
+  state.selectionEnd = null
+
+  if (nextSelectedIds.length > 0) {
+    state.sidebarTab = 'block'
   }
 }
 
@@ -285,8 +345,8 @@ function areBlocksValidForParent(nextBlocks: Block[], parent: Block | null): boo
 }
 
 export function createBlocksSlice(
-  set: (fn: (state: BlocksSlice) => void) => void,
-  get: () => BlocksSlice & Pick<SelectionSliceActions, 'selectBlock'>
+  set: (fn: (state: BlocksSliceMutationState) => void) => void,
+  get: () => BlocksSliceMutationState & Pick<SelectionSliceActions, 'selectBlock'>
 ): BlocksSlice {
   const initialBlocks: Block[] = []
   const initialEntry = makeEntry(initialBlocks)
@@ -360,7 +420,11 @@ export function createBlocksSlice(
           state.history.present = {
             ...state.history.present,
             blocks: newBlocks,
-            selection: { clientIds: [clientId] },
+            selection: {
+              clientIds: [clientId],
+              focusedClientId: clientId,
+              initialPosition: null,
+            },
             lastModifiedClientId: clientId,
           }
           state.canUndo = state.history.past.length > 0
@@ -391,7 +455,7 @@ export function createBlocksSlice(
           newBlocks = updateAttrsIn(newBlocks, clientId, attrs)
         }
         if (newBlocks === state.blocks) return
-        state.history = pushHistory(state.history, makeEntry(newBlocks))
+        state.history = pushHistory(state.history, makeEntry(newBlocks, captureSelection(state)))
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
@@ -405,7 +469,7 @@ export function createBlocksSlice(
         if (!block || isLockedForRemove(block)) return
         const newBlocks = removeFrom(state.blocks, clientId)
         if (newBlocks === state.blocks) return
-        state.history = pushHistory(state.history, makeEntry(newBlocks))
+        state.history = pushHistory(state.history, makeEntry(newBlocks, captureSelection(state)))
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
@@ -426,7 +490,7 @@ export function createBlocksSlice(
           newBlocks = removeFrom(newBlocks, id)
         }
         if (newBlocks === state.blocks) return
-        state.history = pushHistory(state.history, makeEntry(newBlocks))
+        state.history = pushHistory(state.history, makeEntry(newBlocks, captureSelection(state)))
         state.blocks = newBlocks
         state.canUndo = state.history.past.length > 0
         state.canRedo = false
@@ -666,7 +730,7 @@ export function createBlocksSlice(
       resetTypingBurst()
       set((state) => {
         const validated = validateTree(newBlocks)
-        const entry = makeEntry(validated)
+        const entry = makeEntry(validated, [])
         state.history = { past: [], present: entry, future: [] }
         state.blocks = validated
         state.canUndo = false
@@ -690,6 +754,7 @@ export function createBlocksSlice(
           future: [state.history.present, ...state.history.future],
         }
         state.blocks = previous.blocks
+        restoreSelection(state, previous.selection)
         state.canUndo = past.length > 0
         state.canRedo = true
       })
@@ -707,6 +772,7 @@ export function createBlocksSlice(
           future,
         }
         state.blocks = next.blocks
+        restoreSelection(state, next.selection)
         state.canUndo = true
         state.canRedo = future.length > 0
       })

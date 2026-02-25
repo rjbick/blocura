@@ -312,7 +312,11 @@ export interface HistoryStack {
 
 export interface HistoryEntry {
   blocks: Block[];
-  selection: { clientIds: string[] };
+  selection: {
+    clientIds: string[];
+    focusedClientId: string | null;
+    initialPosition: -1 | 0 | 1 | null;
+  };
   lastModifiedClientId: string | null;
 }
 

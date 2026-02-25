@@ -19,6 +19,7 @@ function QuoteEdit({
   isSelected,
   insertBlocksAfter,
   mergeBlocks,
+  onReplace,
   onNavigateOut,
   initialPosition,
   onRemove,
@@ -78,6 +79,7 @@ function QuoteEdit({
           )
         }}
         onMerge={(forward) => mergeBlocks?.(forward)}
+        onReplace={(blocks) => onReplace?.(blocks)}
         onNavigateOut={(direction) => onNavigateOut?.(direction)}
         onRemove={(forward) => onRemove?.(forward)}
         initialPosition={initialPosition}

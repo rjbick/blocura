@@ -31,6 +31,7 @@ function HeadingEdit({
   isSelected,
   insertBlocksAfter,
   mergeBlocks,
+  onReplace,
   onNavigateOut,
   initialPosition,
   onRemove,
@@ -126,6 +127,7 @@ function HeadingEdit({
         onChange={(content) => setAttributes({ content })}
         onSplit={handleSplit}
         onMerge={(forward) => mergeBlocks?.(forward)}
+        onReplace={(blocks) => onReplace?.(blocks)}
         onNavigateOut={(direction) => onNavigateOut?.(direction)}
         onRemove={handleRemove}
         placeholder={attributes.placeholder || `Heading ${level}`}

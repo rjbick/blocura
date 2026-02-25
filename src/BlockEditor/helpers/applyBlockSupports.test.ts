@@ -59,6 +59,7 @@ describe('applyBlockSupports', () => {
 
     const result = applyBlockSupports(block, stubDefinition)
 
+    expect(result.className).toContain('wp-block-paragraph')
     expect(result.className).toContain('editor-block-paragraph')
     expect(result.className).toContain('alignwide')
     expect(result.className).toContain('custom-class')

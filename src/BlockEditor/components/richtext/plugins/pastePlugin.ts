@@ -38,9 +38,11 @@ export function createPastePlugin(options: PastePluginOptions = {}) {
         const blocks = parsePastedBlocks(text, html)
         if (blocks.length === 0) return false
 
+        if (!options.onBlocks) return false
+
         event.preventDefault()
-        options.onBlocks?.(blocks)
-        return Boolean(options.onBlocks)
+        options.onBlocks(blocks)
+        return true
       },
     },
   })

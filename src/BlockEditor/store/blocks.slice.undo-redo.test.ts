@@ -41,6 +41,38 @@ describe('blocks slice undo/redo', () => {
     expect((store.getState().blocks[0].attributes as { content?: string }).content).toBe('After')
   })
 
+  it('restores selection and focus on undo/redo', () => {
+    const store = createEditorStore()
+    const paragraph: Block = {
+      clientId: 'selection-1',
+      name: 'core/paragraph',
+      attributes: { content: 'Before' },
+      innerBlocks: [],
+    }
+
+    store.getState().insertBlock(paragraph, null, 0)
+    store.getState().updateBlockAttributes('selection-1', { content: 'After' })
+    store.getState().clearSelection()
+    store.getState().setSidebarTab('document')
+
+    store.getState().undo()
+    expect(store.getState().selectedClientIds).toEqual(['selection-1'])
+    expect(store.getState().focusedClientId).toBe('selection-1')
+    expect(store.getState().sidebarTab).toBe('block')
+
+    store.getState().undo()
+    expect(store.getState().selectedClientIds).toEqual([])
+    expect(store.getState().focusedClientId).toBeNull()
+
+    store.getState().redo()
+    expect(store.getState().selectedClientIds).toEqual(['selection-1'])
+    expect(store.getState().focusedClientId).toBe('selection-1')
+
+    store.getState().redo()
+    expect(store.getState().selectedClientIds).toEqual(['selection-1'])
+    expect(store.getState().focusedClientId).toBe('selection-1')
+  })
+
   it('selects the cloned block after duplicate', () => {
     const store = createEditorStore()
     const paragraph: Block = {

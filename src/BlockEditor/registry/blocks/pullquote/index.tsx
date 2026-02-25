@@ -21,6 +21,7 @@ function PullquoteEdit({
   isSelected,
   insertBlocksAfter,
   mergeBlocks,
+  onReplace,
   onNavigateOut,
   initialPosition,
   onRemove,
@@ -97,6 +98,7 @@ function PullquoteEdit({
             )
           }}
           onMerge={(forward) => mergeBlocks?.(forward)}
+          onReplace={(blocks) => onReplace?.(blocks)}
           onNavigateOut={(direction) => onNavigateOut?.(direction)}
           onRemove={(forward) => onRemove?.(forward)}
           placeholder="Add quote text…"

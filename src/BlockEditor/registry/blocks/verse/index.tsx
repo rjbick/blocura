@@ -20,6 +20,7 @@ function VerseEdit({
   isSelected,
   insertBlocksAfter,
   mergeBlocks,
+  onReplace,
   onNavigateOut,
   initialPosition,
   onRemove,
@@ -89,6 +90,7 @@ function VerseEdit({
           )
         }}
         onMerge={(forward) => mergeBlocks?.(forward)}
+        onReplace={(blocks) => onReplace?.(blocks)}
         onNavigateOut={(direction) => onNavigateOut?.(direction)}
         onRemove={(forward) => onRemove?.(forward)}
         placeholder="Write verse…"

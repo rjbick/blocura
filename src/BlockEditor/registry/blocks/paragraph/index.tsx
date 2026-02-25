@@ -35,6 +35,7 @@ function ParagraphEdit({
   isSelected,
   insertBlocksAfter,
   mergeBlocks,
+  onReplace,
   onNavigateOut,
   initialPosition,
   onRemove,
@@ -140,6 +141,7 @@ function ParagraphEdit({
         onChange={handleChange}
         onSplit={handleSplit}
         onMerge={handleMerge}
+        onReplace={(blocks) => onReplace?.(blocks)}
         onRemove={handleRemove}
         onNavigateOut={handleNavigateOut}
         placeholder={attributes.placeholder || 'Type / to choose a block'}
