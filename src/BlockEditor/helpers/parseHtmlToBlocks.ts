@@ -1,6 +1,7 @@
 import type { Block } from '../types'
 import { BlockRegistry } from '../registry/BlockRegistry'
 import { generateClientId } from './generateClientId'
+import { readInlineStyleAttribute } from './inlineStyles'
 import { getEmbedProviderName } from './resolveEmbed'
 
 function escapeHtml(text: string): string {
@@ -40,6 +41,185 @@ function classListWithout(
     .filter((cls) => !excludePrefixes.some((prefix) => cls.startsWith(prefix)))
 
   return classes.length > 0 ? classes.join(' ') : undefined
+}
+
+function withRawInlineStyle(
+  node: HTMLElement,
+  attributes: Record<string, unknown>
+): Record<string, unknown> {
+  const rawStyle = readInlineStyleAttribute(node)
+  return rawStyle ? { ...attributes, __htmlStyle: rawStyle } : attributes
+}
+
+const GENERIC_CONTAINER_TAGS = new Set(['div', 'article', 'main', 'aside'])
+const BLOCKISH_TAGS = new Set([
+  'section',
+  'p',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'pre',
+  'hr',
+  'img',
+  'table',
+  'video',
+  'audio',
+  'iframe',
+  'figure',
+  'nav',
+  'code',
+])
+
+const UNSUPPORTED_INLINE_TAGS = new Set([
+  'a',
+  'span',
+  'svg',
+  'path',
+  'circle',
+  'ellipse',
+  'g',
+  'line',
+  'polyline',
+  'polygon',
+  'rect',
+  'defs',
+  'symbol',
+  'use',
+])
+
+const COLUMNISH_CLASS_PATTERN =
+  /\b(?:[2-6]|two|three|four|five|six)[-_ ]?col(?:umn)?s?\b|\b(?:columns?|cols?|grid|tiles|strip|gallery)\b/i
+
+function getElementChildren(node: Element): Element[] {
+  return Array.from(node.children)
+}
+
+function isGenericContainerElement(node: Element): boolean {
+  return GENERIC_CONTAINER_TAGS.has(node.tagName.toLowerCase())
+}
+
+function hasMeaningfulContainerAttributes(node: Element): boolean {
+  return Boolean(
+    node.getAttribute('id') ||
+    (node.getAttribute('class') ?? '').trim() ||
+    (node.getAttribute('style') ?? '').trim()
+  )
+}
+
+function isBlockLikeElement(node: Element): boolean {
+  if (BLOCKISH_TAGS.has(node.tagName.toLowerCase())) return true
+  if ((node.getAttribute('class') ?? '').includes('editor-block-')) return true
+  if (node.tagName.toLowerCase() === 'a') return true
+  if (isGenericContainerElement(node)) {
+    return hasMeaningfulContainerAttributes(node) || getElementChildren(node).length > 0
+  }
+  return false
+}
+
+function shouldParseAsButtonsContainer(node: HTMLElement): boolean {
+  if (!isGenericContainerElement(node)) return false
+
+  const children = getElementChildren(node)
+  if (children.length === 0) return false
+
+  return children.every((child) => {
+    const tag = child.tagName.toLowerCase()
+    return tag === 'a' || child.classList.contains('editor-block-button')
+  })
+}
+
+function isUnsupportedInlineElement(node: Element): boolean {
+  return UNSUPPORTED_INLINE_TAGS.has(node.tagName.toLowerCase())
+}
+
+function isInlineFragmentContainer(node: Element): boolean {
+  if (!isGenericContainerElement(node)) return false
+
+  const children = getElementChildren(node)
+  if (children.length === 0) return false
+  if (shouldParseAsButtonsContainer(node as HTMLElement)) return false
+
+  return children.every((child) => isUnsupportedInlineElement(child) || isInlineFragmentContainer(child))
+}
+
+function isUnsupportedFragmentLikeChild(node: Element): boolean {
+  return isUnsupportedInlineElement(node) || isInlineFragmentContainer(node)
+}
+
+function hasDirectNonWhitespaceText(node: HTMLElement): boolean {
+  return Array.from(node.childNodes).some((child) => (
+    child.nodeType === Node.TEXT_NODE &&
+    Boolean(child.textContent?.trim())
+  ))
+}
+
+function looksLikeColumnsLayout(node: HTMLElement): boolean {
+  const display = node.style.display.trim().toLowerCase()
+  if (display === 'flex' || display === 'inline-flex' || display === 'grid' || display === 'inline-grid') {
+    return true
+  }
+
+  const className = node.getAttribute('class') ?? ''
+  return COLUMNISH_CLASS_PATTERN.test(className)
+}
+
+function shouldParseAsColumnsContainer(node: HTMLElement): boolean {
+  if (!isGenericContainerElement(node)) return false
+  if (!BlockRegistry.has('core/columns') || !BlockRegistry.has('core/column')) return false
+  if (shouldParseAsButtonsContainer(node)) return false
+  if (hasDirectNonWhitespaceText(node)) return false
+
+  const children = getElementChildren(node)
+  if (children.length < 2 || children.length > 6) return false
+  if (!children.every((child) => isGenericContainerElement(child))) return false
+  if (!looksLikeColumnsLayout(node)) return false
+
+  return children.every((child) => {
+    if (shouldParseAsButtonsContainer(child as HTMLElement)) return false
+    if (isInlineFragmentContainer(child)) return false
+    return child.childNodes.length > 0
+  })
+}
+
+function shouldPreserveGenericContainerAsHtml(node: HTMLElement): boolean {
+  if (!isGenericContainerElement(node)) return false
+
+  const children = getElementChildren(node)
+  if (children.length === 0) return false
+  if (shouldParseAsButtonsContainer(node)) return false
+
+  const unsupportedChildren = children.filter(isUnsupportedFragmentLikeChild)
+  if (unsupportedChildren.length === 0) return false
+
+  if (unsupportedChildren.length === children.length) {
+    if (children.length === 1 && isGenericContainerElement(children[0])) return false
+    return children.length <= 2
+  }
+
+  const supportedChildrenCount = children.length - unsupportedChildren.length
+  const unsupportedChildrenAreAllGenericContainers = unsupportedChildren.every((child) => isGenericContainerElement(child))
+
+  if (unsupportedChildrenAreAllGenericContainers && supportedChildrenCount >= 2) {
+    return false
+  }
+
+  return true
+}
+
+function shouldParseAsGenericGroup(node: HTMLElement): boolean {
+  if (!isGenericContainerElement(node)) return false
+
+  const children = getElementChildren(node)
+  if (children.length === 0) return false
+
+  return hasMeaningfulContainerAttributes(node) || children.some(isBlockLikeElement)
 }
 
 function toHtmlBlock(html: string): Block[] {
@@ -105,13 +285,13 @@ function createListBlockFromElement(listEl: HTMLOListElement | HTMLUListElement)
 
   return createBlock(
     'core/list',
-    {
+    withRawInlineStyle(listEl, {
       values: '',
       ordered,
       start: Number.isFinite(parsedStart) && parsedStart > 0 ? parsedStart : 1,
       ...(className ? { className } : {}),
       ...(anchor ? { anchor } : {}),
-    },
+    }),
     parseListItemsFromElement(listEl)
   )
 }
@@ -280,31 +460,36 @@ function parseFileBlock(node: HTMLElement): Block[] {
   const className = classListWithout(node.className, ['editor-block-file'])
   const anchor = node.getAttribute('id') ?? ''
 
-  return [createBlock('core/file', {
+  return [createBlock('core/file', withRawInlineStyle(node, {
     href: mainLink.getAttribute('href') ?? '',
     filename: (mainLink.textContent ?? '').trim(),
     showDownloadButton: Boolean(downloadButton),
     downloadButtonText: (downloadButton?.textContent ?? 'Download').trim(),
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parseButtonBlock(node: HTMLElement): Block[] {
   const link = node.querySelector('a') ?? (node.tagName.toLowerCase() === 'a' ? node : null)
   if (!(link instanceof HTMLAnchorElement)) return toHtmlBlock(node.outerHTML)
 
-  const className = classListWithout(node.className, ['editor-block-button'])
-  const anchor = node.getAttribute('id') ?? ''
+  const className = [
+    classListWithout(node.tagName.toLowerCase() === 'a' ? '' : node.className, ['editor-block-button']),
+    classListWithout(link.className, ['editor-block-button__link', 'editor-element-button']),
+  ]
+    .filter(Boolean)
+    .join(' ') || undefined
+  const anchor = node.getAttribute('id') ?? link.getAttribute('id') ?? ''
 
-  return [createBlock('core/button', {
+  return [createBlock('core/button', withRawInlineStyle(link, {
     text: link.innerHTML || link.textContent || '',
     url: link.getAttribute('href') ?? '',
     linkTarget: link.getAttribute('target') ?? '',
     rel: link.getAttribute('rel') ?? '',
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parseButtonsBlock(node: HTMLElement): Block[] {
@@ -319,10 +504,10 @@ function parseButtonsBlock(node: HTMLElement): Block[] {
   const className = classListWithout(node.className, ['editor-block-buttons'])
   const anchor = node.getAttribute('id') ?? ''
 
-  return [createBlock('core/buttons', {
+  return [createBlock('core/buttons', withRawInlineStyle(node, {
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  }, innerBlocks)]
+  }), innerBlocks)]
 }
 
 function parseQuoteBlock(node: HTMLElement): Block[] {
@@ -342,23 +527,23 @@ function parseQuoteBlock(node: HTMLElement): Block[] {
     )
     const alignClass = (figure?.className ?? quote.className).split(/\s+/).find((cls) => cls.startsWith('has-text-align-'))
     const anchor = figure?.getAttribute('id') ?? quote.getAttribute('id') ?? ''
-    return [createBlock('core/pullquote', {
+    return [createBlock('core/pullquote', withRawInlineStyle(figure ?? quote, {
       value,
       citation,
       ...(alignClass ? { textAlign: alignClass.replace('has-text-align-', '') } : {}),
       ...(className ? { className } : {}),
       ...(anchor ? { anchor } : {}),
-    })]
+    }))]
   }
 
   const className = classListWithout(quote.className, ['editor-block-quote'])
   const anchor = quote.getAttribute('id') ?? ''
-  return [createBlock('core/quote', {
+  return [createBlock('core/quote', withRawInlineStyle(quote, {
     value,
     citation,
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parseHeadingBlock(node: HTMLElement): Block[] {
@@ -368,7 +553,7 @@ function parseHeadingBlock(node: HTMLElement): Block[] {
   const anchor = node.getAttribute('id') ?? ''
   const textDecoration = node.style.textDecorationLine || node.style.textDecoration
 
-  return [createBlock('core/heading', {
+  return [createBlock('core/heading', withRawInlineStyle(node, {
     content: node.innerHTML,
     level: Number.isFinite(level) ? level : 2,
     ...(alignClass ? { align: alignClass.replace('has-text-align-', '') } : {}),
@@ -379,7 +564,7 @@ function parseHeadingBlock(node: HTMLElement): Block[] {
     ),
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parseParagraphBlock(node: HTMLElement): Block[] {
@@ -391,13 +576,13 @@ function parseParagraphBlock(node: HTMLElement): Block[] {
   )
   const anchor = node.getAttribute('id') ?? ''
 
-  return [createBlock('core/paragraph', {
+  return [createBlock('core/paragraph', withRawInlineStyle(node, {
     content: node.innerHTML,
     dropCap: node.classList.contains('has-drop-cap'),
     ...(alignClass ? { align: alignClass.replace('has-text-align-', '') } : {}),
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parsePreBlock(node: HTMLElement): Block[] {
@@ -409,11 +594,11 @@ function parsePreBlock(node: HTMLElement): Block[] {
 
   const className = classListWithout(node.className, ['editor-block-preformatted'])
   const anchor = node.getAttribute('id') ?? ''
-  return [createBlock('core/preformatted', {
+  return [createBlock('core/preformatted', withRawInlineStyle(node, {
     content: node.innerHTML,
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parseNavigationLinkBlock(node: HTMLElement): Block[] {
@@ -423,7 +608,7 @@ function parseNavigationLinkBlock(node: HTMLElement): Block[] {
   const className = classListWithout(node.className, ['editor-block-navigation-item'])
   const anchor = node.getAttribute('id') ?? ''
 
-  return [createBlock('core/navigation-link', {
+  return [createBlock('core/navigation-link', withRawInlineStyle(node, {
     label: link.innerHTML || link.textContent || '',
     url: link.getAttribute('href') ?? '',
     title: link.getAttribute('title') ?? '',
@@ -431,7 +616,7 @@ function parseNavigationLinkBlock(node: HTMLElement): Block[] {
     opensInNewTab: link.getAttribute('target') === '_blank',
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  })]
+  }))]
 }
 
 function parseNavigationBlock(node: HTMLElement): Block[] {
@@ -446,11 +631,11 @@ function parseNavigationBlock(node: HTMLElement): Block[] {
   const anchor = node.getAttribute('id') ?? ''
   const orientation = node.classList.contains('is-vertical') ? 'vertical' : 'horizontal'
 
-  return [createBlock('core/navigation', {
+  return [createBlock('core/navigation', withRawInlineStyle(node, {
     orientation,
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  }, innerBlocks)]
+  }), innerBlocks)]
 }
 
 function parseGroupBlock(node: HTMLElement): Block[] {
@@ -459,20 +644,36 @@ function parseGroupBlock(node: HTMLElement): Block[] {
   const innerBlocks = parseNodesToBlocks(Array.from(source.childNodes))
   const className = classListWithout(node.className, ['editor-block-group'])
   const anchor = node.getAttribute('id') ?? ''
-  return [createBlock('core/group', {
+  const tagName = node.tagName.toLowerCase()
+  return [createBlock('core/group', withRawInlineStyle(node, {
+    ...(tagName !== 'div' ? { tagName } : {}),
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  }, innerBlocks)]
+  }), innerBlocks)]
+}
+
+function parseSectionBlock(node: HTMLElement): Block[] {
+  const container = node.querySelector('.editor-block-section__inner-container') as HTMLElement | null
+  const source = container ?? node
+  const innerBlocks = parseNodesToBlocks(Array.from(source.childNodes))
+  const className = classListWithout(node.className, ['editor-block-section', 'editor-block-group'])
+  const anchor = node.getAttribute('id') ?? ''
+  return [createBlock('core/section', withRawInlineStyle(node, {
+    ...(className ? { className } : {}),
+    ...(anchor ? { anchor } : {}),
+  }), innerBlocks)]
 }
 
 function parseColumnBlock(node: HTMLElement): Block[] {
   const innerBlocks = parseNodesToBlocks(Array.from(node.childNodes))
   const className = classListWithout(node.className, ['editor-block-column'])
   const anchor = node.getAttribute('id') ?? ''
-  return [createBlock('core/column', {
+  const width = node.style.flexBasis || node.style.width
+  return [createBlock('core/column', withRawInlineStyle(node, {
+    ...(width ? { width } : {}),
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  }, innerBlocks)]
+  }), innerBlocks)]
 }
 
 function parseColumnsBlock(node: HTMLElement): Block[] {
@@ -480,20 +681,49 @@ function parseColumnsBlock(node: HTMLElement): Block[] {
     (child as HTMLElement).classList?.contains('editor-block-column')
   ) as HTMLElement[]
   const innerBlocks = columns.flatMap((col) => parseColumnBlock(col))
-  const className = classListWithout(node.className, ['editor-block-columns'])
+  const className = classListWithout(node.className, ['editor-block-columns', 'is-layout-flex'])
   const anchor = node.getAttribute('id') ?? ''
-  return [createBlock('core/columns', {
+  return [createBlock('core/columns', withRawInlineStyle(node, {
+    isStackedOnMobile: node.classList.contains('is-layout-flex'),
     ...(className ? { className } : {}),
     ...(anchor ? { anchor } : {}),
-  }, innerBlocks)]
+  }), innerBlocks)]
+}
+
+function parseGenericColumnsBlock(node: HTMLElement): Block[] {
+  const children = getElementChildren(node) as HTMLElement[]
+  const className = classListWithout(node.className)
+  const anchor = node.getAttribute('id') ?? ''
+  const display = node.style.display.trim().toLowerCase()
+  const isStackedOnMobile = display !== 'grid' && node.style.flexWrap !== 'nowrap'
+
+  const innerBlocks = children.map((child) => {
+    const childClassName = classListWithout(child.className)
+    const childAnchor = child.getAttribute('id') ?? ''
+    const width = child.style.flexBasis || child.style.width
+    const childInnerBlocks =
+      hasMeaningfulContainerAttributes(child)
+        ? parseElement(child)
+        : parseNodesToBlocks(Array.from(child.childNodes))
+
+    return createBlock('core/column', withRawInlineStyle(child, {
+      ...(width ? { width } : {}),
+      ...(childClassName ? { className: childClassName } : {}),
+      ...(childAnchor ? { anchor: childAnchor } : {}),
+    }), childInnerBlocks)
+  })
+
+  return [createBlock('core/columns', withRawInlineStyle(node, {
+    columns: children.length,
+    isStackedOnMobile,
+    ...(className ? { className } : {}),
+    ...(anchor ? { anchor } : {}),
+  }), innerBlocks)]
 }
 
 function parseElement(node: HTMLElement): Block[] {
   const tag = node.tagName.toLowerCase()
 
-  if (node.classList.contains('editor-block-group') && BlockRegistry.has('core/group')) {
-    return parseGroupBlock(node)
-  }
   if (node.classList.contains('editor-block-columns') && BlockRegistry.has('core/columns')) {
     return parseColumnsBlock(node)
   }
@@ -514,6 +744,24 @@ function parseElement(node: HTMLElement): Block[] {
   }
   if (node.classList.contains('editor-block-navigation-item') && BlockRegistry.has('core/navigation-link')) {
     return parseNavigationLinkBlock(node)
+  }
+  if ((node.classList.contains('editor-block-section') || tag === 'section') && BlockRegistry.has('core/section')) {
+    return parseSectionBlock(node)
+  }
+  if (node.classList.contains('editor-block-group') && BlockRegistry.has('core/group')) {
+    return parseGroupBlock(node)
+  }
+  if (shouldParseAsButtonsContainer(node) && BlockRegistry.has('core/buttons')) {
+    return parseButtonsBlock(node)
+  }
+  if (shouldParseAsColumnsContainer(node)) {
+    return parseGenericColumnsBlock(node)
+  }
+  if (shouldPreserveGenericContainerAsHtml(node)) {
+    return toHtmlBlock(node.outerHTML)
+  }
+  if (shouldParseAsGenericGroup(node) && BlockRegistry.has('core/group')) {
+    return parseGroupBlock(node)
   }
 
   if (tag === 'p' && BlockRegistry.has('core/paragraph')) return parseParagraphBlock(node)

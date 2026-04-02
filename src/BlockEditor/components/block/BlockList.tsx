@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, type CSSProperties } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -18,9 +18,20 @@ interface BlockListProps {
   rootClientId: string | null
   onNavigateOut?: (clientId: string, direction: 'up' | 'down') => void
   direction?: 'vertical' | 'horizontal'
+  className?: string
+  style?: CSSProperties
+  displayContents?: boolean
 }
 
-export function BlockList({ blocks, rootClientId, onNavigateOut, direction = 'vertical' }: BlockListProps) {
+export function BlockList({
+  blocks,
+  rootClientId,
+  onNavigateOut,
+  direction = 'vertical',
+  className,
+  style,
+  displayContents = false,
+}: BlockListProps) {
   const selectedClientIds = useEditorStore(s => s.selectedClientIds)
   const hoveredClientId = useEditorStore(s => s.hoveredClientId)
   const isHorizontal = direction === 'horizontal'
@@ -53,7 +64,15 @@ export function BlockList({ blocks, rootClientId, onNavigateOut, direction = 've
       <div
         data-block-list
         data-root-client-id={rootClientId ?? ''}
-        style={direction === 'horizontal' ? { display: 'flex', flexWrap: 'wrap', gap: 8 } : undefined}
+        className={className}
+        style={{
+          ...(displayContents
+            ? { display: 'contents' }
+            : direction === 'horizontal'
+            ? { display: 'flex', flexWrap: 'wrap', gap: 8 }
+            : {}),
+          ...style,
+        }}
       >
         {blocks.map((block, index) => {
           const def = BlockRegistry.get(block.name)

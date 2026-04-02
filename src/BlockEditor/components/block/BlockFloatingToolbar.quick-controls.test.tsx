@@ -249,6 +249,44 @@ describe('BlockFloatingToolbar quick controls', () => {
     })
   })
 
+  it('shows html preview without the source editor until the html block is selected', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    const initialBlocks: Block[] = [
+      {
+        clientId: 'html-preview-source',
+        name: 'core/html',
+        attributes: {
+          content: '<span style="display:flex;gap:8px;">72°F · Sunny</span>',
+        },
+        innerBlocks: [],
+      },
+    ]
+
+    await act(async () => {
+      root.render(<BlockEditor initialBlocks={initialBlocks} />)
+    })
+
+    const htmlBlock = container.querySelector<HTMLElement>('[data-block="html-preview-source"]')
+    if (!htmlBlock) throw new Error('HTML block was not rendered.')
+
+    expect(htmlBlock.querySelector('.html-block-code-mirror')).toBeNull()
+    expect(htmlBlock.textContent).toContain('72°F · Sunny')
+
+    await act(async () => {
+      htmlBlock.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await Promise.resolve()
+    })
+
+    expect(htmlBlock.querySelector('.html-block-code-mirror')).not.toBeNull()
+
+    await act(async () => {
+      root.unmount()
+    })
+  })
+
   it('converts an HTML block back to blocks from the ellipsis menu', async () => {
     const container = document.createElement('div')
     document.body.appendChild(container)

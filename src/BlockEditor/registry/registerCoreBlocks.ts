@@ -41,6 +41,7 @@ import { navigationBlock } from './blocks/navigation'
 import { navigationLinkBlock } from './blocks/navigation-link'
 import { groupBlock } from './blocks/group'
 import { columnsBlock, columnBlock } from './blocks/columns'
+import { sectionBlock } from './blocks/section'
 
 let registered = false
 
@@ -82,6 +83,7 @@ export function registerCoreBlocks() {
   BlockRegistry.register(groupBlock)
   BlockRegistry.register(columnsBlock)
   BlockRegistry.register(columnBlock)
+  BlockRegistry.register(sectionBlock)
 
   // Widgets
   BlockRegistry.register(htmlBlock)

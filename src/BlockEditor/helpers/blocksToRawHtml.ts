@@ -86,13 +86,23 @@ function stripInternalEditorClasses(html: string): string {
   for (const node of container.querySelectorAll('[class]')) {
     const classAttr = node.getAttribute('class')
     if (!classAttr) continue
-    const kept = classAttr
+    const original = classAttr
       .split(/\s+/)
       .map((token) => token.trim())
       .filter(Boolean)
+    const kept = original
       .filter((token) => !token.startsWith('editor-'))
 
     if (kept.length === 0) {
+      const wasOnlyButtonWrapper =
+        original.includes('editor-block-button') &&
+        node.tagName.toLowerCase() === 'div' &&
+        node.attributes.length === 1
+
+      if (wasOnlyButtonWrapper) {
+        node.replaceWith(...Array.from(node.childNodes))
+        continue
+      }
       node.removeAttribute('class')
     } else {
       node.setAttribute('class', kept.join(' '))

@@ -17,6 +17,8 @@ interface BlockWrapperProps {
   rootClientId: string | null
 }
 
+const INNER_PRESENTATION_BLOCKS = new Set(['core/group', 'core/section', 'core/columns', 'core/column'])
+
 function BlockWrapperComponent({
   block,
   def,
@@ -54,7 +56,22 @@ function BlockWrapperComponent({
     sortableNodeRef.current(node)
   }, [])
 
-  const { className: supportedClass, style: supportedStyle } = applyBlockSupports(block, def)
+  const wrapperSupportBlock = INNER_PRESENTATION_BLOCKS.has(block.name)
+    ? {
+        ...block,
+        attributes: {
+          ...(block.attributes as Record<string, unknown>),
+          className: '',
+          __htmlStyle: '',
+          style: {},
+          backgroundColor: '',
+          textColor: '',
+          gradient: '',
+        },
+      }
+    : block
+
+  const { className: supportedClass, style: supportedStyle } = applyBlockSupports(wrapperSupportBlock, def)
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {

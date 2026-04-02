@@ -2,6 +2,7 @@ import { LayoutTemplate } from 'lucide-react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
 import { BlockList } from '../../../components/block/BlockList'
 import { generateClientId } from '../../../helpers/generateClientId'
+import { serializeInlineStyleAttribute } from '../../../helpers/inlineStyles'
 import { useEditorActions } from '../../../store'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
 
@@ -9,6 +10,7 @@ interface ButtonsAttributes {
   layout?: Record<string, unknown>
   className?: string
   anchor?: string
+  style?: Record<string, unknown>
 }
 
 interface ButtonsLayout {
@@ -209,19 +211,15 @@ export const buttonsBlock: BlockDefinition = {
     layout: { type: 'object' as const, default: {} },
     className: { type: 'string' as const, default: '' },
     anchor: { type: 'string' as const, default: '' },
+    style: { type: 'object' as const, default: {} },
   },
   edit: ButtonsEdit,
   save: ({ attributes, innerBlocks = [] }) => {
-    const { className } = attributes as ButtonsAttributes
-    const classAttr = className ? ` ${className}` : ''
-    const inner = innerBlocks
-      .map((b) => {
-        const { text, url, linkTarget, rel } = b.attributes as Record<string, string>
-        const targetAttr = linkTarget ? ` target="${linkTarget}"` : ''
-        const relAttr = rel ? ` rel="${rel}"` : ''
-        return `<div class="editor-block-button"><a class="editor-block-button__link editor-element-button" href="${url ?? ''}"${targetAttr}${relAttr}>${text ?? ''}</a></div>`
-      })
-      .join('\n')
-    return `<div class="editor-block-buttons${classAttr}">\n${inner}\n</div>`
+    const { className, anchor } = attributes as ButtonsAttributes
+    const classAttr = ['editor-block-buttons', className].filter(Boolean).join(' ')
+    const anchorAttr = anchor ? ` id="${anchor}"` : ''
+    const styleAttr = serializeInlineStyleAttribute(attributes as Record<string, unknown>)
+    const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
+    return `<div class="${classAttr}"${anchorAttr}${styleAttr}>\n${innerHtml}\n</div>`
   },
 }

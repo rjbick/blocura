@@ -7,6 +7,7 @@ import { useEditorActions, useEditorStore } from '../../../store'
 import { generateClientId } from '../../../helpers/generateClientId'
 import { flattenBlocks, findBlockParent } from '../../../helpers/flattenBlocks'
 import { createBlockFromDefinition } from '../../../helpers/insertionRules'
+import { serializeInlineStyleAttribute } from '../../../helpers/inlineStyles'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
 
 interface ParagraphAttrs {
@@ -243,7 +244,8 @@ export const paragraphBlock: BlockDefinition = {
     if (className) classes.push(className)
     const classStr = classes.join(' ')
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
-    return `<p class="${classStr}"${anchorAttr}>${content}</p>`
+    const styleAttr = serializeInlineStyleAttribute(attributes as Record<string, unknown>)
+    return `<p class="${classStr}"${anchorAttr}${styleAttr}>${content}</p>`
   },
   merge: (baseAttrs, mergeAttrs) => ({
     ...baseAttrs,

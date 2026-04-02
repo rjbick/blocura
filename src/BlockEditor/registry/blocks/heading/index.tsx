@@ -4,6 +4,7 @@ import { RichText } from '../../../components/richtext/RichText'
 import { useEditorActions, useEditorStore } from '../../../store'
 import { generateClientId } from '../../../helpers/generateClientId'
 import { flattenBlocks } from '../../../helpers/flattenBlocks'
+import { serializeInlineStyleAttribute } from '../../../helpers/inlineStyles'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
 
 interface HeadingAttrs {
@@ -215,11 +216,10 @@ export const headingBlock: BlockDefinition = {
     if (className) classes.push(className)
     const classStr = classes.join(' ')
     const anchorAttr = anchor ? ` id="${anchor}"` : ''
-    const textDecoration = style?.typography?.textDecoration
-    const styleAttr =
-      textDecoration === 'underline' || textDecoration === 'line-through'
-        ? ` style="text-decoration:${textDecoration}"`
-        : ''
+    const styleAttr = serializeInlineStyleAttribute({
+      ...(attributes as Record<string, unknown>),
+      style,
+    })
     return `<h${level} class="${classStr}"${anchorAttr}${styleAttr}>${content}</h${level}>`
   },
   merge: (baseAttrs, mergeAttrs) => ({

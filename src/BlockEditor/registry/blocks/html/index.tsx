@@ -32,6 +32,33 @@ function HtmlEdit({
     [attributes.content]
   )
 
+  if (!isSelected) {
+    return (
+      <div
+        style={{
+          position: 'relative',
+          minHeight: attributes.content ? undefined : 80,
+        }}
+      >
+        {attributes.content ? (
+          <div
+            dangerouslySetInnerHTML={{ __html: attributes.content }}
+            style={{ pointerEvents: 'none' }}
+          />
+        ) : (
+          <div
+            style={{
+              border: '1px solid #ddd',
+              borderRadius: 2,
+              backgroundColor: '#f6f7f7',
+              minHeight: 80,
+            }}
+          />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div style={{ position: 'relative' }}>
       <div
@@ -53,14 +80,6 @@ function HtmlEdit({
           }}
         />
       </div>
-
-      {/* Preview (shown when not selected) */}
-      {!isSelected && attributes.content && (
-        <div
-          dangerouslySetInnerHTML={{ __html: attributes.content }}
-          style={{ pointerEvents: 'none' }}
-        />
-      )}
     </div>
   )
 }

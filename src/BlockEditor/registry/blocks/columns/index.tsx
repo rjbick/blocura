@@ -2,6 +2,11 @@ import { Columns as ColumnsIcon } from 'lucide-react'
 import type { Block, BlockDefinition, BlockEditProps } from '../../../types'
 import { BlockList } from '../../../components/block/BlockList'
 import { generateClientId } from '../../../helpers/generateClientId'
+import {
+  getCombinedInlineStyleObject,
+  serializeInlineStyleAttribute,
+  type BlockStyleAttrs,
+} from '../../../helpers/inlineStyles'
 import { useEditorActions } from '../../../store'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
 
@@ -11,14 +16,14 @@ interface ColumnsAttributes {
   verticalAlignment?: string
   className?: string
   anchor?: string
-  style?: Record<string, unknown>
+  style?: BlockStyleAttrs
 }
 
 interface ColumnAttributes {
   width?: string
   className?: string
   anchor?: string
-  style?: Record<string, unknown>
+  style?: BlockStyleAttrs
   verticalAlignment?: string
 }
 
@@ -47,6 +52,16 @@ function createColumnBlocksFromWidths(widths: string[]): Block[] {
   }))
 }
 
+function hasPaddingStyle(style: Record<string, unknown>): boolean {
+  return (
+    'padding' in style ||
+    'paddingTop' in style ||
+    'paddingRight' in style ||
+    'paddingBottom' in style ||
+    'paddingLeft' in style
+  )
+}
+
 // ─── Column Block ─────────────────────────────────────────────────────────────
 
 function ColumnEdit({
@@ -57,6 +72,7 @@ function ColumnEdit({
   innerBlocks = [],
 }: BlockEditProps<ColumnAttributes>) {
   const width = (attributes.width || '').trim()
+  const className = attributes.className || ''
   const verticalAlignment = attributes.verticalAlignment || ''
   const alignSelf =
     verticalAlignment === 'top'
@@ -66,6 +82,11 @@ function ColumnEdit({
       : verticalAlignment === 'center'
       ? 'center'
       : 'stretch'
+  const combinedStyle = getCombinedInlineStyleObject(
+    attributes as unknown as Record<string, unknown>,
+    width ? { flexBasis: width } : {}
+  )
+  const shouldAddDefaultPadding = !className && !hasPaddingStyle(combinedStyle)
 
   useInspectorControls(
     clientId,
@@ -102,14 +123,16 @@ function ColumnEdit({
 
   return (
     <div
+      className={className || undefined}
       style={{
-        flex: width ? `0 0 ${width}` : '1 1 0',
+        flex: width ? '0 0 auto' : '1 1 0',
         alignSelf,
         minWidth: 0,
-        padding: '0 8px',
+        ...(shouldAddDefaultPadding ? { padding: '0 8px' } : {}),
+        ...combinedStyle,
         minHeight: 60,
         border: isSelected ? '1px dashed rgba(56,88,233,0.4)' : '1px dashed transparent',
-        borderRadius: 2,
+        borderRadius: combinedStyle.borderRadius as string | number | undefined ?? 2,
       }}
     >
       <BlockList blocks={innerBlocks} rootClientId={clientId} />
@@ -157,11 +180,15 @@ export const columnBlock: BlockDefinition = {
   },
   edit: ColumnEdit,
   save: ({ attributes, innerBlocks = [] }) => {
-    const { className, width } = attributes as ColumnAttributes
-    const widthStyle = width ? ` style="flex-basis:${width}"` : ''
+    const { className, width, anchor } = attributes as ColumnAttributes
+    const anchorAttr = anchor ? ` id="${anchor}"` : ''
+    const styleAttr = serializeInlineStyleAttribute(
+      attributes as Record<string, unknown>,
+      width ? { flexBasis: width } : {}
+    )
     const classAttr = ['editor-block-column', className].filter(Boolean).join(' ')
     const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
-    return `<div class="${classAttr}"${widthStyle}>\n${innerHtml}\n</div>`
+    return `<div class="${classAttr}"${anchorAttr}${styleAttr}>\n${innerHtml}\n</div>`
   },
 }
 
@@ -176,6 +203,7 @@ function ColumnsEdit({
 }: BlockEditProps<ColumnsAttributes>) {
   const { insertBlock, insertBlocks, removeBlocks } = useEditorActions()
   const numCols = innerBlocks.length
+  const className = attributes.className || ''
   const verticalAlignment = attributes.verticalAlignment || ''
   const stackOnMobile = attributes.isStackedOnMobile ?? true
   const alignItems =
@@ -186,6 +214,7 @@ function ColumnsEdit({
       : verticalAlignment === 'center'
       ? 'center'
       : 'stretch'
+  const combinedStyle = getCombinedInlineStyleObject(attributes as unknown as Record<string, unknown>)
 
   function addColumn() {
     insertBlock(
@@ -385,14 +414,24 @@ function ColumnsEdit({
     <div
       style={{
         display: 'flex',
-        gap: 0,
-        alignItems,
-        flexWrap: stackOnMobile ? 'wrap' : 'nowrap',
-        marginLeft: -8,
-        marginRight: -8,
+        alignItems: 'flex-start',
       }}
     >
-      <BlockList blocks={innerBlocks} rootClientId={clientId} direction="horizontal" />
+      <BlockList
+        blocks={innerBlocks}
+        rootClientId={clientId}
+        direction="horizontal"
+        className={className || undefined}
+        style={{
+          display: 'flex',
+          gap: 0,
+          alignItems,
+          flexWrap: stackOnMobile ? 'wrap' : 'nowrap',
+          marginLeft: -8,
+          marginRight: -8,
+          ...combinedStyle,
+        }}
+      />
       {isSelected && (
         <button
           type="button"
@@ -477,10 +516,12 @@ export const columnsBlock: BlockDefinition = {
   },
   edit: ColumnsEdit,
   save: ({ attributes, innerBlocks = [] }) => {
-    const { className, isStackedOnMobile = true } = attributes as ColumnsAttributes
+    const { className, isStackedOnMobile = true, anchor } = attributes as ColumnsAttributes
     const stackClass = isStackedOnMobile ? ' is-layout-flex' : ''
     const classAttr = ['editor-block-columns', className, stackClass].filter(Boolean).join(' ')
+    const anchorAttr = anchor ? ` id="${anchor}"` : ''
+    const styleAttr = serializeInlineStyleAttribute(attributes as Record<string, unknown>)
     const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
-    return `<div class="${classAttr}">\n${innerHtml}\n</div>`
+    return `<div class="${classAttr}"${anchorAttr}${styleAttr}>\n${innerHtml}\n</div>`
   },
 }

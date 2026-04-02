@@ -4,16 +4,28 @@ import type { BlockDefinition, BlockEditProps } from '../../../types'
 import { BlockList } from '../../../components/block/BlockList'
 import { BlockAppender } from '../../../components/inserter/BlockAppender'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
+import { getCombinedInlineStyleObject, type BlockStyleAttrs } from '../../../helpers/inlineStyles'
+import { serializeInlineStyleAttribute } from '../../../helpers/inlineStyles'
 
 interface GroupAttributes {
   tagName: string
   className?: string
   anchor?: string
-  style?: Record<string, unknown>
+  style?: BlockStyleAttrs
   backgroundColor?: string
   textColor?: string
   gradient?: string
   layout?: Record<string, unknown>
+}
+
+function hasPaddingStyle(style: Record<string, unknown>): boolean {
+  return (
+    'padding' in style ||
+    'paddingTop' in style ||
+    'paddingRight' in style ||
+    'paddingBottom' in style ||
+    'paddingLeft' in style
+  )
 }
 
 function GroupEdit({
@@ -23,13 +35,18 @@ function GroupEdit({
   isSelected,
   innerBlocks = [],
 }: BlockEditProps<GroupAttributes>) {
-  const { tagName = 'div', backgroundColor, style } = attributes
+  const {
+    tagName = 'div',
+    className,
+    backgroundColor,
+    textColor,
+    gradient,
+  } = attributes
 
   const Tag = (tagName || 'div') as ElementType
 
-  const bgColor = backgroundColor
-    ? `var(--editor--preset--color--${backgroundColor})`
-    : (style as { color?: { background?: string } })?.color?.background
+  const combinedStyle = getCombinedInlineStyleObject(attributes as unknown as Record<string, unknown>)
+  const shouldAddDefaultPadding = !className && !hasPaddingStyle(combinedStyle)
 
   useInspectorControls(
     clientId,
@@ -56,15 +73,25 @@ function GroupEdit({
 
   return (
     <Tag
+      className={className || undefined}
       style={{
-        padding: '24px',
-        backgroundColor: bgColor as string | undefined,
-        minHeight: innerBlocks.length === 0 ? 64 : undefined,
+        ...(shouldAddDefaultPadding ? { padding: '24px' } : {}),
+        ...combinedStyle,
+        ...(backgroundColor && !combinedStyle.backgroundColor
+          ? { backgroundColor: `var(--editor--preset--color--${backgroundColor})` }
+          : {}),
+        ...(textColor && !combinedStyle.color
+          ? { color: `var(--editor--preset--color--${textColor})` }
+          : {}),
+        ...(gradient && !combinedStyle.backgroundImage
+          ? { backgroundImage: `var(--editor--preset--gradient--${gradient})` }
+          : {}),
+        minHeight: combinedStyle.minHeight ?? (innerBlocks.length === 0 ? 64 : undefined),
         border: innerBlocks.length === 0 && isSelected ? '1px dashed #ddd' : undefined,
-        borderRadius: 2,
+        borderRadius: combinedStyle.borderRadius as string | number | undefined ?? 2,
       }}
     >
-      <BlockList blocks={innerBlocks} rootClientId={clientId} />
+      <BlockList blocks={innerBlocks} rootClientId={clientId} displayContents />
       {innerBlocks.length === 0 && isSelected && (
         <BlockAppender rootClientId={clientId} />
       )}
@@ -115,10 +142,12 @@ export const groupBlock: BlockDefinition = {
   },
   edit: GroupEdit,
   save: ({ attributes, innerBlocks = [] }) => {
-    const { tagName = 'div', className } = attributes as GroupAttributes
+    const { tagName = 'div', className, anchor } = attributes as GroupAttributes
     const classAttr = ['editor-block-group', className].filter(Boolean).join(' ')
+    const anchorAttr = anchor ? ` id="${anchor}"` : ''
+    const styleAttr = serializeInlineStyleAttribute(attributes as Record<string, unknown>)
     // Inner blocks HTML would be serialized separately
     const innerHtml = innerBlocks.map(() => '<!-- inner block -->').join('\n')
-    return `<${tagName} class="${classAttr}">\n${innerHtml}\n</${tagName}>`
+    return `<${tagName} class="${classAttr}"${anchorAttr}${styleAttr}>\n${innerHtml}\n</${tagName}>`
   },
 }

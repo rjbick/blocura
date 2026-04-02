@@ -1,5 +1,6 @@
 import { Square } from 'lucide-react'
 import { RichText } from '../../../components/richtext/RichText'
+import { serializeInlineStyleAttribute } from '../../../helpers/inlineStyles'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
 
@@ -219,10 +220,12 @@ export const buttonBlock: BlockDefinition = {
   ],
   edit: ButtonEdit,
   save: ({ attributes }) => {
-    const { text, url, linkTarget, rel, className } = attributes as ButtonAttributes
+    const { text, url, linkTarget, rel, className, anchor } = attributes as ButtonAttributes
     const targetAttr = linkTarget ? ` target="${linkTarget}"` : ''
     const relAttr = rel ? ` rel="${rel}"` : ''
-    const classAttr = className ? ` class="${className}"` : ''
-    return `<div class="editor-block-button${classAttr}"><a class="editor-block-button__link editor-element-button" href="${url ?? ''}"${targetAttr}${relAttr}>${text}</a></div>`
+    const anchorAttr = anchor ? ` id="${anchor}"` : ''
+    const linkClasses = ['editor-block-button__link', 'editor-element-button', className].filter(Boolean).join(' ')
+    const styleAttr = serializeInlineStyleAttribute(attributes as Record<string, unknown>)
+    return `<div class="editor-block-button"${anchorAttr}><a class="${linkClasses}" href="${url ?? ''}"${targetAttr}${relAttr}${styleAttr}>${text}</a></div>`
   },
 }
