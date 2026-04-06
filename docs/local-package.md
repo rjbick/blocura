@@ -1,6 +1,6 @@
 # Local Package Workflow
 
-Use this when you want to test `blocura` inside another codebase before publishing.
+Use this when you want to test `@blocura/core` inside another codebase before publishing.
 
 ## 1. Build and pack this repo
 
@@ -17,26 +17,26 @@ This creates one tarball in `.artifacts/` and prints the absolute install path.
 From the other project:
 
 ```bash
-npm install /absolute/path/to/blocura/.artifacts/blocura-<version>.tgz
+npm install /absolute/path/to/core/.artifacts/blocura-core-<version>.tgz
 ```
 
 Then import as usual:
 
 ```tsx
-import { BlockEditor } from 'blocura'
+import { BlockEditor } from '@blocura/core'
 ```
 
 For explicit style control in Tailwind-heavy hosts:
 
 ```tsx
-import { BlockEditor } from 'blocura/unstyled'
-import 'blocura/styles.css'
+import { BlockEditor } from '@blocura/core/unstyled'
+import '@blocura/core/styles.css'
 ```
 
 The package entry already includes editor styles. If you need explicit control:
 
 ```ts
-import 'blocura/styles.css'
+import '@blocura/core/styles.css'
 ```
 
 ## 3. Refresh after new changes

@@ -35,16 +35,28 @@ Inspect the `npm pack --dry-run` file list and make sure only expected files are
 - `LICENSE`
 - `docs/**` (optional but currently included)
 
-## 4. Version and publish
+## 4. Configure npm trusted publishing
+
+In npm package settings, add a GitHub Actions trusted publisher for this repository with:
+
+- your GitHub user or organization
+- your repository name
+- workflow filename `publish.yml`
+
+After the first successful trusted publish, npm recommends enabling "Require two-factor authentication and disallow tokens" for the package.
+
+## 5. Version, tag, and push
 
 ```bash
 npm version patch
-npm publish --access public
+git push origin main --follow-tags
 ```
+
+Pushing a `v*` tag triggers `.github/workflows/publish.yml`, reruns `npm run release:check`, and publishes to npm when the tag matches the version in `package.json`.
 
 If publishing under a scoped package, use the scope name in `package.json` and keep `publishConfig.access` set to `public`.
 
-## 5. Post-publish smoke test
+## 6. Post-publish smoke test
 
 In a clean sample project:
 

@@ -1,13 +1,13 @@
 {
-  "name": "blocura",
-  "version": "0.1.0",
+  "name": "@blocura/core",
+  "version": "1.0.0",
   "description": "Standalone React block editor with Gutenberg-like UX.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://git.otfoffice.com/blocera/core.git"
+    "url": "https://github.com/rjbick/blocura.git"
   },
-  "homepage": "https://git.otfoffice.com/blocera/core",
+  "homepage": "https://github.com/rjbick/blocura",
   "keywords": [
     "react",
     "typescript",

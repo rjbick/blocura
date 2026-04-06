@@ -1,11 +1,11 @@
-# blocura
+# @blocura/core
 
 Standalone React block editor with Gutenberg-like UX, built without `@wordpress/*` dependencies.
 
 ## Install
 
 ```bash
-npm install blocura
+npm install @blocura/core
 ```
 
 `react` and `react-dom` are peer dependencies.
@@ -15,7 +15,7 @@ For local cross-project testing before publish, use the tarball workflow in `doc
 ## Usage
 
 ```tsx
-import { BlockEditor } from 'blocura'
+import { BlockEditor } from '@blocura/core'
 
 export function EditorPage() {
   return (
@@ -36,19 +36,19 @@ export function EditorPage() {
 
 ## Style Isolation
 
-`blocura` (default entry) auto-imports editor CSS.
+`@blocura/core` (default entry) auto-imports editor CSS.
 
 - Use this when you want zero setup:
 
 ```tsx
-import { BlockEditor } from 'blocura'
+import { BlockEditor } from '@blocura/core'
 ```
 
 - Use this when you want explicit style control in host apps (for example Tailwind-heavy apps):
 
 ```tsx
-import { BlockEditor } from 'blocura/unstyled'
-import 'blocura/styles.css'
+import { BlockEditor } from '@blocura/core/unstyled'
+import '@blocura/core/styles.css'
 ```
 
 All shipped editor selectors are scoped to `.editor-shell`.
@@ -121,7 +121,7 @@ Then follow `docs/publish-checklist.md` before publishing.
 The package entry imports editor CSS automatically. If you need explicit control, import:
 
 ```ts
-import 'blocura/styles.css'
+import '@blocura/core/styles.css'
 ```
 
 ## License
