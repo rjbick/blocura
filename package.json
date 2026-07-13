@@ -1,6 +1,6 @@
 {
   "name": "@blocura/core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Standalone React block editor with Gutenberg-like UX.",
   "license": "MIT",
   "repository": {
