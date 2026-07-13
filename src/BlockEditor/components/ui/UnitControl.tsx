@@ -17,7 +17,7 @@ export function UnitControl({ value, onChange, units = ['px', '%', 'em', 'rem', 
         onChange={(event) => onChange(`${event.target.value}${unit}`)}
         style={{
           flex: 1,
-          border: '1px solid #dcdcde',
+          border: '1px solid var(--editor-border)',
           borderRadius: 2,
           padding: '6px 8px',
           fontSize: 13,
@@ -27,7 +27,7 @@ export function UnitControl({ value, onChange, units = ['px', '%', 'em', 'rem', 
         value={unit}
         onChange={(event) => onChange(`${amount}${event.target.value}`)}
         style={{
-          border: '1px solid #dcdcde',
+          border: '1px solid var(--editor-border)',
           borderRadius: 2,
           padding: '6px 8px',
           fontSize: 13,

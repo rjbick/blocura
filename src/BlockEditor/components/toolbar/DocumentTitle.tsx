@@ -23,7 +23,7 @@ export function DocumentTitle() {
         fontSize: 13,
         fontWeight: 600,
         fontFamily: 'var(--editor-font-family)',
-        color: '#1e1e1e',
+        color: 'var(--editor-text)',
         background: 'transparent',
         border: 'none',
         borderBottom: isFocused

@@ -18,7 +18,7 @@ export function BlockSwitcher({ currentTitle, targets, onSwitch }: BlockSwitcher
           padding: '0 10px',
           border: 'none',
           background: 'transparent',
-          color: '#757575',
+          color: 'var(--editor-text-muted)',
           fontSize: 12,
           fontFamily: 'var(--editor-font-family)',
         }}
@@ -54,7 +54,7 @@ export function BlockSwitcher({ currentTitle, targets, onSwitch }: BlockSwitcher
             left: 0,
             marginTop: 4,
             minWidth: 180,
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
             borderRadius: 4,
             boxShadow: 'var(--editor-popover-shadow)',
             padding: 4,

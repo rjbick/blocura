@@ -142,7 +142,7 @@ function ColumnEdit({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#949494',
+            color: 'var(--editor-text-subtle)',
             fontSize: 13,
             fontFamily: 'var(--editor-font-family)',
             pointerEvents: 'none',
@@ -317,10 +317,10 @@ function ColumnsEdit({
           backgroundColor: '#fcfcfc',
         }}
       >
-        <p style={{ margin: 0, marginBottom: 8, fontSize: 13, color: '#1e1e1e', fontFamily: 'var(--editor-font-family)' }}>
+        <p style={{ margin: 0, marginBottom: 8, fontSize: 13, color: 'var(--editor-text)', fontFamily: 'var(--editor-font-family)' }}>
           Choose a layout
         </p>
-        <p style={{ margin: 0, marginBottom: 14, fontSize: 12, color: '#757575', fontFamily: 'var(--editor-font-family)' }}>
+        <p style={{ margin: 0, marginBottom: 14, fontSize: 12, color: 'var(--editor-text-muted)', fontFamily: 'var(--editor-font-family)' }}>
           Start with preset column widths, then customize in block settings.
         </p>
 
@@ -374,7 +374,7 @@ function ColumnsEdit({
               <span
                 style={{
                   fontSize: 12,
-                  color: '#1e1e1e',
+                  color: 'var(--editor-text)',
                   fontWeight: 500,
                   fontFamily: 'var(--editor-font-family)',
                 }}
@@ -398,7 +398,7 @@ function ColumnsEdit({
                 background: 'transparent',
                 cursor: 'pointer',
                 fontSize: 12,
-                color: '#50575e',
+                color: 'var(--editor-text-muted)',
                 fontFamily: 'var(--editor-font-family)',
               }}
             >
@@ -444,7 +444,7 @@ function ColumnsEdit({
             background: 'transparent',
             borderRadius: 2,
             cursor: 'pointer',
-            color: '#949494',
+            color: 'var(--editor-text-subtle)',
             fontSize: 20,
             lineHeight: 1,
             padding: '8px 0',
@@ -460,7 +460,7 @@ function ColumnsEdit({
 
 const buttonStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
-  color: '#1e1e1e',
+  color: 'var(--editor-text)',
   border: '1px solid #ddd',
   borderRadius: 2,
   padding: '8px 12px',
@@ -471,13 +471,13 @@ const buttonStyle: React.CSSProperties = {
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

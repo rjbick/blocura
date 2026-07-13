@@ -46,7 +46,7 @@ function ListItemEdit({
     clientId,
     () => (
       <div style={{ display: 'grid', gap: 12 }}>
-        <div style={{ fontSize: 12, color: '#757575' }}>
+        <div style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>
           Marker: {marker}
         </div>
         <div>
@@ -120,13 +120,13 @@ function ListItemEdit({
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorTextareaStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

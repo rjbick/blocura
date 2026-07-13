@@ -13,7 +13,7 @@ export function CommandItem({ label, category, active = false, onSelect }: Comma
       style={{
         width: '100%',
         border: 'none',
-        backgroundColor: active ? 'rgba(56,88,233,0.1)' : 'transparent',
+        backgroundColor: active ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'transparent',
         borderLeft: active ? '2px solid var(--editor-components-color-accent)' : '2px solid transparent',
         padding: '10px 12px',
         textAlign: 'left',
@@ -22,8 +22,8 @@ export function CommandItem({ label, category, active = false, onSelect }: Comma
         cursor: 'pointer',
       }}
     >
-      <span style={{ fontSize: 13, color: '#1e1e1e', fontWeight: active ? 600 : 400 }}>{label}</span>
-      {category && <span style={{ fontSize: 11, color: '#757575' }}>{category}</span>}
+      <span style={{ fontSize: 13, color: 'var(--editor-text)', fontWeight: active ? 600 : 400 }}>{label}</span>
+      {category && <span style={{ fontSize: 11, color: 'var(--editor-text-muted)' }}>{category}</span>}
     </button>
   )
 }

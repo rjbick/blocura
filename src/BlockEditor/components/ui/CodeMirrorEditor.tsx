@@ -75,13 +75,13 @@ export function CodeMirrorEditor({
                   height: '100%',
                   fontSize: '13px',
                   fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace',
-                  color: '#1e1e1e',
+                  color: 'var(--editor-text)',
                   backgroundColor: 'transparent',
                 },
                 '.cm-content': {
                   minHeight: '100%',
                   padding: '12px 16px',
-                  caretColor: '#1e1e1e',
+                  caretColor: 'var(--editor-text)',
                 },
                 '.cm-scroller': {
                   overflow: 'auto',
@@ -90,7 +90,7 @@ export function CodeMirrorEditor({
                   backgroundColor: 'rgba(0,0,0,0.035)',
                 },
                 '.cm-cursor': {
-                  borderLeftColor: '#1e1e1e',
+                  borderLeftColor: 'var(--editor-text)',
                 },
               }
             : {

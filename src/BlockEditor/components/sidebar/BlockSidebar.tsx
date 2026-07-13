@@ -67,7 +67,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
           fontSize: 13,
           fontWeight: 600,
           fontFamily: 'var(--editor-font-family)',
-          color: '#1e1e1e',
+          color: 'var(--editor-text)',
         }}
       >
         <span>{title}</span>
@@ -84,7 +84,7 @@ function ControlRow({ label, children }: { label: string; children: React.ReactN
       <div
         style={{
           fontSize: 11,
-          color: '#757575',
+          color: 'var(--editor-text-muted)',
           marginBottom: 4,
           fontWeight: 500,
         }}
@@ -100,11 +100,11 @@ function inputStyle(): React.CSSProperties {
   return {
     width: '100%',
     padding: '6px 8px',
-    border: '1px solid #ddd',
+    border: '1px solid var(--editor-border)',
     borderRadius: 2,
     fontSize: 13,
     fontFamily: 'var(--editor-font-family)',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--editor-surface)',
     boxSizing: 'border-box',
   }
 }
@@ -190,10 +190,10 @@ function BoxControl({
           style={{
             width: 28,
             height: 28,
-            border: '1px solid #ddd',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
-            background: linked ? 'var(--editor-components-color-accent)' : '#fff',
-            color: linked ? '#fff' : '#757575',
+            background: linked ? 'var(--editor-components-color-accent)' : 'var(--editor-surface)',
+            color: linked ? '#fff' : 'var(--editor-text-muted)',
             cursor: 'pointer',
             fontSize: 11,
             flexShrink: 0,
@@ -209,7 +209,7 @@ function BoxControl({
               <div
                 style={{
                   fontSize: 10,
-                  color: '#949494',
+                  color: 'var(--editor-text-subtle)',
                   marginBottom: 2,
                   textTransform: 'capitalize',
                 }}
@@ -260,12 +260,12 @@ function BlockStylesPanel({ def, attrs, updateAttributes }: StylesPanelProps) {
                 updateAttributes({ className: next || undefined })
               }}
               style={{
-                border: '1px solid #ddd',
+                border: '1px solid var(--editor-border)',
                 borderRadius: 2,
                 padding: '8px 6px',
                 textAlign: 'center',
-                background: isActive ? 'var(--editor-components-color-accent)' : '#fff',
-                color: isActive ? '#fff' : '#1e1e1e',
+                background: isActive ? 'var(--editor-components-color-accent)' : 'var(--editor-surface)',
+                color: isActive ? '#fff' : 'var(--editor-text)',
                 fontSize: 12,
                 fontFamily: 'var(--editor-font-family)',
                 cursor: 'pointer',
@@ -323,7 +323,7 @@ function ColorPanel({ attrs, updateAttributes, supports }: PanelCommonProps) {
                 width: 32,
                 height: 32,
                 borderRadius: 2,
-                border: '1px solid #ddd',
+                border: '1px solid var(--editor-border)',
                 cursor: 'pointer',
                 padding: 2,
               }}
@@ -356,7 +356,7 @@ function ColorPanel({ attrs, updateAttributes, supports }: PanelCommonProps) {
                 width: 32,
                 height: 32,
                 borderRadius: 2,
-                border: '1px solid #ddd',
+                border: '1px solid var(--editor-border)',
                 cursor: 'pointer',
                 padding: 2,
               }}
@@ -680,7 +680,7 @@ function BorderPanel({ attrs, updateAttributes, supports }: PanelCommonProps) {
                 width: 32,
                 height: 32,
                 borderRadius: 2,
-                border: '1px solid #ddd',
+                border: '1px solid var(--editor-border)',
                 cursor: 'pointer',
                 padding: 2,
               }}
@@ -778,7 +778,7 @@ function PositionPanel({ attrs, updateAttributes, supports }: PanelCommonProps) 
             alignItems: 'center',
             gap: 8,
             fontSize: 13,
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
             cursor: 'pointer',
           }}
         >
@@ -853,17 +853,17 @@ function AdvancedPanel({ attrs, updateAttributes, supports }: PanelCommonProps) 
             fontSize: 11,
             lineHeight: 1.5,
             padding: '6px 8px',
-            border: '1px solid #ddd',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
             resize: 'vertical',
             boxSizing: 'border-box',
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
           }}
         />
       </ControlRow>
 
       <div style={{ marginTop: 10 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: '#1e1e1e', marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--editor-text)', marginBottom: 8 }}>
           Visibility
         </div>
         {(['desktop', 'tablet', 'mobile'] as const).map((device) => {
@@ -986,7 +986,7 @@ export function BlockSidebar({ block }: BlockSidebarProps) {
         style={{
           padding: 24,
           textAlign: 'center',
-          color: '#757575',
+          color: 'var(--editor-text-muted)',
           fontSize: 13,
           fontFamily: 'var(--editor-font-family)',
         }}
@@ -1024,16 +1024,16 @@ export function BlockSidebar({ block }: BlockSidebarProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#3858e9',
+            color: 'var(--editor-components-color-accent)',
             flexShrink: 0,
           }}
         >
           {def.icon}
         </span>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e' }}>{def.title}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--editor-text)' }}>{def.title}</div>
           {def.description && (
-            <div style={{ fontSize: 11, color: '#757575', marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: 'var(--editor-text-muted)', marginTop: 2 }}>
               {def.description.slice(0, 80)}
             </div>
           )}

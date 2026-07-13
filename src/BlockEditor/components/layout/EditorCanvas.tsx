@@ -22,12 +22,16 @@ import { blocksToRawHtml } from '../../helpers/blocksToRawHtml'
 import { parseHtmlToBlocks } from '../../helpers/parseHtmlToBlocks'
 import { migrateLegacyHtmlClasses } from '../../helpers/migrateLegacyClasses'
 import { CodeMirrorEditor } from '../ui/CodeMirrorEditor'
+import { useEditorStyles } from '../../hooks/useEditorStyles'
+import { EDITOR_STYLES_SCOPE } from '../../helpers/transformEditorStyles'
+import type { EditorStyle } from '../../types'
 
 interface EditorCanvasProps {
   maxWidth?: number
+  editorStyles?: EditorStyle[]
 }
 
-export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
+export function EditorCanvas({ maxWidth, editorStyles }: EditorCanvasProps) {
   const isCodeMode = useEditorStore(s => s.isCodeMode)
   const isZoomOut = useEditorStore(s => s.isZoomOut)
   const zoomLevel = useEditorStore(s => s.zoomLevel)
@@ -40,6 +44,7 @@ export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
   const blocks = useBlocks()
   const canvasRef = useRef<HTMLDivElement>(null)
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
+  const scopedEditorCss = useEditorStyles(editorStyles, EDITOR_STYLES_SCOPE)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -205,10 +210,12 @@ export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
       >
         <div
           ref={canvasRef}
+          className="editor-styles-wrapper"
           style={{
             width: '100%',
             maxWidth: maxWidth ?? '100%',
-            backgroundColor: 'var(--editor-canvas-bg)',
+            /* Background lives in editor.css at zero specificity so a page's
+               own `body { background }` (via editorStyles) can override it. */
             boxShadow: 'var(--editor-canvas-shadow)',
             borderRadius: 2,
             minHeight: 400,
@@ -219,6 +226,9 @@ export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {scopedEditorCss ? (
+            <style data-blocura-editor-styles="">{scopedEditorCss}</style>
+          ) : null}
           <PostTitleArea />
 
           <BlockList
@@ -248,7 +258,7 @@ export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
             padding: '0 10px',
             fontSize: 'var(--editor-breadcrumb-font-size)',
             fontFamily: 'var(--editor-font-family)',
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
             gap: 6,
             zIndex: 90,
             backdropFilter: 'blur(2px)',
@@ -268,7 +278,7 @@ export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
               }}
             >
               {index > 0 && (
-                <span aria-hidden style={{ color: '#757575' }}>
+                <span aria-hidden style={{ color: 'var(--editor-text-muted)' }}>
                   /
                 </span>
               )}
@@ -292,13 +302,13 @@ export function EditorCanvas({ maxWidth }: EditorCanvasProps) {
         {activeBlock && activeDef && (
           <div
             style={{
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               boxShadow: 'var(--editor-elevation-z4)',
               borderRadius: 2,
               padding: '12px 16px',
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               opacity: 0.9,
               maxWidth: 400,
               transform: 'scale(0.95)',
@@ -336,7 +346,7 @@ function PostTitleArea() {
           fontWeight: 700,
           lineHeight: 1.3,
           fontFamily: 'var(--editor-font-family)',
-          color: '#1e1e1e',
+          color: 'var(--editor-text)',
           padding: 0,
           background: 'transparent',
           overflow: 'hidden',
@@ -421,7 +431,7 @@ function CodeEditorView({ blocks }: { blocks: Block[] }) {
             style={{
               height: 28,
               paddingInline: 12,
-              backgroundColor: '#3858e9',
+              backgroundColor: 'var(--editor-components-color-accent)',
               color: '#fff',
               border: 'none',
               borderRadius: 2,

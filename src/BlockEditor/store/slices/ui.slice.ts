@@ -50,7 +50,12 @@ export function createUISlice(
   set: (fn: (state: UISlice) => void) => void
 ): UISlice {
   return {
-    sidebarOpen: true,
+    // Start closed on narrow viewports where the sidebar would overlay
+    // (or crush) the canvas; the toolbar toggle brings it back.
+    sidebarOpen:
+      typeof window === 'undefined' ||
+      typeof window.matchMedia !== 'function' ||
+      !window.matchMedia('(max-width: 782px)').matches,
     sidebarTab: 'document',
     listViewOpen: false,
     inserterOpen: false,

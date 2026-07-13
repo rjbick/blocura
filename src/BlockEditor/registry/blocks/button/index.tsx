@@ -21,16 +21,16 @@ interface ButtonAttributes {
 
 const VARIANT_STYLES: Record<string, React.CSSProperties> = {
   fill: {
-    backgroundColor: '#3858e9',
+    backgroundColor: 'var(--editor-components-color-accent)',
     color: '#fff',
     borderWidth: 0,
   },
   outline: {
     backgroundColor: 'transparent',
-    color: '#3858e9',
+    color: 'var(--editor-components-color-accent)',
     borderWidth: 2,
     borderStyle: 'solid',
-    borderColor: '#3858e9',
+    borderColor: 'var(--editor-components-color-accent)',
   },
 }
 
@@ -164,13 +164,13 @@ function ButtonEdit({
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

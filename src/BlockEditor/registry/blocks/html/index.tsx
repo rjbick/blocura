@@ -1,10 +1,33 @@
+import { useMemo } from 'react'
 import { Code } from 'lucide-react'
 import type { BlockDefinition, BlockEditProps } from '../../../types'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
 import { CodeMirrorEditor } from '../../../components/ui/CodeMirrorEditor'
+import { scopeCss, EDITOR_STYLES_SCOPE } from '../../../helpers/transformEditorStyles'
 
 interface HtmlAttrs {
   content: string
+}
+
+const STYLE_TAG_PATTERN = /<style[^>]*>([\s\S]*?)<\/style>/gi
+
+/**
+ * Split raw HTML into its markup and its <style> contents so the preview can
+ * render styles scoped to the canvas instead of leaking them document-wide
+ * via dangerouslySetInnerHTML. The block's attributes stay untouched.
+ */
+function splitStylesFromHtml(content: string): { markup: string; css: string } {
+  if (!content || !/<style/i.test(content)) {
+    return { markup: content, css: '' }
+  }
+
+  const cssParts: string[] = []
+  const markup = content.replace(STYLE_TAG_PATTERN, (_match, body: string) => {
+    if (body.trim() !== '') cssParts.push(body)
+    return ''
+  })
+
+  return { markup, css: cssParts.join('\n\n') }
 }
 
 function HtmlEdit({
@@ -32,6 +55,11 @@ function HtmlEdit({
     [attributes.content]
   )
 
+  const preview = useMemo(() => {
+    const { markup, css } = splitStylesFromHtml(attributes.content)
+    return { markup, scopedCss: css ? scopeCss(css, EDITOR_STYLES_SCOPE) : '' }
+  }, [attributes.content])
+
   if (!isSelected) {
     return (
       <div
@@ -41,10 +69,13 @@ function HtmlEdit({
         }}
       >
         {attributes.content ? (
-          <div
-            dangerouslySetInnerHTML={{ __html: attributes.content }}
-            style={{ pointerEvents: 'none' }}
-          />
+          <>
+            {preview.scopedCss ? <style>{preview.scopedCss}</style> : null}
+            <div
+              dangerouslySetInnerHTML={{ __html: preview.markup }}
+              style={{ pointerEvents: 'none' }}
+            />
+          </>
         ) : (
           <div
             style={{
@@ -86,13 +117,13 @@ function HtmlEdit({
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorTextareaStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

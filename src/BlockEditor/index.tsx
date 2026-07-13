@@ -138,6 +138,14 @@ function EditorInner({
     }
   }, [customBlocks])
 
+  const editorStyles = useMemo(() => {
+    const styles = [...(settings?.editorStyles ?? [])]
+    if (settings?.defaultEditorStyles) {
+      styles.unshift({ css: settings.defaultEditorStyles })
+    }
+    return styles
+  }, [settings?.editorStyles, settings?.defaultEditorStyles])
+
   const buildPayload = useCallback((): SavePayload => {
     const includeTitleInContent = resolveIncludeTitleInContent(
       postSettings.includeTitleInContent,
@@ -218,7 +226,7 @@ function EditorInner({
           />
         }
         inserter={<Inserter />}
-        canvas={<EditorCanvas maxWidth={settings?.maxWidth} />}
+        canvas={<EditorCanvas maxWidth={settings?.maxWidth} editorStyles={editorStyles} />}
         sidebar={<Sidebar settings={settings} />}
         listView={<ListView />}
         snackbarList={<SnackbarList />}
@@ -247,7 +255,7 @@ export function BlockEditor({
   onSave,
   onAutoSave,
   onChange,
-  className: _className,
+  className,
   contentRef: _contentRef,
   onImageUpload,
   onSearchTerms,
@@ -309,8 +317,23 @@ export function BlockEditor({
     [] // Only create once
   )
 
+  const theme = settings?.theme ?? 'light'
+
+  // Mirror the theme on <html> so portaled UI (popovers, modals, tooltips
+  // rendered under document.body) resolves the same --editor-* variables.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-blocura-theme', theme)
+    return () => {
+      document.documentElement.removeAttribute('data-blocura-theme')
+    }
+  }, [theme])
+
   return (
-    <div className="editor-shell" style={{ width: '100%', height: '100%' }}>
+    <div
+      className={className ? `editor-shell ${className}` : 'editor-shell'}
+      data-theme={theme}
+      style={{ width: '100%', height: '100%' }}
+    >
       <EditorStoreContext.Provider value={store}>
         <EditorRuntimeContext.Provider value={runtime}>
           <LinkDialogProvider>
@@ -333,6 +356,7 @@ export function BlockEditor({
 
 export type {
   BlockEditorProps,
+  EditorStyle,
   AiAssistantContext,
   AiAssistantRequest,
   AiAssistantResponse,
@@ -349,3 +373,5 @@ export { blocksToRawHtml } from './helpers/blocksToRawHtml'
 export { collectImageAssets } from './helpers/collectImageAssets'
 export { extractTailwindSafelist } from './helpers/extractTailwindSafelist'
 export { migrateLegacyHtmlClasses, migrateLegacyBlockClasses } from './helpers/migrateLegacyClasses'
+export { scopeCss, transformEditorStyles } from './helpers/transformEditorStyles'
+export { blockIconFromName } from './helpers/blockIconFromName'

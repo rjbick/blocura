@@ -36,7 +36,7 @@ export function MoreMenu() {
     fontFamily: 'var(--editor-font-family)',
     cursor: 'pointer',
     outline: 'none',
-    color: '#1e1e1e',
+    color: 'var(--editor-text)',
     borderRadius: 0,
     userSelect: 'none' as const,
   }
@@ -45,7 +45,7 @@ export function MoreMenu() {
     padding: '6px 16px 4px',
     fontSize: 11,
     fontWeight: 600,
-    color: '#757575',
+    color: 'var(--editor-text-muted)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.06em',
   }
@@ -68,7 +68,7 @@ export function MoreMenu() {
             border: 'none',
             backgroundColor: 'transparent',
             cursor: 'pointer',
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
           }}
         >
           <MoreVertical size={24} />
@@ -102,7 +102,7 @@ export function MoreMenu() {
             </DropdownMenu.Item>
           ))}
 
-          <DropdownMenu.Separator style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+          <DropdownMenu.Separator style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
 
           {/* EDITOR */}
           <div style={labelStyle}>Editor</div>
@@ -119,7 +119,7 @@ export function MoreMenu() {
             </DropdownMenu.Item>
           ))}
 
-          <DropdownMenu.Separator style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+          <DropdownMenu.Separator style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
 
           {/* TOOLS */}
           <div style={labelStyle}>Tools</div>
@@ -148,7 +148,7 @@ export function MoreMenu() {
             <Copy size={16} /><span>Copy all content</span>
           </DropdownMenu.Item>
 
-          <DropdownMenu.Separator style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+          <DropdownMenu.Separator style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
 
           {/* SUPPORT */}
           <div style={labelStyle}>Support</div>

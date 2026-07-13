@@ -96,7 +96,7 @@ function Snackbar({ notice, onDismiss }: SnackbarProps) {
           width: 4,
           height: 4,
           borderRadius: 2,
-          backgroundColor: statusColors[notice.status] ?? '#fff',
+          backgroundColor: statusColors[notice.status] ?? 'var(--editor-surface)',
           flexShrink: 0,
         }}
       />

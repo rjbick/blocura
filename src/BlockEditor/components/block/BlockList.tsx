@@ -82,9 +82,9 @@ export function BlockList({
                 key={block.clientId}
                 style={{
                   padding: '16px',
-                  border: '1px solid #e0e0e0',
+                  border: '1px solid var(--editor-border)',
                   borderRadius: 2,
-                  color: '#757575',
+                  color: 'var(--editor-text-muted)',
                   fontSize: 13,
                   marginBottom: 4,
                 }}
@@ -141,7 +141,7 @@ export function BlockList({
               ? '2px solid var(--editor-components-color-accent)'
               : '1px dashed transparent',
             borderRadius: 2,
-            backgroundColor: isOverDropZone ? 'rgba(56,88,233,0.08)' : 'transparent',
+            backgroundColor: isOverDropZone ? 'rgba(var(--editor-components-color-accent-rgb), 0.08)' : 'transparent',
             transition: 'background-color 0.1s ease, border-color 0.1s ease',
           }}
         />

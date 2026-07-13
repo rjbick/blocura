@@ -19,9 +19,9 @@ export function TokenInput({ tokens, placeholder, onAdd, onRemove }: TokenInputP
             type="button"
             onClick={() => onRemove(token)}
             style={{
-              border: '1px solid #dcdcde',
+              border: '1px solid var(--editor-border)',
               borderRadius: 999,
-              background: '#fff',
+              background: 'var(--editor-surface)',
               padding: '2px 8px',
               fontSize: 12,
             }}
@@ -44,7 +44,7 @@ export function TokenInput({ tokens, placeholder, onAdd, onRemove }: TokenInputP
           setValue('')
         }}
         style={{
-          border: '1px solid #dcdcde',
+          border: '1px solid var(--editor-border)',
           borderRadius: 2,
           padding: '6px 8px',
           fontSize: 13,

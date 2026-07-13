@@ -227,7 +227,7 @@ function LatestCommentsEdit({
         {comments.map((comment, index) => (
           <li
             key={`${comment.author}-${index}`}
-            style={{ display: 'flex', gap: 10, alignItems: 'flex-start', color: '#1e1e1e' }}
+            style={{ display: 'flex', gap: 10, alignItems: 'flex-start', color: 'var(--editor-text)' }}
           >
             {settings.displayAvatar && (
               <img
@@ -235,7 +235,7 @@ function LatestCommentsEdit({
                 alt=""
                 width={40}
                 height={40}
-                style={{ borderRadius: '50%', border: '1px solid #dcdcde', flexShrink: 0 }}
+                style={{ borderRadius: '50%', border: '1px solid var(--editor-border)', flexShrink: 0 }}
               />
             )}
             <div style={{ minWidth: 0 }}>
@@ -246,17 +246,17 @@ function LatestCommentsEdit({
                 </a>
               </div>
               {settings.displayDate && (
-                <div style={{ fontSize: 12, color: '#757575', marginTop: 2 }}>{formatDate(comment.date)}</div>
+                <div style={{ fontSize: 12, color: 'var(--editor-text-muted)', marginTop: 2 }}>{formatDate(comment.date)}</div>
               )}
               {settings.displayExcerpt && (
-                <div style={{ fontSize: 13, color: '#50575e', marginTop: 4 }}>{comment.excerpt}</div>
+                <div style={{ fontSize: 13, color: 'var(--editor-text-muted)', marginTop: 4 }}>{comment.excerpt}</div>
               )}
             </div>
           </li>
         ))}
       </ol>
       {(isRuntimeLoading || hasRuntimeError) && (
-        <div style={{ marginTop: 10, fontSize: 11, color: '#757575' }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--editor-text-muted)' }}>
           {isRuntimeLoading
             ? 'Loading latest comments...'
             : 'Using fallback comments because live data could not be loaded.'}
@@ -268,7 +268,7 @@ function LatestCommentsEdit({
 
 const controlInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

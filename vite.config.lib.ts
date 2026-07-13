@@ -9,10 +9,16 @@ const pkg = JSON.parse(
   peerDependencies?: Record<string, string>
 }
 
-const external = [
+const externalPackages = [
   ...Object.keys(pkg.dependencies ?? {}),
   ...Object.keys(pkg.peerDependencies ?? {}),
 ]
+
+// Match subpath imports too (e.g. react-dom/server used by the icon picker),
+// but keep stylesheet imports internal so they compile into styles.css.
+const external = (id: string) =>
+  !id.endsWith('.css') &&
+  externalPackages.some((name) => id === name || id.startsWith(`${name}/`))
 
 export default defineConfig({
   plugins: [react()],

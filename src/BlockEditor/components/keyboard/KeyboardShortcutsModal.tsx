@@ -69,14 +69,14 @@ function Kbd({ children }: { children: string }) {
         minWidth: 22,
         height: 22,
         padding: '0 5px',
-        backgroundColor: '#f0f0f0',
-        border: '1px solid #ddd',
+        backgroundColor: 'var(--editor-surface-alt)',
+        border: '1px solid var(--editor-border)',
         borderBottomWidth: 2,
         borderRadius: 3,
         fontSize: 11,
         fontFamily: 'var(--editor-font-family)',
         fontWeight: 500,
-        color: '#1e1e1e',
+        color: 'var(--editor-text)',
         whiteSpace: 'nowrap',
       }}
     >
@@ -103,7 +103,7 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
     >
       <div
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--editor-surface)',
           borderRadius: 4,
           boxShadow: 'var(--editor-popover-shadow)',
           width: 560,
@@ -123,11 +123,11 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '16px 20px',
-            borderBottom: '1px solid #e0e0e0',
+            borderBottom: '1px solid var(--editor-border)',
             flexShrink: 0,
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#1e1e1e' }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--editor-text)' }}>
             Keyboard shortcuts
           </h2>
           <button
@@ -143,7 +143,7 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
               backgroundColor: 'transparent',
               cursor: 'pointer',
               borderRadius: 2,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
             }}
           >
             <X size={16} />
@@ -159,7 +159,7 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
                   padding: '12px 20px 6px',
                   fontSize: 11,
                   fontWeight: 600,
-                  color: '#757575',
+                  color: 'var(--editor-text-muted)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
                 }}
@@ -176,11 +176,11 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
                     padding: '6px 20px',
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#1e1e1e' }}>{item.description}</span>
+                  <span style={{ fontSize: 13, color: 'var(--editor-text)' }}>{item.description}</span>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                     {item.keys.map((key, i) => (
                       <span key={i} style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                        {i > 0 && <span style={{ fontSize: 10, color: '#949494' }}>+</span>}
+                        {i > 0 && <span style={{ fontSize: 10, color: 'var(--editor-text-subtle)' }}>+</span>}
                         <Kbd>{key}</Kbd>
                       </span>
                     ))}

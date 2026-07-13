@@ -6,6 +6,7 @@ import { useEditorActions } from '../../../store'
 import { BlockList } from '../../../components/block/BlockList'
 import { BlockAppender } from '../../../components/inserter/BlockAppender'
 import { useInspectorControls } from '../../../components/sidebar/InspectorControlsContext'
+import { FocalPointPicker } from '../../../components/ui/FocalPointPicker'
 
 interface FocalPoint {
   x: number
@@ -18,13 +19,22 @@ interface CoverAttributes {
   alt?: string
   dimRatio?: number
   overlayColor?: string
+  /** Full CSS gradient; when set it replaces the flat overlay color. */
+  overlayGradient?: string
   minHeight?: number
   maxHeight?: number
   isDark?: boolean
   focalPoint?: FocalPoint
+  verticalAlign?: 'top' | 'center' | 'bottom'
   align?: string
   className?: string
   anchor?: string
+}
+
+const VERTICAL_ALIGN_FLEX: Record<string, string> = {
+  top: 'flex-start',
+  center: 'center',
+  bottom: 'flex-end',
 }
 
 function CoverEdit({
@@ -96,7 +106,7 @@ function CoverEdit({
             onChange={(e) => setAttributes({ dimRatio: Number(e.target.value) })}
             style={{ width: '100%' }}
           />
-          <div style={{ fontSize: 11, color: '#757575', marginTop: 4 }}>{dimRatio}%</div>
+          <div style={{ fontSize: 11, color: 'var(--editor-text-muted)', marginTop: 4 }}>{dimRatio}%</div>
         </div>
 
         <div>
@@ -107,6 +117,39 @@ function CoverEdit({
             onChange={(e) => setAttributes({ overlayColor: e.target.value })}
             style={colorInputStyle}
           />
+        </div>
+
+        <div>
+          <div style={inspectorLabelStyle}>Overlay gradient (CSS)</div>
+          <input
+            type="text"
+            value={attributes.overlayGradient || ''}
+            onChange={(e) => setAttributes({ overlayGradient: e.target.value || undefined })}
+            placeholder="linear-gradient(to bottom, rgba(0,0,0,.5), transparent)"
+            style={inspectorInputStyle}
+          />
+          <div style={{ fontSize: 11, color: 'var(--editor-text-muted)', marginTop: 4 }}>
+            Replaces the flat overlay color when set.
+          </div>
+        </div>
+
+        <div>
+          <div style={inspectorLabelStyle}>Content vertical alignment</div>
+          <select
+            value={attributes.verticalAlign || 'center'}
+            onChange={(e) =>
+              setAttributes({
+                verticalAlign: e.target.value === 'center'
+                  ? undefined
+                  : (e.target.value as 'top' | 'bottom'),
+              })
+            }
+            style={inspectorInputStyle}
+          >
+            <option value="top">Top</option>
+            <option value="center">Center</option>
+            <option value="bottom">Bottom</option>
+          </select>
         </div>
 
         <div>
@@ -149,35 +192,13 @@ function CoverEdit({
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          <div>
-            <div style={inspectorLabelStyle}>Focal X (%)</div>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={Math.round(focal.x * 100)}
-              onChange={(e) => {
-                const next = Math.max(0, Math.min(Number(e.target.value) || 0, 100))
-                setAttributes({ focalPoint: { ...focal, x: next / 100 } })
-              }}
-              style={inspectorInputStyle}
-            />
-          </div>
-          <div>
-            <div style={inspectorLabelStyle}>Focal Y (%)</div>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={Math.round(focal.y * 100)}
-              onChange={(e) => {
-                const next = Math.max(0, Math.min(Number(e.target.value) || 0, 100))
-                setAttributes({ focalPoint: { ...focal, y: next / 100 } })
-              }}
-              style={inspectorInputStyle}
-            />
-          </div>
+        <div>
+          <div style={inspectorLabelStyle}>Focal point</div>
+          <FocalPointPicker
+            value={focal}
+            imageUrl={attributes.url || undefined}
+            onChange={(next) => setAttributes({ focalPoint: next })}
+          />
         </div>
 
         <label style={inspectorCheckboxStyle}>
@@ -195,6 +216,8 @@ function CoverEdit({
       attributes.alt,
       dimRatio,
       overlayColor,
+      attributes.overlayGradient,
+      attributes.verticalAlign,
       minHeight,
       maxHeight,
       focal.x,
@@ -257,7 +280,7 @@ function CoverEdit({
             alignItems: 'center',
             gap: 8,
             marginBottom: 14,
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
             fontWeight: 500,
           }}
         >
@@ -318,7 +341,7 @@ function CoverEdit({
           minHeight,
           maxHeight,
           display: 'flex',
-          alignItems: 'center',
+          alignItems: VERTICAL_ALIGN_FLEX[attributes.verticalAlign ?? 'center'],
           justifyContent: 'center',
           overflow: 'hidden',
           borderRadius: 2,
@@ -342,18 +365,17 @@ function CoverEdit({
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundColor: overlayColor,
-            opacity: dimRatio / 100,
+            background: attributes.overlayGradient || overlayColor,
+            opacity: attributes.overlayGradient ? 1 : dimRatio / 100,
             zIndex: 1,
           }}
         />
         <div
+          className="editor-block-cover__inner-container"
           style={{
             position: 'relative',
             zIndex: 2,
             width: '100%',
-            maxWidth: 960,
-            padding: '24px',
             color: '#fff',
           }}
         >
@@ -386,7 +408,7 @@ const primaryButtonStyle: React.CSSProperties = {
 
 const secondaryButtonStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
-  color: '#1e1e1e',
+  color: 'var(--editor-text)',
   border: '1px solid #ddd',
   borderRadius: 2,
   padding: '8px 12px',
@@ -406,13 +428,13 @@ const urlInputStyle: React.CSSProperties = {
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
@@ -422,7 +444,7 @@ const inspectorInputStyle: React.CSSProperties = {
 const colorInputStyle: React.CSSProperties = {
   width: 44,
   height: 28,
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   background: '#fff',
   padding: 2,
@@ -456,10 +478,12 @@ export const coverBlock: BlockDefinition = {
     alt: { type: 'string', default: '' },
     dimRatio: { type: 'number', default: 50 },
     overlayColor: { type: 'string', default: '#000000' },
+    overlayGradient: { type: 'string' },
     minHeight: { type: 'number', default: 320 },
     maxHeight: { type: 'number' },
     isDark: { type: 'boolean', default: true },
     focalPoint: { type: 'object', default: { x: 0.5, y: 0.5 } },
+    verticalAlign: { type: 'string' },
     align: { type: 'string', default: '' },
     className: { type: 'string', default: '' },
     anchor: { type: 'string', default: '' },
@@ -471,10 +495,12 @@ export const coverBlock: BlockDefinition = {
       alt,
       dimRatio = 50,
       overlayColor = '#000000',
+      overlayGradient,
       minHeight = 320,
       maxHeight,
       isDark = true,
       focalPoint = { x: 0.5, y: 0.5 },
+      verticalAlign,
       align,
       className,
       anchor,
@@ -490,10 +516,16 @@ export const coverBlock: BlockDefinition = {
       typeof maxHeight === 'number' && Number.isFinite(maxHeight)
         ? Math.max(maxHeight, minHeight)
         : undefined
-    const heightStyles = [`min-height:${minHeight}px`]
+    const containerStyles = [`min-height:${minHeight}px`]
     if (normalizedMaxHeight !== undefined) {
-      heightStyles.push(`max-height:${normalizedMaxHeight}px`)
+      containerStyles.push(`max-height:${normalizedMaxHeight}px`)
     }
-    return `<div class="${classes.join(' ')}"${anchorAttr} style="${heightStyles.join(';')}"><span aria-hidden="true" class="editor-block-cover__background" style="background-color:${overlayColor};opacity:${dimRatio / 100}"></span><img class="editor-block-cover__image-background" alt="${alt ?? ''}" src="${url}" style="object-position:${focalPos}" /><div class="editor-block-cover__inner-container"><!--inner--></div></div>`
+    if (verticalAlign && VERTICAL_ALIGN_FLEX[verticalAlign]) {
+      containerStyles.push(`align-items:${VERTICAL_ALIGN_FLEX[verticalAlign]}`)
+    }
+    const overlayStyle = overlayGradient
+      ? `background:${overlayGradient};opacity:1`
+      : `background-color:${overlayColor};opacity:${dimRatio / 100}`
+    return `<div class="${classes.join(' ')}"${anchorAttr} style="${containerStyles.join(';')}"><span aria-hidden="true" class="editor-block-cover__background" style="${overlayStyle}"></span><img class="editor-block-cover__image-background" alt="${alt ?? ''}" src="${url}" style="object-position:${focalPos}" /><div class="editor-block-cover__inner-container"><!--inner--></div></div>`
   },
 }

@@ -32,7 +32,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
           fontFamily: 'var(--editor-font-family)',
           fontSize: 13,
           fontWeight: 600,
-          color: '#1e1e1e',
+          color: 'var(--editor-text)',
           textAlign: 'left',
         }}
       >
@@ -51,7 +51,7 @@ function Panel({ title, children, defaultOpen = false }: PanelProps) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <span style={{ fontSize: 13, color: '#1e1e1e' }}>{label}</span>
+      <span style={{ fontSize: 13, color: 'var(--editor-text)' }}>{label}</span>
       {children}
     </div>
   )
@@ -268,10 +268,10 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               padding: '4px 8px',
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               cursor: 'pointer',
             }}
           >
@@ -291,10 +291,10 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                 width: 140,
                 fontSize: 13,
                 fontFamily: 'var(--editor-font-family)',
-                border: '1px solid #ddd',
+                border: '1px solid var(--editor-border)',
                 borderRadius: 2,
                 padding: '4px 8px',
-                backgroundColor: '#fff',
+                backgroundColor: 'var(--editor-surface)',
               }}
             />
           </Row>
@@ -309,10 +309,10 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               padding: '4px 8px',
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               cursor: 'pointer',
             }}
           >
@@ -334,23 +334,23 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                 width: 190,
                 fontSize: 12,
                 fontFamily: 'var(--editor-font-family)',
-                border: '1px solid #ddd',
+                border: '1px solid var(--editor-border)',
                 borderRadius: 2,
                 padding: '4px 8px',
-                backgroundColor: '#fff',
+                backgroundColor: 'var(--editor-surface)',
               }}
             />
           ) : (
-            <span style={{ fontSize: 13, color: '#757575' }}>Immediately</span>
+            <span style={{ fontSize: 13, color: 'var(--editor-text-muted)' }}>Immediately</span>
           )}
         </Row>
 
         <Row label="Template">
-          <span style={{ fontSize: 13, color: '#757575' }}>Single Post</span>
+          <span style={{ fontSize: 13, color: 'var(--editor-text-muted)' }}>Single Post</span>
         </Row>
         {typeof postSettings.revisionsCount === 'number' && (
           <Row label="Revisions">
-            <span style={{ fontSize: 13, color: '#757575' }}>
+            <span style={{ fontSize: 13, color: 'var(--editor-text-muted)' }}>
               {postSettings.revisionsCount}
             </span>
           </Row>
@@ -359,7 +359,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
 
       <Panel title="Permalink">
         <div style={{ marginBottom: 8 }}>
-          <label style={{ display: 'block', fontSize: 11, color: '#757575', marginBottom: 4 }}>
+          <label style={{ display: 'block', fontSize: 11, color: 'var(--editor-text-muted)', marginBottom: 4 }}>
             URL slug
           </label>
           <input
@@ -369,7 +369,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               width: '100%',
               padding: '6px 8px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
@@ -377,7 +377,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
           />
         </div>
         {postSettings.permalink && (
-          <p style={{ fontSize: 11, color: '#757575', margin: 0 }}>
+          <p style={{ fontSize: 11, color: 'var(--editor-text-muted)', margin: 0 }}>
             <a href={postSettings.permalink} target="_blank" rel="noreferrer" style={{ color: 'var(--editor-admin-theme-color)' }}>
               {postSettings.permalink}
             </a>
@@ -387,7 +387,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
 
       <Panel title="Title">
         {isBodyContentMode ? (
-          <p style={{ margin: 0, fontSize: 13, color: '#757575' }}>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--editor-text-muted)' }}>
             Body mode is enabled. Title stays in metadata and is excluded from raw HTML.
           </p>
         ) : (
@@ -413,7 +413,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               flex: 1,
               padding: '6px 8px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
@@ -426,9 +426,9 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               height: 30,
               padding: '0 10px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               fontSize: 12,
               cursor: categoryQuery.trim() ? 'pointer' : 'default',
               opacity: categoryQuery.trim() ? 1 : 0.55,
@@ -439,7 +439,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
         </div>
 
         {categoryLoading && (
-          <p style={{ fontSize: 12, color: '#757575', margin: '0 0 8px' }}>Searching…</p>
+          <p style={{ fontSize: 12, color: 'var(--editor-text-muted)', margin: '0 0 8px' }}>Searching…</p>
         )}
 
         {categorySuggestions.length > 0 && (
@@ -457,8 +457,8 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                     padding: '6px 8px',
                     border: 'none',
                     borderBottom: '1px solid #f0f0f0',
-                    backgroundColor: selected ? 'rgba(56,88,233,0.08)' : '#fff',
-                    color: selected ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+                    backgroundColor: selected ? 'rgba(var(--editor-components-color-accent-rgb), 0.08)' : 'var(--editor-surface)',
+                    color: selected ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                     fontSize: 12,
                     cursor: 'pointer',
                   }}
@@ -471,7 +471,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
         )}
 
         {postSettings.categories.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#757575', margin: 0 }}>No categories</p>
+          <p style={{ fontSize: 13, color: 'var(--editor-text-muted)', margin: 0 }}>No categories</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {postSettings.categories.map((cat) => (
@@ -487,7 +487,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                     border: 'none',
                     background: 'none',
                     padding: 0,
-                    color: '#757575',
+                    color: 'var(--editor-text-muted)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -518,7 +518,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               flex: 1,
               padding: '6px 8px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
@@ -531,9 +531,9 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               height: 30,
               padding: '0 10px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               fontSize: 12,
               cursor: tagQuery.trim() ? 'pointer' : 'default',
               opacity: tagQuery.trim() ? 1 : 0.55,
@@ -544,7 +544,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
         </div>
 
         {tagLoading && (
-          <p style={{ fontSize: 12, color: '#757575', margin: '0 0 8px' }}>Searching…</p>
+          <p style={{ fontSize: 12, color: 'var(--editor-text-muted)', margin: '0 0 8px' }}>Searching…</p>
         )}
 
         {tagSuggestions.length > 0 && (
@@ -562,8 +562,8 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                     padding: '6px 8px',
                     border: 'none',
                     borderBottom: '1px solid #f0f0f0',
-                    backgroundColor: selected ? 'rgba(56,88,233,0.08)' : '#fff',
-                    color: selected ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+                    backgroundColor: selected ? 'rgba(var(--editor-components-color-accent-rgb), 0.08)' : 'var(--editor-surface)',
+                    color: selected ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                     fontSize: 12,
                     cursor: 'pointer',
                   }}
@@ -576,7 +576,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
         )}
 
         {postSettings.tags.length === 0 ? (
-          <p style={{ fontSize: 13, color: '#757575', margin: 0 }}>No tags</p>
+          <p style={{ fontSize: 13, color: 'var(--editor-text-muted)', margin: 0 }}>No tags</p>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {postSettings.tags.map((tag) => (
@@ -586,7 +586,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 4,
-                  backgroundColor: '#f0f0f0',
+                  backgroundColor: 'var(--editor-surface-alt)',
                   borderRadius: 2,
                   padding: '2px 8px',
                   fontSize: 12,
@@ -600,7 +600,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
                     border: 'none',
                     background: 'none',
                     padding: 0,
-                    color: '#757575',
+                    color: 'var(--editor-text-muted)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -652,7 +652,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
               backgroundColor: 'transparent',
               cursor: 'pointer',
               fontSize: 13,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               fontFamily: 'var(--editor-font-family)',
             }}
           >
@@ -678,7 +678,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
           style={{
             width: '100%',
             padding: '8px',
-            border: '1px solid #ddd',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
             fontSize: 13,
             fontFamily: 'var(--editor-font-family)',
@@ -713,7 +713,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
 
       {enableCustomFields && (
         <Panel title="Custom fields">
-          <p style={{ fontSize: 12, color: '#757575', margin: '0 0 8px' }}>
+          <p style={{ fontSize: 12, color: 'var(--editor-text-muted)', margin: '0 0 8px' }}>
             Metadata is saved as a JSON object and included in save payloads.
           </p>
           <textarea
@@ -725,7 +725,7 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
             style={{
               width: '100%',
               padding: '8px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               fontSize: 12,
               lineHeight: 1.5,
@@ -741,9 +741,9 @@ export function DocumentSidebar({ settings }: DocumentSidebarProps) {
               marginTop: 8,
               height: 30,
               padding: '0 10px',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               fontSize: 12,
               cursor: 'pointer',
             }}

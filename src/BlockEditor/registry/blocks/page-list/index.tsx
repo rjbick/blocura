@@ -87,7 +87,7 @@ function PageListEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
               {page.title}
             </a>
             {settings.displayDate && (
-              <div style={{ marginTop: 2, color: '#757575', fontSize: 12 }}>{formatDate(page.date)}</div>
+              <div style={{ marginTop: 2, color: 'var(--editor-text-muted)', fontSize: 12 }}>{formatDate(page.date)}</div>
             )}
           </li>
         ))}
@@ -97,7 +97,7 @@ function PageListEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
 }
 
 const controlInputStyle: React.CSSProperties = {
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

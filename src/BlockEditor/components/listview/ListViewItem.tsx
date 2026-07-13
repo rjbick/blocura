@@ -80,7 +80,7 @@ export function ListViewItem({
           backgroundColor: isSelected
             ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)'
             : 'transparent',
-          color: isSelected ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+          color: isSelected ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
           fontSize: 13,
           opacity: isDragging ? 0.45 : 1,
           transition: 'opacity 0.1s ease',
@@ -105,7 +105,7 @@ export function ListViewItem({
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#757575',
+            color: 'var(--editor-text-muted)',
             cursor: 'grab',
             flexShrink: 0,
           }}
@@ -158,7 +158,7 @@ export function ListViewItem({
                 style={{
                   marginTop: 2,
                   fontSize: 11,
-                  color: '#757575',
+                  color: 'var(--editor-text-muted)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',

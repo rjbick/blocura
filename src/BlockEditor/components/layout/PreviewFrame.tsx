@@ -74,7 +74,7 @@ export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: Previ
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'var(--editor-surface-alt)',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -83,8 +83,8 @@ export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: Previ
       <div
         style={{
           height: 56,
-          backgroundColor: '#fff',
-          borderBottom: '1px solid #ddd',
+          backgroundColor: 'var(--editor-surface)',
+          borderBottom: '1px solid var(--editor-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -111,8 +111,8 @@ export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: Previ
                   justifyContent: 'center',
                   border: 'none',
                   borderRadius: 2,
-                  backgroundColor: active ? 'rgba(56,88,233,0.1)' : 'transparent',
-                  color: active ? '#3858e9' : '#1e1e1e',
+                  backgroundColor: active ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'transparent',
+                  color: active ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                   cursor: 'pointer',
                 }}
               >
@@ -126,7 +126,7 @@ export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: Previ
           style={{
             fontSize: 13,
             fontFamily: 'var(--editor-font-family)',
-            color: '#757575',
+            color: 'var(--editor-text-muted)',
           }}
         >
           {config.label} Preview
@@ -146,7 +146,7 @@ export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: Previ
             borderRadius: 2,
             backgroundColor: 'transparent',
             cursor: 'pointer',
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
           }}
           title="Exit preview"
         >
@@ -177,7 +177,7 @@ export function PreviewFrame({ previewSettings, previewAssetUrlResolver }: Previ
             border: config.border,
             borderRadius: config.borderRadius,
             boxShadow: config.boxShadow,
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
             flexShrink: 0,
           }}
         />

@@ -287,7 +287,7 @@ export function CommandPalette() {
           maxHeight: '60vh',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--editor-surface)',
           borderRadius: 4,
           boxShadow: '0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1)',
           zIndex: 10002,
@@ -300,12 +300,12 @@ export function CommandPalette() {
             display: 'flex',
             alignItems: 'center',
             padding: '0 12px',
-            borderBottom: '1px solid #e0e0e0',
+            borderBottom: '1px solid var(--editor-border)',
             gap: 8,
             flexShrink: 0,
           }}
         >
-          <Search size={16} style={{ color: '#757575', flexShrink: 0 }} />
+          <Search size={16} style={{ color: 'var(--editor-text-muted)', flexShrink: 0 }} />
           <input
             ref={inputRef}
             type="text"
@@ -320,7 +320,7 @@ export function CommandPalette() {
               padding: '14px 0',
               fontSize: 14,
               fontFamily: 'var(--editor-font-family)',
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               background: 'transparent',
             }}
           />
@@ -332,7 +332,7 @@ export function CommandPalette() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#757575',
+                color: 'var(--editor-text-muted)',
                 padding: 4,
                 display: 'flex',
                 flexShrink: 0,
@@ -357,7 +357,7 @@ export function CommandPalette() {
               style={{
                 padding: '24px 16px',
                 textAlign: 'center',
-                color: '#757575',
+                color: 'var(--editor-text-muted)',
                 fontSize: 13,
                 fontFamily: 'var(--editor-font-family)',
               }}
@@ -374,7 +374,7 @@ export function CommandPalette() {
                     fontWeight: 600,
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    color: '#757575',
+                    color: 'var(--editor-text-muted)',
                     fontFamily: 'var(--editor-font-family)',
                   }}
                 >
@@ -399,17 +399,17 @@ export function CommandPalette() {
                         width: '100%',
                         padding: '8px 16px',
                         border: 'none',
-                        background: isActive ? 'rgba(56,88,233,0.08)' : 'transparent',
+                        background: isActive ? 'rgba(var(--editor-components-color-accent-rgb), 0.08)' : 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
                         fontFamily: 'var(--editor-font-family)',
                         fontSize: 13,
-                        color: isActive ? '#3858e9' : '#1e1e1e',
+                        color: isActive ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                         transition: 'background-color 0.05s ease',
                       }}
                     >
                       {cmd.icon && (
-                        <span style={{ width: 20, height: 20, flexShrink: 0, color: isActive ? '#3858e9' : '#757575', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ width: 20, height: 20, flexShrink: 0, color: isActive ? 'var(--editor-components-color-accent)' : 'var(--editor-text-muted)', display: 'flex', alignItems: 'center' }}>
                           {cmd.icon}
                         </span>
                       )}

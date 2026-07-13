@@ -79,13 +79,13 @@ export function PreviewDropdown({
             display: 'flex',
             alignItems: 'center',
             gap: 4,
-            border: '1px solid #ddd',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
             fontSize: 13,
             fontFamily: 'var(--editor-font-family)',
             cursor: 'pointer',
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
           }}
         >
           <Eye size={16} />

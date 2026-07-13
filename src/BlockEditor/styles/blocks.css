@@ -7,3 +7,25 @@
 .editor-shell .editor-block iframe {
   max-width: 100%;
 }
+
+/* Cover inner-container canvas defaults. Zero specificity (:where) so a
+   page's own rules (injected via editorStyles) can resize it, keeping the
+   canvas in step with the public render. */
+:where(.editor-shell .editor-block-cover__inner-container) {
+  max-width: 960px;
+  padding: 24px;
+}
+
+/* Accordion: joined collapsible items. */
+:where(.editor-shell) .editor-block-accordion > [data-block-list] > [data-block] > .editor-block-details,
+:where(.editor-shell) .editor-block-accordion > .editor-block-details {
+  border: 1px solid var(--editor-border);
+  border-bottom-width: 0;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+:where(.editor-shell) .editor-block-accordion > [data-block-list] > [data-block]:last-of-type > .editor-block-details,
+:where(.editor-shell) .editor-block-accordion > .editor-block-details:last-child {
+  border-bottom-width: 1px;
+}

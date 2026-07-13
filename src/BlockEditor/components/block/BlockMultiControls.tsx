@@ -18,13 +18,13 @@ export function BlockMultiControls() {
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--editor-surface)',
         borderRadius: 4,
         boxShadow: 'var(--editor-popover-shadow)',
         padding: '6px 10px',
       }}
     >
-      <span style={{ fontSize: 12, color: '#757575' }}>{selectedClientIds.length} selected</span>
+      <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>{selectedClientIds.length} selected</span>
       <button
         type="button"
         onClick={() => duplicateBlock(selectedClientIds[selectedClientIds.length - 1])}

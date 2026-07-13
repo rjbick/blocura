@@ -99,12 +99,12 @@ function CategoriesEdit({
 
       {settings.displayAsDropdown ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 12, color: '#50575e' }}>Select Category</label>
+          <label style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>Select Category</label>
           <select
             value=""
             onChange={() => undefined}
             style={{
-              border: '1px solid #dcdcde',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               padding: '6px 8px',
               fontSize: 13,

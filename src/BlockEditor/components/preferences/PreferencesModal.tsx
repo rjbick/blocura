@@ -30,9 +30,9 @@ function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
       }}
     >
       <div>
-        <div style={{ fontSize: 13, color: '#1e1e1e', fontWeight: 500 }}>{label}</div>
+        <div style={{ fontSize: 13, color: 'var(--editor-text)', fontWeight: 500 }}>{label}</div>
         {description && (
-          <div style={{ fontSize: 11, color: '#757575', marginTop: 2, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 11, color: 'var(--editor-text-muted)', marginTop: 2, lineHeight: 1.4 }}>
             {description}
           </div>
         )}
@@ -52,7 +52,7 @@ function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
             position: 'absolute',
             inset: 0,
             borderRadius: 10,
-            backgroundColor: checked ? '#3858e9' : '#ccc',
+            backgroundColor: checked ? 'var(--editor-components-color-accent)' : '#ccc',
             transition: 'background-color 0.2s ease',
             cursor: 'pointer',
           }}
@@ -65,7 +65,7 @@ function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
               top: 2,
               left: checked ? 18 : 2,
               borderRadius: '50%',
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               transition: 'left 0.2s ease',
               boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
             }}
@@ -100,7 +100,7 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
     >
       <div
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--editor-surface)',
           borderRadius: 4,
           boxShadow: 'var(--editor-popover-shadow)',
           width: 480,
@@ -119,11 +119,11 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '16px 20px',
-            borderBottom: '1px solid #e0e0e0',
+            borderBottom: '1px solid var(--editor-border)',
             flexShrink: 0,
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#1e1e1e' }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--editor-text)' }}>
             Preferences
           </h2>
           <button
@@ -139,7 +139,7 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
               backgroundColor: 'transparent',
               cursor: 'pointer',
               borderRadius: 2,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
             }}
           >
             <X size={16} />
@@ -149,7 +149,7 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
         {/* Content */}
         <div style={{ overflowY: 'auto', padding: '8px 20px 20px' }}>
 
-          <div style={{ padding: '10px 0 4px', fontSize: 11, fontWeight: 600, color: '#757575', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ padding: '10px 0 4px', fontSize: 11, fontWeight: 600, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Appearance
           </div>
           <ToggleRow
@@ -165,7 +165,7 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
             onChange={toggle('showIconLabels')}
           />
 
-          <div style={{ padding: '14px 0 4px', fontSize: 11, fontWeight: 600, color: '#757575', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ padding: '14px 0 4px', fontSize: 11, fontWeight: 600, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Editor
           </div>
           <ToggleRow
@@ -193,7 +193,7 @@ export function PreferencesModal({ onClose }: PreferencesModalProps) {
             onChange={toggle('keepCaretInsideBlock')}
           />
 
-          <div style={{ padding: '14px 0 4px', fontSize: 11, fontWeight: 600, color: '#757575', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ padding: '14px 0 4px', fontSize: 11, fontWeight: 600, color: 'var(--editor-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Advanced
           </div>
           <ToggleRow

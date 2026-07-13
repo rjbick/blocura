@@ -80,10 +80,10 @@ export function BlockValidationError({ block, def }: BlockValidationErrorProps) 
           style={{ color: '#cc8f00', flexShrink: 0, marginTop: 1 }}
         />
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e', marginBottom: 4 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--editor-text)', marginBottom: 4 }}>
             This block contains unexpected or invalid content.
           </div>
-          <div style={{ fontSize: 12, color: '#757575', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: 'var(--editor-text-muted)', lineHeight: 1.5 }}>
             The editor attempted to recover, but some content may have been lost. You can
             try recovering the block, convert it to HTML, or delete it.
           </div>
@@ -96,7 +96,7 @@ export function BlockValidationError({ block, def }: BlockValidationErrorProps) 
           <summary
             style={{
               fontSize: 11,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               cursor: 'pointer',
               marginBottom: 4,
             }}
@@ -107,15 +107,15 @@ export function BlockValidationError({ block, def }: BlockValidationErrorProps) 
             style={{
               fontSize: 11,
               fontFamily: '"Courier New", monospace',
-              backgroundColor: '#f6f7f7',
-              border: '1px solid #ddd',
+              backgroundColor: 'var(--editor-surface-alt)',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               padding: '8px 10px',
               margin: '4px 0 0',
               overflowX: 'auto',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-all',
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
             }}
           >
             {block.originalContent}
@@ -174,8 +174,8 @@ function ActionButton({
         }
       : {
           backgroundColor: 'transparent',
-          color: '#1e1e1e',
-          borderColor: '#949494',
+          color: 'var(--editor-text)',
+          borderColor: 'var(--editor-text-subtle)',
         }),
   }
 

@@ -48,7 +48,7 @@ export function SidebarTabs({
               borderBottom: activeTab === tab.id
                 ? '2px solid var(--editor-components-color-accent)'
                 : '2px solid transparent',
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               fontSize: 13,
               fontWeight: activeTab === tab.id ? 600 : 400,
               fontFamily: 'inherit',
@@ -77,7 +77,7 @@ export function SidebarTabs({
           backgroundColor: 'transparent',
           borderRadius: 2,
           cursor: 'pointer',
-          color: '#757575',
+          color: 'var(--editor-text-muted)',
           flexShrink: 0,
         }}
       >

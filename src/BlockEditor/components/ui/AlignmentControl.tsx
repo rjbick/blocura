@@ -5,7 +5,7 @@ interface AlignmentControlProps {
 
 export function AlignmentControl({ value = 'left', onChange }: AlignmentControlProps) {
   return (
-    <div style={{ display: 'inline-flex', border: '1px solid #dcdcde', borderRadius: 2, overflow: 'hidden' }}>
+    <div style={{ display: 'inline-flex', border: '1px solid var(--editor-border)', borderRadius: 2, overflow: 'hidden' }}>
       {(['left', 'center', 'right'] as const).map((nextValue) => (
         <button
           key={nextValue}
@@ -13,8 +13,8 @@ export function AlignmentControl({ value = 'left', onChange }: AlignmentControlP
           onClick={() => onChange(nextValue)}
           style={{
             border: 'none',
-            backgroundColor: value === nextValue ? 'rgba(56,88,233,0.1)' : '#fff',
-            color: value === nextValue ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+            backgroundColor: value === nextValue ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'var(--editor-surface)',
+            color: value === nextValue ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
             padding: '4px 8px',
             fontSize: 12,
             textTransform: 'capitalize',

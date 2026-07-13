@@ -53,8 +53,8 @@ export function SlashSuggestions({
         maxWidth: 280,
         maxHeight: 280,
         overflowY: 'auto',
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
+        backgroundColor: 'var(--editor-surface)',
+        border: '1px solid var(--editor-border)',
         borderRadius: 4,
         boxShadow: 'var(--editor-popover-shadow)',
         padding: 4,
@@ -83,7 +83,7 @@ export function SlashSuggestions({
             cursor: 'pointer',
             fontFamily: 'var(--editor-font-family)',
             fontSize: 13,
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
           }}
         >
           <span style={{ width: 18, height: 18, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>

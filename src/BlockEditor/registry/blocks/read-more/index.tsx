@@ -94,7 +94,7 @@ function ReadMoreEdit({
         }}
       />
       {isSelected && attributes.url && (
-        <span style={{ fontSize: 12, color: '#757575' }}>{attributes.url}</span>
+        <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>{attributes.url}</span>
       )}
     </div>
   )
@@ -102,13 +102,13 @@ function ReadMoreEdit({
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

@@ -544,7 +544,22 @@ export interface EditorSettings {
   gradients: EditorGradient[];
   fontSizes: EditorFontSize[];
   fontFamilies?: EditorFontFamily[];
+  /** @deprecated Use `editorStyles` with a `{ css }` entry instead. */
   defaultEditorStyles?: string;
+  /**
+   * Page/site CSS applied inside the editing canvas. Selectors are rewritten
+   * to stay scoped under the canvas wrapper (`.editor-styles-wrapper`), so
+   * global rules (`body { ... }`, bare element selectors) style the content
+   * being edited without leaking into the editor chrome or host app.
+   */
+  editorStyles?: EditorStyle[];
+  /**
+   * Editor chrome color scheme. Sets `data-theme` on `.editor-shell`;
+   * all chrome colors resolve through `--editor-*` variables, so hosts
+   * embedding the editor in a dark admin pass `'dark'` instead of
+   * patching individual elements.
+   */
+  theme?: 'light' | 'dark';
   locale: string;
   isRTL: boolean;
   canLockBlocks: boolean;
@@ -559,6 +574,16 @@ export interface EditorSettings {
   postType?: string;
   logo?: string;
 }
+
+/**
+ * A stylesheet applied inside the editing canvas, scoped so it cannot leak
+ * into the surrounding UI. Either inline CSS (with an optional base URL for
+ * resolving relative `url()` references) or an external stylesheet URL that
+ * is fetched and transformed on load.
+ */
+export type EditorStyle =
+  | { css: string; baseURL?: string }
+  | { assetUrl: string };
 
 export interface PreviewSettings {
   /**

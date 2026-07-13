@@ -13,12 +13,12 @@ interface SelectControlProps {
 export function SelectControl({ label, value, options, onChange }: SelectControlProps) {
   return (
     <label style={{ display: 'grid', gap: 4 }}>
-      {label && <span style={{ fontSize: 12, color: '#50575e' }}>{label}</span>}
+      {label && <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>{label}</span>}
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
         style={{
-          border: '1px solid #dcdcde',
+          border: '1px solid var(--editor-border)',
           borderRadius: 2,
           padding: '6px 8px',
           fontSize: 13,

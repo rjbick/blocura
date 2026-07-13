@@ -25,7 +25,7 @@ export function BoxControl({ values, onChange }: BoxControlProps) {
           placeholder={key}
           onChange={(event) => set(key, event.target.value)}
           style={{
-            border: '1px solid #dcdcde',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
             padding: '6px 8px',
             fontSize: 13,

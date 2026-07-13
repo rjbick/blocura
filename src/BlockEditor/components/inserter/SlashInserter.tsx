@@ -131,7 +131,7 @@ export function SlashInserter({
         position: 'absolute',
         top,
         left,
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--editor-surface)',
         borderRadius: 4,
         boxShadow: 'var(--editor-popover-shadow)',
         width: 256,
@@ -152,9 +152,9 @@ export function SlashInserter({
           style={{
             display: 'flex',
             alignItems: 'center',
-            borderBottom: '1px solid #e0e0e0',
+            borderBottom: '1px solid var(--editor-border)',
             padding: '8px',
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
           }}
         >
           <input
@@ -165,7 +165,7 @@ export function SlashInserter({
             placeholder={searchPlaceholder}
             style={{
               width: '100%',
-              border: '1px solid #ddd',
+              border: '1px solid var(--editor-border)',
               borderRadius: 2,
               padding: '6px 8px',
               fontSize: 13,
@@ -188,7 +188,7 @@ export function SlashInserter({
             style={{
               padding: '10px 12px',
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               fontFamily: 'var(--editor-font-family)',
             }}
           >
@@ -211,7 +211,7 @@ export function SlashInserter({
                 width: '100%',
                 padding: '8px 12px',
                 border: 'none',
-                background: idx === activeIndex ? 'rgba(56,88,233,0.08)' : 'transparent',
+                background: idx === activeIndex ? 'rgba(var(--editor-components-color-accent-rgb), 0.08)' : 'transparent',
                 cursor: 'pointer',
                 textAlign: 'left',
                 fontFamily: 'var(--editor-font-family)',
@@ -222,7 +222,7 @@ export function SlashInserter({
                   width: 24,
                   height: 24,
                   flexShrink: 0,
-                  color: idx === activeIndex ? '#3858e9' : '#757575',
+                  color: idx === activeIndex ? 'var(--editor-components-color-accent)' : 'var(--editor-text-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -231,9 +231,9 @@ export function SlashInserter({
                 {typeof def.icon !== 'string' ? def.icon : null}
               </span>
               <div>
-                <div style={{ fontSize: 13, color: '#1e1e1e', fontWeight: 500 }}>{def.title}</div>
+                <div style={{ fontSize: 13, color: 'var(--editor-text)', fontWeight: 500 }}>{def.title}</div>
                 {def.description && (
-                  <div style={{ fontSize: 11, color: '#757575', marginTop: 1 }}>
+                  <div style={{ fontSize: 11, color: 'var(--editor-text-muted)', marginTop: 1 }}>
                     {def.description.slice(0, 60)}
                   </div>
                 )}

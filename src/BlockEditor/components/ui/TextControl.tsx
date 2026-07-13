@@ -8,7 +8,7 @@ interface TextControlProps {
 export function TextControl({ label, value, placeholder, onChange }: TextControlProps) {
   return (
     <label style={{ display: 'grid', gap: 4 }}>
-      {label && <span style={{ fontSize: 12, color: '#50575e' }}>{label}</span>}
+      {label && <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>{label}</span>}
       <input
         type="text"
         value={value}
@@ -16,7 +16,7 @@ export function TextControl({ label, value, placeholder, onChange }: TextControl
         onChange={(event) => onChange(event.target.value)}
         style={{
           width: '100%',
-          border: '1px solid #dcdcde',
+          border: '1px solid var(--editor-border)',
           borderRadius: 2,
           padding: '6px 8px',
           fontSize: 13,

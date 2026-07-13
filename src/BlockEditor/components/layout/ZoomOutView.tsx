@@ -38,17 +38,17 @@ export function ZoomOutView({ blocks, selectedClientIds, onSelectBlock }: ZoomOu
               borderRadius: 2,
               border: isSelected
                 ? '2px solid var(--editor-components-color-accent)'
-                : '1px solid #ddd',
-              backgroundColor: '#fff',
+                : '1px solid var(--editor-border)',
+              backgroundColor: 'var(--editor-surface)',
               textAlign: 'left',
               cursor: 'pointer',
               fontFamily: 'var(--editor-font-family)',
               fontSize: 12,
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
             }}
           >
             <strong style={{ display: 'block', marginBottom: 4 }}>{title}</strong>
-            <span style={{ color: '#757575' }}>{block.clientId.slice(0, 8)}</span>
+            <span style={{ color: 'var(--editor-text-muted)' }}>{block.clientId.slice(0, 8)}</span>
           </button>
         )
       })}

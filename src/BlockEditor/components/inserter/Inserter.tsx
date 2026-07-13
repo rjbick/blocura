@@ -175,7 +175,7 @@ export function Inserter() {
                 fontSize: 13,
                 fontFamily: 'inherit',
                 fontWeight: activeTab === tab ? 600 : 400,
-                color: activeTab === tab ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+                color: activeTab === tab ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                 backgroundColor: 'transparent',
                 border: 'none',
                 borderBottom: activeTab === tab
@@ -197,7 +197,7 @@ export function Inserter() {
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            backgroundColor: '#f0f0f0',
+            backgroundColor: 'var(--editor-surface-alt)',
             borderRadius: 4,
             padding: '6px 10px',
             marginBottom: 12,
@@ -215,7 +215,7 @@ export function Inserter() {
               background: 'transparent',
               fontSize: 13,
               fontFamily: 'inherit',
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               outline: 'none',
             }}
           />
@@ -247,9 +247,9 @@ export function Inserter() {
               style={{
                 padding: '4px 8px',
                 borderRadius: 999,
-                border: '1px solid #ddd',
-                backgroundColor: activeCategory === null ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : '#fff',
-                color: activeCategory === null ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+                border: '1px solid var(--editor-border)',
+                backgroundColor: activeCategory === null ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'var(--editor-surface)',
+                color: activeCategory === null ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                 fontSize: 11,
                 fontWeight: 500,
                 whiteSpace: 'nowrap',
@@ -270,9 +270,9 @@ export function Inserter() {
                   style={{
                     padding: '4px 8px',
                     borderRadius: 999,
-                    border: '1px solid #ddd',
-                    backgroundColor: isActive ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : '#fff',
-                    color: isActive ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+                    border: '1px solid var(--editor-border)',
+                    backgroundColor: isActive ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'var(--editor-surface)',
+                    color: isActive ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
                     fontSize: 11,
                     fontWeight: 500,
                     whiteSpace: 'nowrap',
@@ -289,7 +289,7 @@ export function Inserter() {
           <div
             style={{
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               marginBottom: 10,
             }}
           >
@@ -300,7 +300,7 @@ export function Inserter() {
           <div
             style={{
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               marginBottom: 10,
             }}
           >
@@ -311,7 +311,7 @@ export function Inserter() {
           <div
             style={{
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               marginBottom: 10,
             }}
           >
@@ -322,7 +322,7 @@ export function Inserter() {
           <div
             style={{
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               marginBottom: 10,
             }}
           >
@@ -333,7 +333,7 @@ export function Inserter() {
           <div
             style={{
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               marginBottom: 10,
             }}
           >
@@ -344,7 +344,7 @@ export function Inserter() {
           <div
             style={{
               fontSize: 12,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               marginBottom: 10,
             }}
           >
@@ -386,7 +386,7 @@ export function Inserter() {
                       padding: '8px 16px 4px',
                       fontSize: 11,
                       fontWeight: 600,
-                      color: '#757575',
+                      color: 'var(--editor-text-muted)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.06em',
                     }}
@@ -421,7 +421,7 @@ export function Inserter() {
                 style={{
                   padding: '32px 16px',
                   textAlign: 'center',
-                  color: '#757575',
+                  color: 'var(--editor-text-muted)',
                   fontSize: 13,
                 }}
               >
@@ -438,7 +438,7 @@ export function Inserter() {
                 style={{
                   padding: '24px 12px',
                   textAlign: 'center',
-                  color: '#757575',
+                  color: 'var(--editor-text-muted)',
                   fontSize: 13,
                 }}
               >
@@ -453,9 +453,9 @@ export function Inserter() {
                   className="inserter-pattern-card"
                   data-disabled={entry.isAllowed ? 'false' : 'true'}
                   style={{
-                    border: '1px solid #e0e0e0',
+                    border: '1px solid var(--editor-border)',
                     borderRadius: 4,
-                    backgroundColor: entry.isAllowed ? '#fff' : '#f7f7f7',
+                    backgroundColor: entry.isAllowed ? 'var(--editor-surface)' : 'var(--editor-surface-alt)',
                     textAlign: 'left',
                     padding: '10px 12px',
                     cursor: entry.isAllowed ? 'pointer' : 'not-allowed',
@@ -463,14 +463,14 @@ export function Inserter() {
                     transition: 'border-color 0.1s ease, background-color 0.1s ease',
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e' }}>{entry.pattern.title}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--editor-text)' }}>{entry.pattern.title}</div>
                   {entry.pattern.description && (
-                    <div style={{ fontSize: 12, color: '#757575', marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: 'var(--editor-text-muted)', marginTop: 4 }}>
                       {entry.pattern.description}
                     </div>
                   )}
                   {!entry.isAllowed && (
-                    <div style={{ fontSize: 11, color: '#757575', marginTop: 6 }}>
+                    <div style={{ fontSize: 11, color: 'var(--editor-text-muted)', marginTop: 6 }}>
                       Not available in this container
                     </div>
                   )}
@@ -484,7 +484,7 @@ export function Inserter() {
                         gap: 8,
                       }}
                     >
-                      <span style={{ fontSize: 11, color: '#757575' }}>Insert pattern</span>
+                      <span style={{ fontSize: 11, color: 'var(--editor-text-muted)' }}>Insert pattern</span>
                       <button
                         type="button"
                         onClick={(event) => {
@@ -493,10 +493,10 @@ export function Inserter() {
                           handleInsertSyncedPattern(entry)
                         }}
                         style={{
-                          border: '1px solid #dcdcde',
+                          border: '1px solid var(--editor-border)',
                           borderRadius: 2,
-                          backgroundColor: '#fff',
-                          color: '#1e1e1e',
+                          backgroundColor: 'var(--editor-surface)',
+                          color: 'var(--editor-text)',
                           fontSize: 11,
                           fontWeight: 600,
                           padding: '2px 8px',
@@ -548,7 +548,7 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
         padding: '12px 8px',
         borderRadius: 4,
         border: 'none',
-        backgroundColor: disabled ? '#f7f7f7' : 'transparent',
+        backgroundColor: disabled ? 'var(--editor-surface-alt)' : 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.65 : 1,
         transition: 'background-color 0.05s ease',
@@ -560,7 +560,7 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
         style={{
           fontSize: 24,
           lineHeight: 1,
-          color: disabled ? '#757575' : '#1e1e1e',
+          color: disabled ? 'var(--editor-text-muted)' : 'var(--editor-text)',
         }}
       >
         {typeof def.icon === 'string' ? def.icon : def.icon}
@@ -569,7 +569,7 @@ function BlockIcon({ def, onClick, disabled = false, onDisabledClick }: BlockIco
         className="inserter-block-icon-label"
         style={{
           fontSize: 11,
-          color: disabled ? '#757575' : '#1e1e1e',
+          color: disabled ? 'var(--editor-text-muted)' : 'var(--editor-text)',
           textAlign: 'center',
           lineHeight: 1.3,
           wordBreak: 'break-word',

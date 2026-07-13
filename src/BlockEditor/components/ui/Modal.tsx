@@ -30,7 +30,7 @@ export function Modal({ open, onOpenChange, title, children }: ModalProps) {
             width: 'min(90vw, 640px)',
             maxHeight: '85vh',
             overflow: 'auto',
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
             borderRadius: 4,
             boxShadow: 'var(--editor-popover-shadow)',
             padding: 16,

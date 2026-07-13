@@ -14,7 +14,7 @@ export function BlockDragHandle({ listeners }: BlockDragHandleProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#949494',
+        color: 'var(--editor-text-subtle)',
         cursor: 'grab',
       }}
       {...(listeners ?? {})}

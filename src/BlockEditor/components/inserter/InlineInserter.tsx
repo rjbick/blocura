@@ -86,7 +86,7 @@ export function InlineInserter({ rootClientId, index }: InlineInserterProps) {
                 width: 24,
                 height: 24,
                 borderRadius: 2,
-                backgroundColor: '#fff',
+                backgroundColor: 'var(--editor-surface)',
                 color: 'var(--editor-components-color-accent)',
                 display: 'flex',
                 alignItems: 'center',

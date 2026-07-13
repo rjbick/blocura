@@ -17,9 +17,9 @@ export function FontSizePicker({ value, options = [], onChange }: FontSizePicker
           type="button"
           onClick={() => onChange(option.value)}
           style={{
-            border: value === option.value ? '1px solid var(--editor-components-color-accent)' : '1px solid #dcdcde',
+            border: value === option.value ? '1px solid var(--editor-components-color-accent)' : '1px solid var(--editor-border)',
             borderRadius: 999,
-            backgroundColor: value === option.value ? 'rgba(56,88,233,0.08)' : '#fff',
+            backgroundColor: value === option.value ? 'rgba(var(--editor-components-color-accent-rgb), 0.08)' : 'var(--editor-surface)',
             padding: '4px 8px',
             fontSize: 12,
           }}

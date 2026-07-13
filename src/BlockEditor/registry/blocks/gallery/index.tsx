@@ -63,7 +63,7 @@ function GalleryEdit({ clientId, attributes, setAttributes, isSelected }: BlockE
           Crop images
         </label>
 
-        <div style={{ fontSize: 12, color: '#757575' }}>
+        <div style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>
           {images.length} image{images.length === 1 ? '' : 's'} in gallery
         </div>
       </div>
@@ -230,7 +230,7 @@ const primaryButtonStyle: React.CSSProperties = {
 
 const secondaryButtonStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
-  color: '#1e1e1e',
+  color: 'var(--editor-text)',
   border: '1px solid #ddd',
   borderRadius: 2,
   padding: '8px 12px',
@@ -256,13 +256,13 @@ const removeButtonStyle: React.CSSProperties = {
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

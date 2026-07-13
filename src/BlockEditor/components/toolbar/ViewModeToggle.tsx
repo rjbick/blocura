@@ -12,12 +12,12 @@ export function ViewModeToggle({ isCodeMode, onChange }: ViewModeToggleProps) {
       aria-label="Editor view"
       style={{
         display: 'flex',
-        border: '1px solid #ddd',
+        border: '1px solid var(--editor-border)',
         borderRadius: 2,
         overflow: 'hidden',
         height: 36,
         position: 'relative',
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'var(--editor-surface-alt)',
       }}
     >
       <div
@@ -28,7 +28,7 @@ export function ViewModeToggle({ isCodeMode, onChange }: ViewModeToggleProps) {
           left: 0,
           bottom: 0,
           width: '50%',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--editor-surface)',
           boxShadow: '0 0 0 1px rgba(0,0,0,0.1)',
           transform: activeMode === 'code' ? 'translateX(100%)' : 'translateX(0%)',
           transition: 'transform 0.2s ease',
@@ -54,7 +54,7 @@ export function ViewModeToggle({ isCodeMode, onChange }: ViewModeToggleProps) {
               fontSize: 13,
               fontFamily: 'var(--editor-font-family)',
               fontWeight: isActive ? 500 : 400,
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               backgroundColor: 'transparent',
               border: 'none',
               cursor: 'pointer',

@@ -138,7 +138,7 @@ export function AIAssistantPanel() {
       <div
         style={{
           width: 'min(640px, 92vw)',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--editor-surface)',
           borderRadius: 4,
           boxShadow: 'var(--editor-popover-shadow)',
           display: 'flex',
@@ -154,13 +154,13 @@ export function AIAssistantPanel() {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '16px 20px',
-            borderBottom: '1px solid #e0e0e0',
+            borderBottom: '1px solid var(--editor-border)',
             flexShrink: 0,
           }}
         >
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <Sparkles size={16} />
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#1e1e1e' }}>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--editor-text)' }}>
               Ask AI
             </h2>
           </div>
@@ -179,7 +179,7 @@ export function AIAssistantPanel() {
               backgroundColor: 'transparent',
               cursor: isSubmitting ? 'default' : 'pointer',
               borderRadius: 2,
-              color: '#757575',
+              color: 'var(--editor-text-muted)',
               opacity: isSubmitting ? 0.6 : 1,
             }}
           >
@@ -192,7 +192,7 @@ export function AIAssistantPanel() {
           style={{ padding: 20, display: 'grid', gap: 12, overflowY: 'auto' }}
         >
           <label style={{ display: 'grid', gap: 6 }}>
-            <span style={{ fontSize: 12, color: '#50575e' }}>Prompt</span>
+            <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>Prompt</span>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -201,7 +201,7 @@ export function AIAssistantPanel() {
               disabled={isSubmitting}
               style={{
                 width: '100%',
-                border: '1px solid #dcdcde',
+                border: '1px solid var(--editor-border)',
                 borderRadius: 2,
                 padding: '8px 10px',
                 fontSize: 13,
@@ -218,9 +218,9 @@ export function AIAssistantPanel() {
               style={{
                 fontSize: 12,
                 lineHeight: 1.4,
-                color: '#50575e',
-                backgroundColor: '#f6f7f7',
-                border: '1px solid #dcdcde',
+                color: 'var(--editor-text-muted)',
+                backgroundColor: 'var(--editor-surface-alt)',
+                border: '1px solid var(--editor-border)',
                 borderRadius: 2,
                 padding: '8px 10px',
               }}
@@ -245,9 +245,9 @@ export function AIAssistantPanel() {
                 height: 32,
                 padding: '0 12px',
                 borderRadius: 2,
-                border: '1px solid #dcdcde',
-                backgroundColor: '#fff',
-                color: '#1e1e1e',
+                border: '1px solid var(--editor-border)',
+                backgroundColor: 'var(--editor-surface)',
+                color: 'var(--editor-text)',
                 fontSize: 13,
                 cursor: isSubmitting ? 'default' : 'pointer',
                 opacity: isSubmitting ? 0.6 : 1,

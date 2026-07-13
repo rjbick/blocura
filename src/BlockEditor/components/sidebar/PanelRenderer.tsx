@@ -43,7 +43,7 @@ export function PanelRenderer({ block, def, attributes, updateAttributes, settin
                   padding: '12px 16px 8px',
                   fontSize: 12,
                   fontWeight: 600,
-                  color: '#1e1e1e',
+                  color: 'var(--editor-text)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
                 }}

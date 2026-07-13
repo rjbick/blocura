@@ -91,7 +91,7 @@ export function TopToolbar({
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               border: '1px solid rgba(0,0,0,0.08)',
               padding: 0,
             }}

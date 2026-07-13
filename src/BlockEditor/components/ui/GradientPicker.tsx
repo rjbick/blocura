@@ -12,7 +12,7 @@ export function GradientPicker({ value, onChange }: GradientPickerProps) {
       placeholder="linear-gradient(...)"
       style={{
         width: '100%',
-        border: '1px solid #dcdcde',
+        border: '1px solid var(--editor-border)',
         borderRadius: 2,
         padding: '6px 8px',
         fontSize: 13,

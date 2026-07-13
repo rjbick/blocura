@@ -53,10 +53,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           paddingInline: hasLabel ? 8 : 0,
           borderRadius: 2,
           color: isDisabled
-            ? 'rgba(30,30,30,0.3)'
+            ? 'var(--editor-text-disabled)'
             : isActive
             ? 'var(--editor-components-color-accent)'
-            : '#1e1e1e',
+            : 'var(--editor-text)',
           backgroundColor: isActive
             ? `rgba(var(--editor-components-color-accent-rgb), 0.1)`
             : 'transparent',

@@ -16,7 +16,7 @@ export function Popover({ trigger, children, open, onOpenChange }: PopoverProps)
         <RadixPopover.Content
           sideOffset={6}
           style={{
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
             borderRadius: 4,
             boxShadow: 'var(--editor-popover-shadow)',
             padding: 8,

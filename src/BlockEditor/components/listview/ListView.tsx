@@ -223,7 +223,7 @@ export function ListView() {
         style={{
           padding: 24,
           textAlign: 'center',
-          color: '#757575',
+          color: 'var(--editor-text-muted)',
           fontSize: 13,
           fontFamily: 'var(--editor-font-family)',
         }}
@@ -257,7 +257,7 @@ export function ListView() {
             letterSpacing: '0.06em',
             textTransform: 'uppercase',
             fontWeight: 600,
-            color: '#757575',
+            color: 'var(--editor-text-muted)',
           }}
         >
           <span>List View</span>
@@ -269,10 +269,10 @@ export function ListView() {
             width: '100%',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            border: '1px solid #dcdcde',
+            border: '1px solid var(--editor-border)',
             borderRadius: 3,
             overflow: 'hidden',
-            backgroundColor: '#f6f7f7',
+            backgroundColor: 'var(--editor-surface-alt)',
           }}
         >
           <button
@@ -285,8 +285,8 @@ export function ListView() {
               fontSize: 12,
               fontWeight: activeTab === 'list' ? 600 : 500,
               fontFamily: 'inherit',
-              color: activeTab === 'list' ? '#1e1e1e' : '#50575e',
-              backgroundColor: activeTab === 'list' ? '#fff' : 'transparent',
+              color: activeTab === 'list' ? 'var(--editor-text)' : 'var(--editor-text-muted)',
+              backgroundColor: activeTab === 'list' ? 'var(--editor-surface)' : 'transparent',
               cursor: 'pointer',
             }}
           >
@@ -299,12 +299,12 @@ export function ListView() {
             style={{
               height: 30,
               border: 'none',
-              borderLeft: '1px solid #dcdcde',
+              borderLeft: '1px solid var(--editor-border)',
               fontSize: 12,
               fontWeight: activeTab === 'outline' ? 600 : 500,
               fontFamily: 'inherit',
-              color: activeTab === 'outline' ? '#1e1e1e' : '#50575e',
-              backgroundColor: activeTab === 'outline' ? '#fff' : 'transparent',
+              color: activeTab === 'outline' ? 'var(--editor-text)' : 'var(--editor-text-muted)',
+              backgroundColor: activeTab === 'outline' ? 'var(--editor-surface)' : 'transparent',
               cursor: 'pointer',
             }}
           >

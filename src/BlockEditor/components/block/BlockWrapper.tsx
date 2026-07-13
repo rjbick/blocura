@@ -1,9 +1,10 @@
-import { memo, useCallback, useEffect, useRef, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useEditorStore, useEditorActions } from '../../store'
 import type { Block, BlockDefinition } from '../../types'
 import { applyBlockSupports } from '../../helpers/applyBlockSupports'
+import { scopeCss, EDITOR_STYLES_SCOPE } from '../../helpers/transformEditorStyles'
 import { BlockFloatingToolbar } from './BlockFloatingToolbar'
 import { BlockDragHandle } from './BlockDragHandle'
 import { BlockContextMenu } from './BlockContextMenu'
@@ -72,6 +73,20 @@ function BlockWrapperComponent({
     : block
 
   const { className: supportedClass, style: supportedStyle } = applyBlockSupports(wrapperSupportBlock, def)
+
+  // Live preview of the sidebar's per-block custom CSS. The save output emits
+  // it as `#anchor { ... }` (declarations) or raw rules; here it is scoped to
+  // this block's wrapper so it renders in-canvas without leaking.
+  const customCSS = (block.attributes as Record<string, unknown> | undefined)?.__customCSS as
+    | string
+    | undefined
+  const scopedCustomCss = useMemo(() => {
+    if (!customCSS || customCSS.trim() === '') return ''
+    const blockScope = `${EDITOR_STYLES_SCOPE} [data-block="${block.clientId}"]`
+    return customCSS.includes('{')
+      ? scopeCss(customCSS, blockScope)
+      : `${blockScope} { ${customCSS} }`
+  }, [customCSS, block.clientId])
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -146,6 +161,8 @@ function BlockWrapperComponent({
       }}
       {...sortableAttrs}
     >
+      {scopedCustomCss ? <style>{scopedCustomCss}</style> : null}
+
       {/* Block name label (shows on select) */}
       {isSelected && (
         <div
@@ -187,7 +204,7 @@ function BlockWrapperComponent({
             width: 24,
             height: 24,
             cursor: 'grab',
-            color: '#949494',
+            color: 'var(--editor-text-subtle)',
             borderRadius: 2,
             zIndex: 20,
           }}

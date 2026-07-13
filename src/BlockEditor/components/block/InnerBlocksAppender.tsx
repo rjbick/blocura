@@ -23,12 +23,12 @@ export function InnerBlocksAppender({ rootClientId }: InnerBlocksAppenderProps) 
         width: 28,
         height: 28,
         borderRadius: '50%',
-        border: '1px solid #dcdcde',
-        backgroundColor: '#fff',
+        border: '1px solid var(--editor-border)',
+        backgroundColor: 'var(--editor-surface)',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#1e1e1e',
+        color: 'var(--editor-text)',
       }}
       title="Add block"
     >

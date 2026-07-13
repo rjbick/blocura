@@ -439,7 +439,7 @@ export function FormatToolbar() {
             type="button"
             onClick={handleLinkApply}
             style={{
-              background: '#3858e9',
+              background: 'var(--editor-components-color-accent)',
               border: 'none',
               borderRadius: 2,
               color: '#fff',

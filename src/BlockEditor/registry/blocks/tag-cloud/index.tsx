@@ -111,7 +111,7 @@ function TagCloudEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
 }
 
 const controlInputStyle: React.CSSProperties = {
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

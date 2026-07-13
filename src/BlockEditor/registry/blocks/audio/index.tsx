@@ -138,7 +138,7 @@ function AudioEdit({ clientId, attributes, setAttributes, isSelected }: BlockEdi
             alignItems: 'center',
             gap: 8,
             marginBottom: 14,
-            color: '#1e1e1e',
+            color: 'var(--editor-text)',
             fontWeight: 500,
           }}
         >
@@ -251,7 +251,7 @@ const primaryButtonStyle: React.CSSProperties = {
 
 const secondaryButtonStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
-  color: '#1e1e1e',
+  color: 'var(--editor-text)',
   border: '1px solid #ddd',
   borderRadius: 2,
   padding: '8px 12px',
@@ -271,13 +271,13 @@ const urlInputStyle: React.CSSProperties = {
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

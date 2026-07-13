@@ -10,7 +10,7 @@ interface RangeControlProps {
 export function RangeControl({ label, value, min = 0, max = 100, step = 1, onChange }: RangeControlProps) {
   return (
     <label style={{ display: 'grid', gap: 6 }}>
-      {label && <span style={{ fontSize: 12, color: '#50575e' }}>{label}</span>}
+      {label && <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>{label}</span>}
       <input
         type="range"
         min={min}

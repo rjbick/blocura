@@ -64,7 +64,7 @@ function CalendarEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
       )}
 
       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-        <caption style={{ marginBottom: 8, fontSize: 13, fontWeight: 600, color: '#1e1e1e' }}>
+        <caption style={{ marginBottom: 8, fontSize: 13, fontWeight: 600, color: 'var(--editor-text)' }}>
           {settings.monthLabel}
         </caption>
         <thead>
@@ -74,7 +74,7 @@ function CalendarEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
                 key={weekday}
                 style={{
                   fontSize: 11,
-                  color: '#757575',
+                  color: 'var(--editor-text-muted)',
                   fontWeight: 500,
                   paddingBottom: 6,
                 }}
@@ -95,7 +95,7 @@ function CalendarEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
                     textAlign: 'center',
                     padding: '6px 0',
                     fontSize: 12,
-                    color: '#1e1e1e',
+                    color: 'var(--editor-text)',
                     minHeight: 28,
                   }}
                 >
@@ -122,7 +122,7 @@ function CalendarEdit({ attributes, setAttributes, isSelected }: BlockEditProps<
 }
 
 const controlInputStyle: React.CSSProperties = {
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

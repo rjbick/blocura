@@ -301,8 +301,8 @@ export function LinkDialogProvider({ children }: { children: React.ReactNode }) 
                     }}
                     style={resultButtonStyle}
                   >
-                    <div style={{ fontSize: 13, color: '#1e1e1e' }}>{page.title}</div>
-                    <div style={{ fontSize: 11, color: '#757575' }}>{page.url}</div>
+                    <div style={{ fontSize: 13, color: 'var(--editor-text)' }}>{page.title}</div>
+                    <div style={{ fontSize: 11, color: 'var(--editor-text-muted)' }}>{page.url}</div>
                   </button>
                 ))}
               </div>
@@ -369,24 +369,24 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 12,
   fontWeight: 600,
-  color: '#1e1e1e',
+  color: 'var(--editor-text)',
   marginBottom: 6,
 }
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '8px 10px',
   fontSize: 13,
   fontFamily: 'var(--editor-font-family)',
-  color: '#1e1e1e',
-  backgroundColor: '#fff',
+  color: 'var(--editor-text)',
+  backgroundColor: 'var(--editor-surface)',
 }
 
 const resultsListStyle: React.CSSProperties = {
   marginTop: 8,
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   maxHeight: 220,
   overflow: 'auto',
@@ -405,7 +405,7 @@ const resultButtonStyle: React.CSSProperties = {
 const hintStyle: React.CSSProperties = {
   padding: '8px 10px',
   fontSize: 12,
-  color: '#757575',
+  color: 'var(--editor-text-muted)',
 }
 
 const errorStyle: React.CSSProperties = {
@@ -415,10 +415,10 @@ const errorStyle: React.CSSProperties = {
 }
 
 const secondaryButtonStyle: React.CSSProperties = {
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
-  background: '#fff',
-  color: '#1e1e1e',
+  background: 'var(--editor-surface)',
+  color: 'var(--editor-text)',
   height: 32,
   padding: '0 10px',
   cursor: 'pointer',

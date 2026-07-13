@@ -7,7 +7,7 @@ export function ColorPanel({ attributes, updateAttributes }: SidebarPanelProps) 
   return (
     <div style={{ display: 'grid', gap: 10 }}>
       <label style={{ display: 'grid', gap: 4 }}>
-        <span style={{ fontSize: 12, color: '#50575e' }}>Text</span>
+        <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>Text</span>
         <input
           type="text"
           value={textColor}
@@ -15,7 +15,7 @@ export function ColorPanel({ attributes, updateAttributes }: SidebarPanelProps) 
           placeholder="#1e1e1e"
           style={{
             width: '100%',
-            border: '1px solid #dcdcde',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
             padding: '6px 8px',
             fontSize: 13,
@@ -24,7 +24,7 @@ export function ColorPanel({ attributes, updateAttributes }: SidebarPanelProps) 
         />
       </label>
       <label style={{ display: 'grid', gap: 4 }}>
-        <span style={{ fontSize: 12, color: '#50575e' }}>Background</span>
+        <span style={{ fontSize: 12, color: 'var(--editor-text-muted)' }}>Background</span>
         <input
           type="text"
           value={backgroundColor}
@@ -32,7 +32,7 @@ export function ColorPanel({ attributes, updateAttributes }: SidebarPanelProps) 
           placeholder="#ffffff"
           style={{
             width: '100%',
-            border: '1px solid #dcdcde',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
             padding: '6px 8px',
             fontSize: 13,

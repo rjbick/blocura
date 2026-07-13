@@ -1,4 +1,20 @@
-.editor-shell {
+/* Variables are also mirrored on :root (via the namespaced attribute the
+   editor maintains while mounted) so portaled UI — popovers, modals,
+   tooltips rendered under document.body — resolves them too. */
+.editor-shell,
+:root[data-blocura-theme] {
+  /* Semantic chrome colors — every hardcoded chrome color resolves through
+     these so the dark theme below can restyle the whole editor at once. */
+  --editor-text:             #1e1e1e;
+  --editor-text-muted:       #757575;
+  --editor-text-subtle:      #949494;
+  --editor-text-disabled:    rgba(30, 30, 30, 0.3);
+  --editor-surface:          #fff;
+  --editor-surface-alt:      #f6f7f7;
+  --editor-surface-inverted: #1e1e1e;
+  --editor-border:           #ddd;
+  --editor-hover-bg:         rgba(0, 0, 0, 0.04);
+
   /* Core admin theme */
   --editor-admin-theme-color:            #2271b1;
   --editor-admin-theme-color-darker-10:  #135e96;
@@ -71,10 +87,55 @@
   /* Spacing scale */
   --editor-space-1: 4px;  --editor-space-2: 8px;  --editor-space-3: 12px;
   --editor-space-4: 16px; --editor-space-6: 24px; --editor-space-8: 32px;
+}
 
+.editor-shell {
   background-color: var(--editor-editor-bg);
-  color: #1e1e1e;
+  color: var(--editor-text);
   font-family: var(--editor-font-family);
+}
+
+/* Dark chrome theme — activated via `settings.theme: 'dark'`. */
+.editor-shell[data-theme='dark'],
+:root[data-blocura-theme='dark'] {
+  --editor-text:             #e2e8f0;
+  --editor-text-muted:       #94a3b8;
+  --editor-text-subtle:      #7a8699;
+  --editor-text-disabled:    rgba(226, 232, 240, 0.3);
+  --editor-surface:          #0f172a;
+  --editor-surface-alt:      #1e293b;
+  --editor-surface-inverted: #e2e8f0;
+  --editor-border:           #334155;
+  --editor-hover-bg:         rgba(255, 255, 255, 0.06);
+
+  --editor-admin-theme-color:           #60a5fa;
+  --editor-admin-theme-color-darker-10: #3b82f6;
+  --editor-admin-theme-color-darker-20: #2563eb;
+
+  --editor-components-color-accent:           #60a5fa;
+  --editor-components-color-accent-darker-10: #3b82f6;
+  --editor-components-color-accent-inverted:  #0b1220;
+  --editor-components-color-accent-rgb:       96, 165, 250;
+
+  --editor-editor-bg:     #0b1220;
+  --editor-canvas-bg:     #111827;
+  --editor-canvas-shadow: 0 0 0 1px rgba(148, 163, 184, 0.24),
+                          0 18px 30px rgba(2, 6, 23, 0.5);
+  --editor-toolbar-bg:     #0f172a;
+  --editor-toolbar-border: 1px solid #334155;
+  --editor-sidebar-bg:     #111827;
+  --editor-sidebar-border: #334155;
+
+  --editor-popover-bg:     #0f172a;
+  --editor-popover-shadow: 0 14px 28px rgba(2, 6, 23, 0.55),
+                           0 0 0 1px rgba(71, 85, 105, 0.7);
+
+  --editor-snackbar-bg:    #0f172a;
+  --editor-snackbar-color: #e2e8f0;
+
+  --editor-breadcrumb-bg:  rgba(15, 23, 42, 0.95);
+
+  color-scheme: dark;
 }
 
 .editor-shell,
@@ -97,9 +158,29 @@
   font: inherit;
 }
 
+/* Native form controls don't inherit color; give every control inside the
+   shell a themed baseline (inline styles on specific controls still win). */
+.editor-shell select,
+.editor-shell input:not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']),
+.editor-shell textarea {
+  color: var(--editor-text);
+  background-color: var(--editor-surface);
+  border-color: var(--editor-border);
+}
+
+.editor-shell select option {
+  color: var(--editor-text);
+  background-color: var(--editor-surface);
+}
+
+.editor-shell input::placeholder,
+.editor-shell textarea::placeholder {
+  color: var(--editor-text-subtle);
+}
+
 .editor-shell .editor-dropdown-item:hover,
 .editor-shell .editor-dropdown-item[data-highlighted] {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--editor-hover-bg);
 }
 
 .editor-shell .editor-dropdown-item[data-highlighted] {
@@ -133,6 +214,13 @@
   animation: editor-tooltip-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Canvas surface. Zero specificity (:where) so scoped page styles injected
+   via settings.editorStyles — e.g. a rewritten `body { background: … }` —
+   can restyle the canvas exactly like the public page. */
+:where(.editor-shell .editor-styles-wrapper) {
+  background-color: var(--editor-canvas-bg);
+}
+
 /* ProseMirror editor base styles */
 .editor-shell .ProseMirror {
   outline: none;
@@ -149,7 +237,7 @@
 .editor-shell .ProseMirror.is-empty::before,
 .editor-shell .ProseMirror p.is-empty:first-child::before {
   content: attr(data-placeholder);
-  color: #949494;
+  color: var(--editor-text-subtle);
   pointer-events: none;
   float: left;
   height: 0;
@@ -157,7 +245,7 @@
 
 .editor-shell .ProseMirror > p:first-child:last-child:empty::before {
   content: attr(data-placeholder);
-  color: #949494;
+  color: var(--editor-text-subtle);
   pointer-events: none;
 }
 

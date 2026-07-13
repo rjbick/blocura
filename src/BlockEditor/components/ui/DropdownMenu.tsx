@@ -14,7 +14,7 @@ export function DropdownMenu({ trigger, children }: DropdownMenuProps) {
         <RadixDropdownMenu.Content
           style={{
             minWidth: 180,
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--editor-surface)',
             borderRadius: 4,
             boxShadow: 'var(--editor-popover-shadow)',
             padding: 4,

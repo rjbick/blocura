@@ -103,7 +103,7 @@ function SearchEdit({ attributes, setAttributes, isSelected }: BlockEditProps<Se
             style={{
               fontSize: 13,
               fontWeight: 500,
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               fontFamily: 'var(--editor-font-family)',
             }}
           >
@@ -138,7 +138,7 @@ function SearchEdit({ attributes, setAttributes, isSelected }: BlockEditProps<Se
 
 const controlInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

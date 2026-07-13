@@ -172,7 +172,7 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
           <Rss size={18} />
           <strong style={{ fontSize: 14 }}>RSS</strong>
         </div>
-        <div style={{ fontSize: 13, color: '#50575e', marginBottom: 10 }}>
+        <div style={{ fontSize: 13, color: 'var(--editor-text-muted)', marginBottom: 10 }}>
           Enter a feed URL to display recent entries.
         </div>
         <input
@@ -257,7 +257,7 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
         </div>
       )}
 
-      <div style={{ fontSize: 12, color: '#757575', marginBottom: 8 }}>
+      <div style={{ fontSize: 12, color: 'var(--editor-text-muted)', marginBottom: 8 }}>
         Source: {runtimeFeed?.sourceLabel || getFeedLabel(settings.feedURL)}
       </div>
       <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -267,20 +267,20 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
               {item.title}
             </a>
             {(settings.displayAuthor || settings.displayDate) && (
-              <div style={{ marginTop: 2, color: '#757575', fontSize: 12 }}>
+              <div style={{ marginTop: 2, color: 'var(--editor-text-muted)', fontSize: 12 }}>
                 {settings.displayAuthor ? item.author : ''}
                 {settings.displayAuthor && settings.displayDate ? ' · ' : ''}
                 {settings.displayDate ? formatDate(item.date) : ''}
               </div>
             )}
             {settings.displayExcerpt && (
-              <div style={{ marginTop: 3, color: '#50575e', fontSize: 13 }}>{item.excerpt}</div>
+              <div style={{ marginTop: 3, color: 'var(--editor-text-muted)', fontSize: 13 }}>{item.excerpt}</div>
             )}
           </li>
         ))}
       </ul>
       {(isRuntimeLoading || hasRuntimeError) && (
-        <div style={{ marginTop: 10, fontSize: 11, color: '#757575' }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--editor-text-muted)' }}>
           {isRuntimeLoading
             ? 'Loading RSS feed...'
             : 'Using fallback feed preview because live data could not be loaded.'}
@@ -292,7 +292,7 @@ function RSSEdit({ attributes, setAttributes, isSelected }: BlockEditProps<RSSAt
 
 const controlInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

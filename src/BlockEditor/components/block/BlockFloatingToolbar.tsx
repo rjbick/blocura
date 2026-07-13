@@ -95,19 +95,19 @@ let copiedStyles: StyleClipboard | null = null
 const dividerStyle: React.CSSProperties = {
   width: 1,
   height: 24,
-  backgroundColor: '#e0e0e0',
+  backgroundColor: 'var(--editor-border)',
   margin: '0 4px',
 }
 
 const compactSelectStyle: React.CSSProperties = {
   height: 30,
-  border: '1px solid #ddd',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '0 6px',
   fontSize: 12,
   fontFamily: 'var(--editor-font-family)',
-  background: '#fff',
-  color: '#1e1e1e',
+  background: 'var(--editor-surface)',
+  color: 'var(--editor-text)',
   cursor: 'pointer',
 }
 
@@ -122,7 +122,7 @@ const menuItemStyle: React.CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'var(--editor-font-family)',
   fontSize: 13,
-  color: '#1e1e1e',
+  color: 'var(--editor-text)',
   textAlign: 'left',
 }
 
@@ -130,7 +130,7 @@ const menuSectionLabelStyle: React.CSSProperties = {
   padding: '6px 12px 4px',
   fontSize: 11,
   fontWeight: 600,
-  color: '#757575',
+  color: 'var(--editor-text-muted)',
   textTransform: 'uppercase',
   letterSpacing: '0.04em',
 }
@@ -772,7 +772,7 @@ export function BlockFloatingToolbar({
 
   const getMenuButtonStyle = (options?: { danger?: boolean; disabled?: boolean }): React.CSSProperties => ({
     ...menuItemStyle,
-    color: options?.danger ? '#b32d2e' : '#1e1e1e',
+    color: options?.danger ? '#b32d2e' : 'var(--editor-text)',
     opacity: options?.disabled ? 0.45 : 1,
     cursor: options?.disabled ? 'default' : 'pointer',
   })
@@ -1025,7 +1025,7 @@ export function BlockFloatingToolbar({
           zIndex: variant === 'fixed' ? 120 : 20,
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--editor-surface)',
           borderRadius: 2,
           boxShadow: 'var(--editor-popover-shadow)',
           padding: '0 4px',
@@ -1049,12 +1049,12 @@ export function BlockFloatingToolbar({
             height: 40,
             padding: '0 8px',
             border: 'none',
-            borderRight: '1px solid #e0e0e0',
+            borderRight: '1px solid var(--editor-border)',
             background: 'transparent',
             cursor: transformTargets.length > 0 ? 'pointer' : 'default',
             fontFamily: 'var(--editor-font-family)',
             fontSize: 11,
-            color: '#757575',
+            color: 'var(--editor-text-muted)',
           }}
         >
           {def.title}
@@ -1070,7 +1070,7 @@ export function BlockFloatingToolbar({
               top: '100%',
               left: 0,
               marginTop: 4,
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               borderRadius: 4,
               boxShadow: 'var(--editor-popover-shadow)',
               minWidth: 160,
@@ -1095,11 +1095,11 @@ export function BlockFloatingToolbar({
                   cursor: 'pointer',
                   fontFamily: 'var(--editor-font-family)',
                   fontSize: 13,
-                  color: '#1e1e1e',
+                  color: 'var(--editor-text)',
                   textAlign: 'left',
                 }}
               >
-                <span style={{ width: 20, height: 20, flexShrink: 0, color: '#757575', display: 'flex', alignItems: 'center' }}>
+                <span style={{ width: 20, height: 20, flexShrink: 0, color: 'var(--editor-text-muted)', display: 'flex', alignItems: 'center' }}>
                   {typeof targetDef.icon !== 'string' ? targetDef.icon : null}
                 </span>
                 {targetDef.title}
@@ -1143,8 +1143,8 @@ export function BlockFloatingToolbar({
             minWidth: 36,
             border: 'none',
             borderRadius: 2,
-            background: optionsOpen ? 'rgba(56,88,233,0.1)' : 'transparent',
-            color: optionsOpen ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+            background: optionsOpen ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'transparent',
+            color: optionsOpen ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1166,7 +1166,7 @@ export function BlockFloatingToolbar({
               right: 0,
               marginTop: 4,
               minWidth: 210,
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--editor-surface)',
               borderRadius: 4,
               boxShadow: 'var(--editor-popover-shadow)',
               padding: '4px 0',
@@ -1200,7 +1200,7 @@ export function BlockFloatingToolbar({
               <span>Insert after</span>
             </button>
 
-            <div style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+            <div style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
             <div style={menuSectionLabelStyle}>Styles</div>
             <button
               type="button"
@@ -1235,7 +1235,7 @@ export function BlockFloatingToolbar({
               <span>Reset styles</span>
             </button>
 
-            <div style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+            <div style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
             <div style={menuSectionLabelStyle}>Move</div>
             <button
               type="button"
@@ -1308,7 +1308,7 @@ export function BlockFloatingToolbar({
               <span>Move to…</span>
             </button>
 
-            <div style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+            <div style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
             <div style={menuSectionLabelStyle}>Actions</div>
             <button
               type="button"
@@ -1393,7 +1393,7 @@ export function BlockFloatingToolbar({
 
             {typeof syncedPatternId === 'string' && syncedPatternId.length > 0 && (
               <>
-                <div style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+                <div style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
                 <div style={menuSectionLabelStyle}>Synced pattern</div>
                 <button
                   type="button"
@@ -1423,7 +1423,7 @@ export function BlockFloatingToolbar({
               </>
             )}
 
-            <div style={{ height: 1, backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+            <div style={{ height: 1, backgroundColor: 'var(--editor-border)', margin: '4px 0' }} />
             <div style={menuSectionLabelStyle}>Settings</div>
             <button
               type="button"

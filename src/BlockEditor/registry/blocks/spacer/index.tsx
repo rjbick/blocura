@@ -59,7 +59,7 @@ function SpacerEdit({ clientId, attributes, setAttributes, isSelected }: BlockEd
       }}
     >
       {isSelected && (
-        <div style={{ color: '#949494', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <div style={{ color: 'var(--editor-text-subtle)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <GripHorizontal size={16} />
           <span style={{ fontSize: 11, fontFamily: 'var(--editor-font-family)' }}>
             {height}
@@ -98,13 +98,13 @@ export const spacerBlock: BlockDefinition = {
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

@@ -1,6 +1,28 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEditorStore, useEditorActions } from '../../store'
+
+export const NARROW_VIEWPORT_QUERY = '(max-width: 782px)'
+
+const supportsMatchMedia = () =>
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+
+/** Below this width side panels overlay the canvas instead of squeezing it. */
+function useIsNarrowViewport(): boolean {
+  const [isNarrow, setIsNarrow] = useState(
+    () => supportsMatchMedia() && window.matchMedia(NARROW_VIEWPORT_QUERY).matches
+  )
+
+  useEffect(() => {
+    if (!supportsMatchMedia()) return
+    const mq = window.matchMedia(NARROW_VIEWPORT_QUERY)
+    const onChange = () => setIsNarrow(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  return isNarrow
+}
 
 interface EditorLayoutProps {
   toolbar: ReactNode
@@ -28,6 +50,9 @@ export function EditorLayout({
   const isFullscreen = useEditorStore(s => s.isFullscreen)
   const isDistractionFree = useEditorStore(s => s.isDistractionFree)
   const { toggleDistractionFree } = useEditorActions()
+  const isNarrow = useIsNarrowViewport()
+  const panelWidth = isNarrow ? `min(${LEFT_PANEL_WIDTH}px, calc(100vw - 48px))` : LEFT_PANEL_WIDTH
+  const overlayShadow = isNarrow ? '0 0 24px rgba(0, 0, 0, 0.35)' : undefined
   const effectiveSidebarOpen = !isDistractionFree && sidebarOpen
   const effectiveInserterOpen = !isDistractionFree && inserterOpen
   const effectiveListViewOpen = !isDistractionFree && listViewOpen
@@ -66,7 +91,7 @@ export function EditorLayout({
               borderRadius: 2,
               border: '1px solid rgba(0,0,0,0.15)',
               backgroundColor: 'rgba(255,255,255,0.92)',
-              color: '#1e1e1e',
+              color: 'var(--editor-text)',
               fontSize: 11,
               fontWeight: 500,
               fontFamily: 'var(--editor-font-family)',
@@ -92,7 +117,7 @@ export function EditorLayout({
               exit={{ x: -LEFT_PANEL_WIDTH, opacity: 0 }}
               transition={PANEL_SPRING}
               style={{
-                width: LEFT_PANEL_WIDTH,
+                width: panelWidth,
                 height: '100%',
                 position: 'absolute',
                 left: 0,
@@ -100,7 +125,7 @@ export function EditorLayout({
                 zIndex: 50,
                 backgroundColor: 'var(--editor-sidebar-bg)',
                 borderRight: '1px solid var(--editor-sidebar-border)',
-                boxShadow: '2px 0 8px rgba(0,0,0,0.08)',
+                boxShadow: overlayShadow ?? '2px 0 8px rgba(0,0,0,0.08)',
                 overflow: 'auto',
               }}
             >
@@ -119,14 +144,15 @@ export function EditorLayout({
               exit={{ x: -LEFT_PANEL_WIDTH, opacity: 0 }}
               transition={PANEL_SPRING}
               style={{
-                width: LEFT_PANEL_WIDTH,
+                width: panelWidth,
                 height: '100%',
                 position: 'absolute',
-                left: effectiveInserterOpen ? LEFT_PANEL_WIDTH : 0,
+                left: !isNarrow && effectiveInserterOpen ? LEFT_PANEL_WIDTH : 0,
                 top: 0,
                 zIndex: 49,
                 backgroundColor: 'var(--editor-sidebar-bg)',
                 borderRight: '1px solid var(--editor-sidebar-border)',
+                boxShadow: overlayShadow,
                 overflow: 'auto',
               }}
             >
@@ -140,12 +166,14 @@ export function EditorLayout({
           style={{
             flex: 1,
             overflow: 'auto',
-            marginLeft: effectiveInserterOpen || effectiveListViewOpen
+            /* On narrow viewports the panels overlay the canvas instead of
+               squeezing it into an unusable sliver. */
+            marginLeft: !isNarrow && (effectiveInserterOpen || effectiveListViewOpen)
               ? (effectiveInserterOpen && effectiveListViewOpen
                 ? LEFT_PANEL_WIDTH * 2
                 : LEFT_PANEL_WIDTH)
               : 0,
-              marginRight: effectiveSidebarOpen ? 280 : 0,
+            marginRight: !isNarrow && effectiveSidebarOpen ? 280 : 0,
             transition: 'margin 0.3s ease',
           }}
         >
@@ -162,7 +190,7 @@ export function EditorLayout({
               exit={{ x: 280, opacity: 0 }}
               transition={PANEL_SPRING}
               style={{
-                width: 280,
+                width: isNarrow ? `min(280px, calc(100vw - 48px))` : 280,
                 height: '100%',
                 position: 'absolute',
                 right: 0,
@@ -170,6 +198,7 @@ export function EditorLayout({
                 zIndex: 50,
                 backgroundColor: 'var(--editor-sidebar-bg)',
                 borderLeft: '1px solid var(--editor-sidebar-border)',
+                boxShadow: overlayShadow,
                 overflow: 'auto',
               }}
             >

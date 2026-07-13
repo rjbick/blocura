@@ -12,12 +12,12 @@ export function BlockAlignmentControl({ value = 'left', onChange }: BlockAlignme
           type="button"
           onClick={() => onChange(option)}
           style={{
-            border: '1px solid #dcdcde',
+            border: '1px solid var(--editor-border)',
             borderRadius: 2,
             padding: '4px 8px',
             fontSize: 11,
-            backgroundColor: value === option ? 'rgba(56,88,233,0.1)' : '#fff',
-            color: value === option ? 'var(--editor-components-color-accent)' : '#1e1e1e',
+            backgroundColor: value === option ? 'rgba(var(--editor-components-color-accent-rgb), 0.1)' : 'var(--editor-surface)',
+            color: value === option ? 'var(--editor-components-color-accent)' : 'var(--editor-text)',
             textTransform: 'capitalize',
           }}
         >

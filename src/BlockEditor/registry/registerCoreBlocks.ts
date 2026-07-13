@@ -20,6 +20,10 @@ import { pullquoteBlock } from './blocks/pullquote'
 import { verseBlock } from './blocks/verse'
 import { tableBlock } from './blocks/table'
 import { htmlBlock } from './blocks/html'
+import { iconBlock } from './blocks/icon'
+import { gridBlock } from './blocks/grid'
+import { mapBlock } from './blocks/map'
+import { accordionBlock } from './blocks/accordion'
 import { shortcodeBlock } from './blocks/shortcode'
 import { classicBlock } from './blocks/classic'
 import { searchBlock } from './blocks/search'
@@ -87,6 +91,10 @@ export function registerCoreBlocks() {
 
   // Widgets
   BlockRegistry.register(htmlBlock)
+  BlockRegistry.register(iconBlock)
+  BlockRegistry.register(gridBlock)
+  BlockRegistry.register(mapBlock)
+  BlockRegistry.register(accordionBlock)
   BlockRegistry.register(shortcodeBlock)
   BlockRegistry.register(classicBlock)
   BlockRegistry.register(searchBlock)

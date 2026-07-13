@@ -41,7 +41,7 @@ function CodeEdit({ clientId, attributes, setAttributes }: BlockEditProps<CodeAt
         fontSize: 13,
         lineHeight: 1.6,
         fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace',
-        color: '#1e1e1e',
+        color: 'var(--editor-text)',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-all',
       }}
@@ -61,13 +61,13 @@ function CodeEdit({ clientId, attributes, setAttributes }: BlockEditProps<CodeAt
 
 const inspectorLabelStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#50575e',
+  color: 'var(--editor-text-muted)',
   marginBottom: 4,
 }
 
 const inspectorTextareaStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,

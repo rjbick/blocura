@@ -247,17 +247,17 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
         }}
       >
         {posts.map((post) => (
-          <li key={post.url} style={{ color: '#1e1e1e' }}>
+          <li key={post.url} style={{ color: 'var(--editor-text)' }}>
             <a href={post.url} style={{ color: 'var(--editor-components-color-accent)', textDecoration: 'none' }}>
               {post.title}
             </a>
             {settings.displayPostDate && (
-              <div style={{ marginTop: 2, color: '#757575', fontSize: 12 }}>
+              <div style={{ marginTop: 2, color: 'var(--editor-text-muted)', fontSize: 12 }}>
                 {formatDate(post.date)}
               </div>
             )}
             {settings.displayExcerpt && (
-              <div style={{ marginTop: 3, color: '#50575e', fontSize: 13 }}>
+              <div style={{ marginTop: 3, color: 'var(--editor-text-muted)', fontSize: 13 }}>
                 {trimWords(post.excerpt, settings.excerptLength)}
               </div>
             )}
@@ -265,7 +265,7 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
         ))}
       </ul>
       {(isRuntimeLoading || hasRuntimeError) && (
-        <div style={{ marginTop: 10, fontSize: 11, color: '#757575' }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--editor-text-muted)' }}>
           {isRuntimeLoading
             ? 'Loading recent posts...'
             : 'Using fallback post previews because live data could not be loaded.'}
@@ -277,7 +277,7 @@ function LatestPostsEdit({ attributes, setAttributes, isSelected }: BlockEditPro
 
 const controlInputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid #dcdcde',
+  border: '1px solid var(--editor-border)',
   borderRadius: 2,
   padding: '6px 8px',
   fontSize: 13,
